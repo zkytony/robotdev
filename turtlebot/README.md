@@ -86,3 +86,5 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
    while activated in turtlebot virtualenv, the output of `execute_process` makes sense
    (the `RESULT_VARIABLE` equals to 0 and `OUTPUT_VARIABLE` equals to the path
    to the `em` path under the virtualenv.
+
+  **THIS MAKES NO SENSE TO ME.** It is not about quotation.
