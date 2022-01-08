@@ -55,3 +55,6 @@ tmp/
 assets/aruco/
 maps/useless/
 *.xcf
+
+# file to indicate you have setup MOVO development environment
+movo/src/kinova-movo/DONE_SETUP
