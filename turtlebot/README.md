@@ -332,5 +332,95 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
  This is finally resolved! Lessons:
 
  - It's ok to use virtualenv
- - clean up build/
+ - clean up build/ (and possibly devel/). This should clear up any pre-existing CMake environment variables.
  - adding message in cmake files is a good way to debug.
+
+
+### ImportError: "from catkin_pkg.package import parse_package" failed: No module named 'catkin_pkg'
+
+This happens when both building using `/usr/local/bin/python3` as well as
+using a virtualenv's python.
+
+As suggested in [this ROS Answers post](https://answers.ros.org/question/337135/catkin_make-no-module-named-catkin_pkg/?answer=337155#post-id-337155),
+this error means you have not installed `catkin_pkg`. You can install it with
+```
+sudo apt install python3-catkin-pkg
+```
+or install the [PYPI](https://pypi.org/project/catkin-pkg/) version:
+```
+pip install catkin-pkg
+```
+I did the latter while activating the `(tmp)` virtualenv (this is still part of
+testing if basic `catkin_make ` works). This error is resolved afterwards.
+However, I see a new error:
+
+#### Can't find __main__ module in ... `/em`
+```
+/home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3: can't find '__main__' module in '/home/kaiyu/repo/rob
+otdev/tmp/venv/tmp/lib/python3.8/site-packages/em'
+```
+It's again related to em!
+
+GEEZ! I did
+```
+pip uninstall em
+pip install empy
+```
+and it worked (inside the virtualenv)!
+
+The full output of a successful `catkin_make` build:
+```
+(tmp) kaiyu@zephyr:~/repo/robotdev/tmp$ catkin_make
+Base path: /home/kaiyu/repo/robotdev/tmp
+Source space: /home/kaiyu/repo/robotdev/tmp/src
+Build space: /home/kaiyu/repo/robotdev/tmp/build
+Devel space: /home/kaiyu/repo/robotdev/tmp/devel
+Install space: /home/kaiyu/repo/robotdev/tmp/install
+####
+#### Running command: "cmake /home/kaiyu/repo/robotdev/tmp/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/tmp/devel -DCMAKE_INSTALL_PREFIX=/home/kaiyu/repo/robotdev/tmp/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/tmp/build"
+####
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/tmp/devel
+-- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+-- This workspace overlays: /opt/ros/noetic
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+-- Using PYTHON_EXECUTABLE: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+-- Using Debian Python package layout
+-- MSG: python executable: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+-- MSG: module: em
+-- MSG: execute_process: RESULT_VARIABLE: 0
+-- MSG: execute_process: OUTPUT_VARIABLE: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packages/em.py
+-- Found PY_em: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packages/em.py
+-- Using empy: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /home/kaiyu/repo/robotdev/tmp/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3 (found version "3.8.10")
+-- Found Threads: TRUE
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/kaiyu/repo/robotdev/tmp/build
+####
+#### Running command: "make -j12 -l12" in "/home/kaiyu/repo/robotdev/tmp/build"
+####
+```
