@@ -72,3 +72,17 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
    $ python -c "import re, em; print(re.compile ('/__init__.py.*').sub('',em.__file__))"
    /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/lib/python3.8/site-packages/em
    ```
+
+6. I stumbled upon [this Stackoverflow](https://stackoverflow.com/questions/6797395/cmake-execute-process-always-fails-with-no-such-file-or-directory-when-i-cal)
+   and it seems like `execute_process` outputting `No such file or directory`
+   is a sign that the arguments passed into `executable_process` is wrong.
+   In fact `No such file or directory` means that the executable binary
+   itself does not exist (in my case) [[ref](https://unix.stackexchange.com/questions/413642/running-executable-file-no-such-file-or-directory#:~:text=No%20such%20file%20or%20directory%22%20means%20that%20either%20the%20executable,also%20need%20other%20libraries%20themselves.&text=then%20the%20problem%20can%20be,in%20the%20library%20search%20path.)].
+
+7. Then I discovered that if I change the cmake command to:
+   ```
+   execute_process(python ...)
+   ```
+   while activated in turtlebot virtualenv, the output of `execute_process` makes sense
+   (the `RESULT_VARIABLE` equals to 0 and `OUTPUT_VARIABLE` equals to the path
+   to the `em` path under the virtualenv.
