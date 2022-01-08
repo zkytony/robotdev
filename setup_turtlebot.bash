@@ -11,9 +11,9 @@ function build_turtlebot
     cd $repo_root/turtlebot
     if catkin_make; then
         # cmake build is successful. Mark
-        echo "TURTLEBOT PC SETUP DONE." >> turtlebot3_simulations/DONE_SETUP
+        echo "TURTLEBOT PC SETUP DONE." >> src/turtlebot3_simulations/DONE_SETUP
     else
-        rm turtlebot3_simulations/DONE_SETUP
+        rm src/turtlebot3_simulations/DONE_SETUP
     fi
 }
 
