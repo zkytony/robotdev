@@ -424,3 +424,6 @@ Install space: /home/kaiyu/repo/robotdev/tmp/install
 #### Running command: "make -j12 -l12" in "/home/kaiyu/repo/robotdev/tmp/build"
 ####
 ```
+
+Applied what I learned here to build the turtlebot workspace
+and I was able to move past the same errors!

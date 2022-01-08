@@ -9,9 +9,11 @@ repo_root=$PWD
 function build_turtlebot
 {
     cd $repo_root/turtlebot
-    if catkin_make -DPYTHON_EXECUTABLE=$repo_root/turtlebot/venv/bin/python3; then
+    if catkin_make; then
         # cmake build is successful. Mark
         echo "TURTLEBOT PC SETUP DONE." >> turtlebot3_simulations/DONE_SETUP
+    else
+        rm turtlebot3_simulations/DONE_SETUP
     fi
 }
 
@@ -22,7 +24,7 @@ function first_time_build
         true && return
     else
         false
-    fid
+    fi
 }
 
 # use ros
@@ -49,7 +51,9 @@ fi
 source turtlebot/venv/turtlebot/bin/activate
 
 if first_time_build; then
+    pip uninstall em
     pip install empy
+    pip install catkin-pkg
 fi
 
 # Follow the instructions here: https://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/
@@ -65,3 +69,4 @@ if first_time_build; then
 else
     echo -e "If you want to build the turtlebot project, run 'build_turtlebot'"
 fi
+cd $repo_root
