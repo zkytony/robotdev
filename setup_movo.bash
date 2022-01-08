@@ -7,7 +7,7 @@ fi
 
 # Creates movo workspace.
 # create the movo workspace directory
-if [ ! -d "movo" ]; then
+if [ ! -d "movo/src" ]; then
     mkdir -p movo/src
 fi
 # create a dedicated virtualenv for movo workspace
