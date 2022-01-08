@@ -4,6 +4,7 @@ if [[ ! $PWD = *robotdev ]]; then
 else
     . "./tools.sh"
 fi
+repo_root=$PWD
 
 # Creates movo workspace.
 # create the movo workspace directory
@@ -37,6 +38,7 @@ if [ ! -e "movo/src/kinova-movo/DONE_SETUP" ]; then
         echo "MOVO PC SETUP DONE." >> movo/kinova-movo/DONE_SETUP
         echo -e "Setup done."
         echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
+        cd $repo_root
     fi
 fi
 

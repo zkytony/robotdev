@@ -58,3 +58,5 @@ maps/useless/
 
 # file to indicate you have setup MOVO development environment
 movo/src/kinova-movo/DONE_SETUP
+
+*/venv/*

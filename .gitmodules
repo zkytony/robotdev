@@ -1,0 +1,3 @@
+[submodule "turtlebot/src/turtlebot3_simulations"]
+	path = turtlebot/src/turtlebot3_simulations
+	url = https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
