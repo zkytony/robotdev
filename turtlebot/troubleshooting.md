@@ -542,3 +542,19 @@ Install space: /home/kaiyu/repo/robotdev/turtlebot/install
 [ 50%] Built target turtlebot3_fake_node
 [100%] Built target turtlebot3_drive
 ```
+
+## roslaunch autocompletion cannot find turtlebot3-simulation's packages
+
+I wanted to run the command
+```
+roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+```
+Although `turtlebot3_gazebo` is present in `turtlebot3-simulation`, autocompletion
+does not find it.
+
+I stumbled upon [this answer](https://answers.ros.org/question/171266/roslaunch-cannot-find-package/?answer=171276#post-id-171276)
+that mentioned this is because you have a problem with your `ROS_PACKAGE_PATH`.
+I then found on [ROS Wiki](http://wiki.ros.org/ROS/EnvironmentVariables) that:
+>  the `ROS_ROOT` and `ROS_PACKAGE_PATH` enable ROS to locate packages and stacks in the filesystem. You must also set the PYTHONPATH so that the Python interpreter can find ROS libraries.
+Note that by default (even in virtualenv), `PYTHONPATH` is empty (that doesn't mean
+Python has nowhere to look for packages. Check out [this post](https://stackoverflow.com/questions/20966157/pythonpath-showing-empty-in-ubuntu-13-04)).
