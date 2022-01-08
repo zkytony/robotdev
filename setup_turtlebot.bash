@@ -9,7 +9,7 @@ repo_root=$PWD
 function build_turtlebot
 {
     cd $repo_root/turtlebot
-    if catkin_make; then
+    if catkin_make -DPYTHON_EXECUTABLE=$repo_root/turtlebot/venv/bin/python3; then
         # cmake build is successful. Mark
         echo "TURTLEBOT PC SETUP DONE." >> turtlebot3_simulations/DONE_SETUP
     fi
@@ -22,7 +22,7 @@ function first_time_build
         true && return
     else
         false
-    fi
+    fid
 }
 
 # use ros
