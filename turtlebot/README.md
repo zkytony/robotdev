@@ -52,14 +52,14 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
     message(STATUS "MSG: execute_process: OUTPUT_VARIABLE: ${_${module}_location}")
     ...
    ```
-  The output:
-  ```
-  -- MSG: python executable: /home/kaiyu/repo/robotdev/turtlebot/build/venv/bin/python3
-  -- MSG: module: em
-  -- MSG: execute_process: RESULT_VARIABLE: No such file or directory
-  -- MSG: execute_process: OUTPUT_VARIABLE:
-  ```
-  Very funny. "No such file or directory" is the problem.
+    The output:
+    ```
+    -- MSG: python executable: /home/kaiyu/repo/robotdev/turtlebot/build/venv/bin/python3
+    -- MSG: module: em
+    -- MSG: execute_process: RESULT_VARIABLE: No such file or directory
+    -- MSG: execute_process: OUTPUT_VARIABLE:
+    ```
+    Very funny. "No such file or directory" is the problem.
 
 4. Now, inside `turtlebot` virtualenv, start a python shell.
    Note that this python shell will have the SAME path to the `python` executable
