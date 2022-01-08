@@ -61,3 +61,7 @@ maps/useless/
 movo/src/kinova-movo/DONE_SETUP
 
 */venv/*
+
+# Files generated when building using custom script (e.g. setup_turtlebot.bash)
+.DONE_SETUP
+DONE_SETUP

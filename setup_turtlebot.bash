@@ -6,20 +6,24 @@ else
 fi
 repo_root=$PWD
 
+# Always assume at the start of a function,
+# or any if clause, the working directory is
+# the root directory of the repository.
+
 function build_turtlebot
 {
     cd $repo_root/turtlebot
     if catkin_make; then
         # cmake build is successful. Mark
-        echo "TURTLEBOT PC SETUP DONE." >> src/turtlebot3_simulations/DONE_SETUP
+        echo "TURTLEBOT PC SETUP DONE." >> src/.DONE_SETUP
     else
-        rm src/turtlebot3_simulations/DONE_SETUP
+        rm src/.DONE_SETUP
     fi
 }
 
 function first_time_build
 {
-    if [ ! -e "turtlebot/src/turtlebot3_simulations/DONE_SETUP" ]; then
+    if [ ! -e "turtlebot/src/.DONE_SETUP" ]; then
         # has not successfully setup
         true && return
     else
