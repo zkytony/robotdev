@@ -105,3 +105,232 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
 
    *THIS IS THE PROBLEM. CMake got the PYTHON_EXECUTABLE variable set wrong.*
    I don't actually know why it would come up with `/build/venv/` at all.
+
+   The question is why PYTHON_EXECUTABLE is set like that in the first place.
+
+
+9. I deactivated my virtualenv and ran `catkin_make` again. I get the same
+   value for `PYTHON_EXECUTABLE`! This must have been hard-coded somewhere.
+
+
+10. I wanted to know whether the PYTHON_EXECUTABLE
+    is set incorrectly if I work in a different ROS workspace.
+    I created a temporary ROS workspace that is empty. I then ran
+    `catkin_make` on it and:
+
+    - the same CMake messages I added were printed (so `em` was still a necessary package)
+    - I get a different path for PYTHON_EXECUTABLE:
+      `/usr/local/bin/python3`
+
+    Why? Not sure.
+
+    Full output:
+    ```
+    ~/ws/tmp_ws$ catkin_make
+    Base path: /home/kaiyu/ws/tmp_ws
+    Source space: /home/kaiyu/ws/tmp_ws/src
+    Build space: /home/kaiyu/ws/tmp_ws/build
+    Devel space: /home/kaiyu/ws/tmp_ws/devel
+    Install space: /home/kaiyu/ws/tmp_ws/install
+    Creating symlink "/home/kaiyu/ws/tmp_ws/src/CMakeLists.txt" pointing to "/opt/ros/noetic/share/catkin/cma
+    ke/toplevel.cmake"
+    ####
+    #### Running command: "cmake /home/kaiyu/ws/tmp_ws/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/ws/tmp_ws/devel
+    -DCMAKE_INSTALL_PREFIX=/home/kaiyu/ws/tmp_ws/install -G Unix Makefiles" in "/home/kaiyu/ws/tmp_ws/build"
+    ####
+    -- The C compiler identification is GNU 9.3.0
+    -- The CXX compiler identification is GNU 9.3.0
+    -- Check for working C compiler: /usr/bin/cc
+    -- Check for working C compiler: /usr/bin/cc -- works
+    -- Detecting C compiler ABI info
+    -- Detecting C compiler ABI info - done
+    -- Detecting C compile features
+    -- Detecting C compile features - done
+    -- Check for working CXX compiler: /usr/bin/c++
+    -- Check for working CXX compiler: /usr/bin/c++ -- works
+    -- Detecting CXX compiler ABI info
+    -- Detecting CXX compiler ABI info - done
+    -- Detecting CXX compile features
+    -- Detecting CXX compile features - done
+    -- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/ws/tmp_ws/devel
+    -- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+    -- This workspace overlays: /opt/ros/noetic
+    -- Found PythonInterp: /usr/local/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+    -- Using PYTHON_EXECUTABLE: /usr/local/bin/python3
+    -- Using Debian Python package layout
+    -- MSG: python executable: /usr/local/bin/python3
+    -- MSG: module: em
+    -- MSG: execute_process: RESULT_VARIABLE: 0
+    -- MSG: execute_process: OUTPUT_VARIABLE: /home/kaiyu/.local/lib/python3.8/site-packages/em
+    -- Found PY_em: /home/kaiyu/.local/lib/python3.8/site-packages/em
+    ...
+    ```
+
+11. I then created another temporary workspace. Directly running `catkin_make`
+    in this empty workspace gives the same output.
+
+    Full output:
+     ```
+     ~/repo/robotdev/tmp$ catkin_make
+     Base path: /home/kaiyu/repo/robotdev/tmp
+     Source space: /home/kaiyu/repo/robotdev/tmp/src
+     Build space: /home/kaiyu/repo/robotdev/tmp/build
+     Devel space: /home/kaiyu/repo/robotdev/tmp/devel
+     Install space: /home/kaiyu/repo/robotdev/tmp/install
+     Creating symlink "/home/kaiyu/repo/robotdev/tmp/src/CMakeLists.txt" pointing to "/opt/ros/noetic/share/catkin/cmake/toplevel.cmake"
+     ####
+     #### Running command: "cmake /home/kaiyu/repo/robotdev/tmp/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/tmp/devel -DCMAKE_INSTALL_PREFIX=/home/kaiyu/repo/robotdev/tmp/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/tmp/build"
+     ####
+     -- The C compiler identification is GNU 9.3.0
+     -- The CXX compiler identification is GNU 9.3.0
+     -- Check for working C compiler: /usr/bin/cc
+     -- Check for working C compiler: /usr/bin/cc -- works
+     -- Detecting C compiler ABI info
+     -- Detecting C compiler ABI info - done
+     -- Detecting C compile features
+     -- Detecting C compile features - done
+     -- Check for working CXX compiler: /usr/bin/c++
+     -- Check for working CXX compiler: /usr/bin/c++ -- works
+     -- Detecting CXX compiler ABI info
+     -- Detecting CXX compiler ABI info - done
+     -- Detecting CXX compile features
+     -- Detecting CXX compile features - done
+     -- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/tmp/devel
+     -- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+     -- This workspace overlays: /opt/ros/noetic
+     -- Found PythonInterp: /usr/local/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+     -- Using PYTHON_EXECUTABLE: /usr/local/bin/python3
+     -- Using Debian Python package layout
+     -- MSG: python executable: /usr/local/bin/python3
+     -- MSG: module: em
+     -- MSG: execute_process: RESULT_VARIABLE: 0
+     -- MSG: execute_process: OUTPUT_VARIABLE: /home/kaiyu/.local/lib/python3.8/site-packages/em
+     -- Found PY_em: /home/kaiyu/.local/lib/python3.8/site-packages/em
+     ...
+
+     ```
+
+12. Here is the strange thing. I then created a virtualenv under `~/repo/robotdev/tmp`,
+    in the same structure as turtlebot's virtualenv. Then, I ran `catkin_make`
+     again. But, the `MSG: ...` stuff I added were GONE!
+
+     ```
+     (tmp) ~/repo/robotdev/tmp$ virtualenv -p python3 venv/tmp
+     created virtual environment CPython3.8.10.final.0-64 in 85ms
+       creator CPython3Posix(dest=/home/kaiyu/repo/robotdev/tmp/venv/tmp, clear=False, global=False)
+       seeder FromAppData(download=False, pip=latest, setuptools=latest, wheel=latest, pkg_resources=latest, via=copy, app_data_dir=/home/kaiyu/.local/share/virtualenv/seed-app-data/v1.0.1.debian.1)
+       activators BashActivator,CShellActivator,FishActivator,PowerShellActivator,PythonActivator,XonshActivator
+     kaiyu@zephyr:~/repo/robotdev/tmp$ ls
+     build  devel  src  venv
+     kaiyu@zephyr:~/repo/robotdev/tmp$ catkin_make
+     Base path: /home/kaiyu/repo/robotdev/tmp
+     Source space: /home/kaiyu/repo/robotdev/tmp/src
+     Build space: /home/kaiyu/repo/robotdev/tmp/build
+     Devel space: /home/kaiyu/repo/robotdev/tmp/devel
+     Install space: /home/kaiyu/repo/robotdev/tmp/install
+     ####
+     #### Running command: "cmake /home/kaiyu/repo/robotdev/tmp/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/tmp/devel -DCMAKE_INSTALL_PREFIX=/home/kaiyu/repo/robotdev/tmp/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/tmp/build"
+     ####
+     -- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/tmp/devel
+     -- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+     -- This workspace overlays: /opt/ros/noetic
+     -- Found PythonInterp: /usr/local/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+     -- Using PYTHON_EXECUTABLE: /usr/local/bin/python3
+     -- Using Debian Python package layout
+     -- Using empy: /home/kaiyu/.local/lib/python3.8/site-packages/em
+     ```
+    This means the `empy.cmake` file I modified was not executed. WHY?
+
+    OH I SEE. Because it was successful before and that progress was
+    somehow recorded in the `build/` directory in the workspace. After
+    I remove `build/` and ran `catkin_make` again, I do see my modified
+    `empy.cmake` being run again:
+      ```
+      (tmp) ~/repo/robotdev/tmp$ rrm -rf build
+      (tmp) ~/repo/robotdev/tmp$ catkin_make
+      Base path: /home/kaiyu/repo/robotdev/tmp
+      Source space: /home/kaiyu/repo/robotdev/tmp/src
+      Build space: /home/kaiyu/repo/robotdev/tmp/build
+      Devel space: /home/kaiyu/repo/robotdev/tmp/devel
+      Install space: /home/kaiyu/repo/robotdev/tmp/install
+      ####
+      #### Running command: "cmake /home/kaiyu/repo/robotdev/tmp/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/tmp/devel -DCMAKE_INSTALL_PREFIX=/home/kaiyu/repo/robotdev/tmp/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/tmp/build"
+      ####
+      -- The C compiler identification is GNU 9.3.0
+      -- The CXX compiler identification is GNU 9.3.0
+      -- Check for working C compiler: /usr/bin/cc
+      -- Check for working C compiler: /usr/bin/cc -- works
+      -- Detecting C compiler ABI info
+      -- Detecting C compiler ABI info - done
+      -- Detecting C compile features
+      -- Detecting C compile features - done
+      -- Check for working CXX compiler: /usr/bin/c++
+      -- Check for working CXX compiler: /usr/bin/c++ -- works
+      -- Detecting CXX compiler ABI info
+      -- Detecting CXX compiler ABI info - done
+      -- Detecting CXX compile features
+      -- Detecting CXX compile features - done
+      -- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/tmp/devel
+      -- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+      -- This workspace overlays: /opt/ros/noetic
+      -- Found PythonInterp: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+      -- Using PYTHON_EXECUTABLE: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+      -- Using Debian Python package layout
+      -- MSG: python executable: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+      -- MSG: module: em
+      -- MSG: execute_process: RESULT_VARIABLE: 1
+      -- MSG: execute_process: OUTPUT_VARIABLE:
+      -- Could NOT find PY_em (missing: PY_EM)
+      ...
+      ```
+     Observations:
+     * Notice that the virtualenv `(tmp)` is activated.
+     * Notice that the `PYTHON_EXECUTABLE` in this case points
+     to the virtualenv's python binary.
+     * Notice also that `RESULT_VARIABLE: 1` is 1 which means there
+       was an error - this time the error was not that the
+       python path is wrong (showing progress!), but that
+       the command `import em` failed. That is reasonable because
+       I didn't install em in this new workspace.
+
+     This suggests that using virtualenv's python has nothing wrong in principle.
+
+     Then, I did `pip install em` under the `(tmp)` virtualenv.
+     I then ran `catkin_make` again and I don't get the PY_EM
+     not found error any more!:
+       ```
+       (tmp) kaiyu@zephyr:~/repo/robotdev/tmp$ catkin_make
+        Base path: /home/kaiyu/repo/robotdev/tmp
+        Source space: /home/kaiyu/repo/robotdev/tmp/src
+        Build space: /home/kaiyu/repo/robotdev/tmp/build
+        Devel space: /home/kaiyu/repo/robotdev/tmp/devel
+        Install space: /home/kaiyu/repo/robotdev/tmp/install
+        ####
+        #### Running command: "cmake /home/kaiyu/repo/robotdev/tmp/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/rob
+        otdev/tmp/devel -DCMAKE_INSTALL_PREFIX=/home/kaiyu/repo/robotdev/tmp/install -G Unix Makefiles" in "/home
+        /kaiyu/repo/robotdev/tmp/build"
+        ####
+        -- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/tmp/devel
+        -- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+        -- This workspace overlays: /opt/ros/noetic
+        -- Using PYTHON_EXECUTABLE: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+        -- Using Debian Python package layout
+        -- MSG: python executable: /home/kaiyu/repo/robotdev/tmp/venv/tmp/bin/python3
+        -- MSG: module: em
+        -- MSG: execute_process: RESULT_VARIABLE: 0
+        -- MSG: execute_process: OUTPUT_VARIABLE: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packa
+        ges/em
+        -- Found PY_em: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packages/em
+        -- Using empy: /home/kaiyu/repo/robotdev/tmp/venv/tmp/lib/python3.8/site-packages/em
+
+       ```
+
+     All of these points to I should just **clean up the
+     build directory of turtlebot's workspace**. That should
+     fix (OOOF!)
+
+ This is finally resolved! Lessons:
+
+ - It's ok to use virtualenv
+ - clean up build/
+ - adding message in cmake files is a good way to debug.
