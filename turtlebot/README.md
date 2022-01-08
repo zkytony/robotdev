@@ -87,4 +87,21 @@ CMake Error at /opt/ros/noetic/share/catkin/cmake/empy.cmake:30 (message):
    (the `RESULT_VARIABLE` equals to 0 and `OUTPUT_VARIABLE` equals to the path
    to the `em` path under the virtualenv.
 
-  **THIS MAKES NO SENSE TO ME.** It is not about quotation.
+    **THIS MAKES NO SENSE TO ME.** It is not about quotation.
+
+8. NO, it actually makes sense. The `${PYTHON_EXECUTABLE}` path, though looking legit, is not valid
+
+    ```
+    $ /home/kaiyu/repo/robotdev/turtlebot/build/venv/bin/python3
+    bash: /home/kaiyu/repo/robotdev/turtlebot/build/venv/bin/python3: No such file or directory
+    ```
+
+    CMake actually took the part after the second colon as the `RESULT_VARIABLE`.
+
+   The correct path should be:
+   ```
+   /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3
+   ```
+
+   *THIS IS THE PROBLEM. CMake got the PYTHON_EXECUTABLE variable set wrong.*
+   I don't actually know why it would come up with `/build/venv/` at all.
