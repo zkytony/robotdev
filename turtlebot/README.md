@@ -17,3 +17,7 @@ source setup_turtlebot.bash
 ```
 
 ## Run
+```
+roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+```
+![image](https://user-images.githubusercontent.com/7720184/148667706-bfb70da8-eda3-4e48-861f-1a1e677da11f.png)
