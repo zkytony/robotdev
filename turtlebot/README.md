@@ -15,6 +15,7 @@ Run the following at the root directory of `robotdev`
 ```
 source setup_turtlebot.bash
 ```
+See output [here](build_output)
 
 ## Run
 ```
