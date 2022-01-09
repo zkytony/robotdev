@@ -73,6 +73,12 @@ if first_time_build; then
     pip install empy catkin-pkg rospkg defusedxml
     # other necessary packages
     pip install numpy
+    if ubuntu_version_equal 20.04; then
+        sudo apt install ros-noetic-moveit
+    else
+        echo -e "Unable to install required movo packages due to incompatible Ubuntu version."
+        exit 1
+    fi
 fi
 
 # Download the kinova movo stack; first try to do submodule update;
