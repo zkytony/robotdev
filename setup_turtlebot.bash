@@ -53,11 +53,14 @@ fi
 # functionality of this script if turtlebot has been setup
 # before.
 source turtlebot/venv/turtlebot/bin/activate
+export ROS_PACKAGE_PATH=$repo_root/turtlebot/src/turtlebot3_simulations:${ROS_PACKAGE_PATH}
 
 if first_time_build; then
+    # ros python packages
     pip uninstall em
-    pip install empy
-    pip install catkin-pkg
+    pip install empy catkin-pkg rospkg defusedxml
+    # other necessary packages
+    pip install numpy
     if ubuntu_version_equal 20.04; then
         sudo apt-get install ros-noetic-turtlebot3-msgs
         sudo apt-get install ros-noetic-turtlebot3
