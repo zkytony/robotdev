@@ -1,0 +1,415 @@
+:~/repo/robotdev$ source setup_turtlebot.bash
+Force remove on! Using /bin/rm
+$ Removing /tmp/setup.sh.rBeGPQXATG
+WARNING: Skipping em as it is not installed.
+Requirement already satisfied: empy in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (3.3.4)
+Requirement already satisfied: catkin-pkg in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (0.4.24)
+Requirement already satisfied: pyparsing in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (from catkin-pkg) (3.0.6)
+Requirement already satisfied: docutils in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (from catkin-pkg) (0.18.1)
+Requirement already satisfied: python-dateutil in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (from catkin-pkg) (2.8.2)
+Requirement already satisfied: six>=1.5 in ./turtlebot/venv/turtlebot/lib/python3.8/site-packages (from python-dateutil->catkin-pkg) (1.16.0)
+[sudo] password for kaiyu:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  adium-theme-ubuntu command-not-found-data example-content fonts-noto-hinted fonts-roboto-hinted fwupdate g++-7 geoip-database gir1.2-gtksource-3.0 gir1.2-mutter-2 gnome-user-guide
+  guile-2.0-libs ifupdown iputils-arping libapt-pkg-perl libargon2-0 libart-2.0-2 libasync-mergepoint-perl libavcodec57 libavdevice57 libavfilter6 libavformat57 libavresample3 libavutil55
+  libb-hooks-endofscope-perl libb-hooks-op-check-perl libbind9-160 libboost-date-time1.65.1 libboost-filesystem1.65.1 libboost-iostreams1.65.1 libboost-locale1.65.1
+  libboost-program-options1.65.1 libboost-system1.65.1 libboost-thread1.65.1 libbrlapi0.6 libcamel-1.2-61 libcapture-tiny-perl libcdio17 libcgi-fast-perl libcgi-pm-perl
+  libclass-accessor-perl libclass-method-modifiers-perl libclass-xsaccessor-perl libclone-perl libcpanel-json-xs-perl libcrystalhd3 libdevel-callchecker-perl libdevel-size-perl
+  libdigest-bubblebabble-perl libdns-export1100 libdns1100 libdvdread4 libdynaloader-functions-perl libebook-contacts-1.2-2 libecal-1.2-19 libedataserver-1.2-23 libemail-valid-perl
+  libevent-2.1-6 libexempi3 libexiv2-14 libexporter-tiny-perl libfcgi-perl libffi6 libfile-copy-recursive-perl libfile-find-rule-perl libfluidsynth1 libfont-ttf-perl libfuture-perl
+  libgail-3-0 libgdbm5 libgeoip1 libgfortran4 libgloox15 libgmime-3.0-0 libgnome-desktop-3-17 libgspell-1-1 libgssdp-1.0-3 libgtksourceview-3.0-1 libgtksourceview-3.0-common libgupnp-1.0-4
+  libgutenprint-common libgutenprint2 libgutenprint9 libgweather-3-15 libhogweed4 libhunspell-1.6-0 libicu60 libiculx60 libimport-into-perl libio-async-loop-epoll-perl libio-async-perl
+  libio-pty-perl libio-string-perl libip4tc0 libip6tc0 libipc-run-perl libiptc0 libirs160 libisc-export169 libisc169 libisccc160 libisccfg160 libisl19 libjson-c3 libjson-maybexs-perl
+  liblinux-epoll-perl liblist-compare-perl liblist-moreutils-perl liblivemedia62 liblouis14 liblouisutdml8 liblwres160 libmicrodns0 libminiupnpc10 libmodule-implementation-perl
+  libmodule-runtime-perl libmono-posix4.0-cil libmoo-perl libmoox-aliases-perl libmozjs-52-0 libmutter-2-0 libmysofa0 libnamespace-clean-perl libncurses5 libncursesw5 libnet-dns-perl
+  libnet-dns-sec-perl libnet-domain-tld-perl libnet-ip-perl libnettle6 libnfs11 libnss-myhostname libntfs-3g88 libnumber-compare-perl libnvidia-cfg1-465 libnvidia-extra-465 liboauth0
+  liborcus-0.13-0 libpackage-stash-perl libpackage-stash-xs-perl libparams-classify-perl libparse-debianchangelog-perl libpath-tiny-perl libperl4-corelibs-perl libperl5.26
+  libperlio-gzip-perl libplacebo4 libplymouth4 libpostproc54 libprotobuf-lite10 libprotobuf10 libpython2.7 libpython3.6 libpython3.6-minimal libpython3.6-stdlib libqpdf21 libraw16
+  libreadline7 libreadonly-perl libref-util-perl libref-util-xs-perl libreoffice-avmedia-backend-gstreamer libreoffice-style-galaxy librole-tiny-perl libruby2.5 libsane1
+  libsereal-decoder-perl libsereal-encoder-perl libsereal-perl libstrictures-perl libstruct-dumb-perl libsub-exporter-progressive-perl libsub-identify-perl libsub-quote-perl libswresample2
+  libswscale4 libsynctex1 libtest-fatal-perl libtest-refcount-perl libtexlua52 libtext-glob-perl libtext-levenshtein-perl libtinfo5 libtype-tiny-perl libtype-tiny-xs-perl libunbound2
+  libunicode-utf8-perl libupnp6 libusbmuxd4 libvariable-magic-perl libvpx5 libwxgtk3.0-0v5 libx264-152 libx265-146 libxapian30 libxml-simple-perl libxml-writer-perl libyaml-libyaml-perl
+  libzeitgeist-2.0-0 libzip4 light-themes lintian linux-generic-hwe-18.04 linux-headers-generic-hwe-18.04 linux-hwe-5.4-headers-5.4.0-92 linux-image-generic-hwe-18.04 multiarch-support
+  nplan patchutils pppconfig pppoeconf printer-driver-gutenprint python-cairo python-gi python-gobject-2 python-gtk2 python-poppler python-pypdf2 python-talloc python-xdg
+  python3-asn1crypto python3-oauth python3.6 python3.6-minimal qpdf ruby-did-you-mean ruby-ffi ruby-listen ruby-rb-inotify ruby2.5 ubuntu-artwork ubuntu-software ubuntu-system-service
+  x11proto-resource-dev xserver-xorg-core-hwe-18.04 xserver-xorg-dev-hwe-18.04 xserver-xorg-hwe-18.04 xserver-xorg-input-all-hwe-18.04 xserver-xorg-input-libinput-hwe-18.04
+  xserver-xorg-input-wacom-hwe-18.04 xserver-xorg-legacy-hwe-18.04 xserver-xorg-video-all-hwe-18.04 xserver-xorg-video-amdgpu-hwe-18.04 xserver-xorg-video-ati-hwe-18.04
+  xserver-xorg-video-fbdev-hwe-18.04 xserver-xorg-video-intel-hwe-18.04 xserver-xorg-video-nouveau-hwe-18.04 xserver-xorg-video-qxl-hwe-18.04 xserver-xorg-video-radeon-hwe-18.04
+  xserver-xorg-video-vesa-hwe-18.04 xserver-xorg-video-vmware-hwe-18.04 zeitgeist-core
+Use 'sudo apt autoremove' to remove them.
+The following NEW packages will be installed:
+  ros-noetic-turtlebot3-msgs
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 22.7 kB of archives.
+After this operation, 200 kB of additional disk space will be used.
+Get:1 http://packages.ros.org/ros/ubuntu focal/main amd64 ros-noetic-turtlebot3-msgs amd64 1.0.1-1focal.20210423.224157 [22.7 kB]
+Fetched 22.7 kB in 1s (27.5 kB/s)
+Selecting previously unselected package ros-noetic-turtlebot3-msgs.
+(Reading database ... 499257 files and directories currently installed.)
+Preparing to unpack .../ros-noetic-turtlebot3-msgs_1.0.1-1focal.20210423.224157_amd64.deb ...
+Unpacking ros-noetic-turtlebot3-msgs (1.0.1-1focal.20210423.224157) ...
+Setting up ros-noetic-turtlebot3-msgs (1.0.1-1focal.20210423.224157) ...
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  adium-theme-ubuntu command-not-found-data example-content fonts-noto-hinted fonts-roboto-hinted fwupdate g++-7 geoip-database gir1.2-gtksource-3.0 gir1.2-mutter-2 gnome-user-guide
+  guile-2.0-libs ifupdown iputils-arping libapt-pkg-perl libargon2-0 libart-2.0-2 libasync-mergepoint-perl libavcodec57 libavdevice57 libavfilter6 libavformat57 libavresample3 libavutil55
+  libb-hooks-endofscope-perl libb-hooks-op-check-perl libbind9-160 libboost-date-time1.65.1 libboost-filesystem1.65.1 libboost-iostreams1.65.1 libboost-locale1.65.1
+  libboost-program-options1.65.1 libboost-system1.65.1 libboost-thread1.65.1 libbrlapi0.6 libcamel-1.2-61 libcapture-tiny-perl libcdio17 libcgi-fast-perl libcgi-pm-perl
+  libclass-accessor-perl libclass-method-modifiers-perl libclass-xsaccessor-perl libclone-perl libcpanel-json-xs-perl libcrystalhd3 libdevel-callchecker-perl libdevel-size-perl
+  libdigest-bubblebabble-perl libdns-export1100 libdns1100 libdvdread4 libdynaloader-functions-perl libebook-contacts-1.2-2 libecal-1.2-19 libedataserver-1.2-23 libemail-valid-perl
+  libevent-2.1-6 libexempi3 libexiv2-14 libexporter-tiny-perl libfcgi-perl libffi6 libfile-copy-recursive-perl libfile-find-rule-perl libfluidsynth1 libfont-ttf-perl libfuture-perl
+  libgail-3-0 libgdbm5 libgeoip1 libgfortran4 libgloox15 libgmime-3.0-0 libgnome-desktop-3-17 libgspell-1-1 libgssdp-1.0-3 libgtksourceview-3.0-1 libgtksourceview-3.0-common libgupnp-1.0-4
+  libgutenprint-common libgutenprint2 libgutenprint9 libgweather-3-15 libhogweed4 libhunspell-1.6-0 libicu60 libiculx60 libimport-into-perl libio-async-loop-epoll-perl libio-async-perl
+  libio-pty-perl libio-string-perl libip4tc0 libip6tc0 libipc-run-perl libiptc0 libirs160 libisc-export169 libisc169 libisccc160 libisccfg160 libisl19 libjson-c3 libjson-maybexs-perl
+  liblinux-epoll-perl liblist-compare-perl liblist-moreutils-perl liblivemedia62 liblouis14 liblouisutdml8 liblwres160 libmicrodns0 libminiupnpc10 libmodule-implementation-perl
+  libmodule-runtime-perl libmono-posix4.0-cil libmoo-perl libmoox-aliases-perl libmozjs-52-0 libmutter-2-0 libmysofa0 libnamespace-clean-perl libncurses5 libncursesw5 libnet-dns-perl
+  libnet-dns-sec-perl libnet-domain-tld-perl libnet-ip-perl libnettle6 libnfs11 libnss-myhostname libntfs-3g88 libnumber-compare-perl libnvidia-cfg1-465 libnvidia-extra-465 liboauth0
+  liborcus-0.13-0 libpackage-stash-perl libpackage-stash-xs-perl libparams-classify-perl libparse-debianchangelog-perl libpath-tiny-perl libperl4-corelibs-perl libperl5.26
+  libperlio-gzip-perl libplacebo4 libplymouth4 libpostproc54 libprotobuf-lite10 libprotobuf10 libpython2.7 libpython3.6 libpython3.6-minimal libpython3.6-stdlib libqpdf21 libraw16
+  libreadline7 libreadonly-perl libref-util-perl libref-util-xs-perl libreoffice-avmedia-backend-gstreamer libreoffice-style-galaxy librole-tiny-perl libruby2.5 libsane1
+  libsereal-decoder-perl libsereal-encoder-perl libsereal-perl libstrictures-perl libstruct-dumb-perl libsub-exporter-progressive-perl libsub-identify-perl libsub-quote-perl libswresample2
+  libswscale4 libsynctex1 libtest-fatal-perl libtest-refcount-perl libtexlua52 libtext-glob-perl libtext-levenshtein-perl libtinfo5 libtype-tiny-perl libtype-tiny-xs-perl libunbound2
+  libunicode-utf8-perl libupnp6 libusbmuxd4 libvariable-magic-perl libvpx5 libwxgtk3.0-0v5 libx264-152 libx265-146 libxapian30 libxml-simple-perl libxml-writer-perl libyaml-libyaml-perl
+  libzeitgeist-2.0-0 libzip4 light-themes lintian linux-generic-hwe-18.04 linux-headers-generic-hwe-18.04 linux-hwe-5.4-headers-5.4.0-92 linux-image-generic-hwe-18.04 multiarch-support
+  nplan patchutils pppconfig pppoeconf printer-driver-gutenprint python-cairo python-gi python-gobject-2 python-gtk2 python-poppler python-pypdf2 python-talloc python-xdg
+  python3-asn1crypto python3-oauth python3.6 python3.6-minimal qpdf ruby-did-you-mean ruby-ffi ruby-listen ruby-rb-inotify ruby2.5 ubuntu-artwork ubuntu-software ubuntu-system-service
+  x11proto-resource-dev xserver-xorg-core-hwe-18.04 xserver-xorg-dev-hwe-18.04 xserver-xorg-hwe-18.04 xserver-xorg-input-all-hwe-18.04 xserver-xorg-input-libinput-hwe-18.04
+  xserver-xorg-input-wacom-hwe-18.04 xserver-xorg-legacy-hwe-18.04 xserver-xorg-video-all-hwe-18.04 xserver-xorg-video-amdgpu-hwe-18.04 xserver-xorg-video-ati-hwe-18.04
+  xserver-xorg-video-fbdev-hwe-18.04 xserver-xorg-video-intel-hwe-18.04 xserver-xorg-video-nouveau-hwe-18.04 xserver-xorg-video-qxl-hwe-18.04 xserver-xorg-video-radeon-hwe-18.04
+  xserver-xorg-video-vesa-hwe-18.04 xserver-xorg-video-vmware-hwe-18.04 zeitgeist-core
+Use 'sudo apt autoremove' to remove them.
+The following additional packages will be installed:
+  libcaca-dev libpulse-dev libsdl-image1.2-dev libsdl1.2-dev libslang2-dev python3-serial ros-noetic-amcl ros-noetic-base-local-planner ros-noetic-clear-costmap-recovery
+  ros-noetic-costmap-2d ros-noetic-hls-lfcd-lds-driver ros-noetic-map-server ros-noetic-move-base ros-noetic-move-base-msgs ros-noetic-nav-core ros-noetic-navfn ros-noetic-rosserial-msgs
+  ros-noetic-rosserial-python ros-noetic-rotate-recovery ros-noetic-turtlebot3-bringup ros-noetic-turtlebot3-description ros-noetic-turtlebot3-example ros-noetic-turtlebot3-navigation
+  ros-noetic-turtlebot3-slam ros-noetic-turtlebot3-teleop ros-noetic-voxel-grid
+Suggested packages:
+  python3-wxgtk3.0 | python3-wxgtk
+The following NEW packages will be installed:
+  libcaca-dev libpulse-dev libsdl-image1.2-dev libsdl1.2-dev libslang2-dev python3-serial ros-noetic-amcl ros-noetic-base-local-planner ros-noetic-clear-costmap-recovery
+  ros-noetic-costmap-2d ros-noetic-hls-lfcd-lds-driver ros-noetic-map-server ros-noetic-move-base ros-noetic-move-base-msgs ros-noetic-nav-core ros-noetic-navfn ros-noetic-rosserial-msgs
+  ros-noetic-rosserial-python ros-noetic-rotate-recovery ros-noetic-turtlebot3 ros-noetic-turtlebot3-bringup ros-noetic-turtlebot3-description ros-noetic-turtlebot3-example
+...
+###
+#### Running command: "cmake /home/kaiyu/repo/robotdev/turtlebot/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/turtlebot/devel -DCMAKE_INSTALL_PREFIX=/h
+ome/kaiyu/repo/robotdev/turtlebot/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/turtlebot/build"
+####
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/turtlebot/devel
+-- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+-- This workspace overlays: /opt/ros/noetic
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+-- Using PYTHON_EXECUTABLE: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3
+-- Using Debian Python package layout
+-- Found PY_em: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/lib/python3.8/site-packages/em.py
+-- Using empy: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /home/kaiyu/repo/robotdev/turtlebot/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3 (found version "3.8.10")
+-- Found Threads: TRUE
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 3 packages in topological order:
+-- ~~  - turtlebot3_simulations (metapackage)
+-- ~~  - turtlebot3_fake
+-- ~~  - turtlebot3_gazebo
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin metapackage: 'turtlebot3_simulations'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_simulations)
+-- +++ processing catkin package: 'turtlebot3_fake'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_fake)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- +++ processing catkin package: 'turtlebot3_gazebo'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_gazebo)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.1")
+-- Checking for module 'bullet>=2.82'
+--   Found bullet, version 2.88
+-- Found ccd: /usr/include (found suitable version "2.0", minimum required is "2.0")
+-- Found fcl: /usr/include (found suitable version "0.5.0", minimum required is "0.3.2")
+-- Found assimp: /usr/include (found version "5.0.0")
+-- Found DART: /usr/include (Required is at least version "6.6") found components: dart
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.71.0/BoostConfig.cmake (found suitable version "1.71.0", minimum required is "1.40.0") found components: thread system filesystem program_options regex iostreams date_time
+-- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found version "3.6.1")
+-- Looking for ignition-math6 -- found version 6.9.2
+###
+#### Running command: "cmake /home/kaiyu/repo/robotdev/turtlebot/src -DCATKIN_DEVEL_PREFIX=/home/kaiyu/repo/robotdev/turtlebot/devel -DCMAKE_INSTALL_PREFIX=/h
+ome/kaiyu/repo/robotdev/turtlebot/install -G Unix Makefiles" in "/home/kaiyu/repo/robotdev/turtlebot/build"
+####
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using CATKIN_DEVEL_PREFIX: /home/kaiyu/repo/robotdev/turtlebot/devel
+-- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+-- This workspace overlays: /opt/ros/noetic
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+-- Using PYTHON_EXECUTABLE: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3
+-- Using Debian Python package layout
+-- Found PY_em: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/lib/python3.8/site-packages/em.py
+-- Using empy: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /home/kaiyu/repo/robotdev/turtlebot/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+-- Found PythonInterp: /home/kaiyu/repo/robotdev/turtlebot/venv/turtlebot/bin/python3 (found version "3.8.10")
+-- Found Threads: TRUE
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 3 packages in topological order:
+-- ~~  - turtlebot3_simulations (metapackage)
+-- ~~  - turtlebot3_fake
+-- ~~  - turtlebot3_gazebo
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin metapackage: 'turtlebot3_simulations'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_simulations)
+-- +++ processing catkin package: 'turtlebot3_fake'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_fake)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- +++ processing catkin package: 'turtlebot3_gazebo'
+-- ==> add_subdirectory(turtlebot3_simulations/turtlebot3_gazebo)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.1")
+-- Checking for module 'bullet>=2.82'
+--   Found bullet, version 2.88
+-- Found ccd: /usr/include (found suitable version "2.0", minimum required is "2.0")
+-- Found fcl: /usr/include (found suitable version "0.5.0", minimum required is "0.3.2")
+-- Found assimp: /usr/include (found version "5.0.0")
+-- Found DART: /usr/include (Required is at least version "6.6") found components: dart
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.71.0/BoostConfig.cmake (found suitable version "1.71.0", minimum required is "1.40.0") found components: thread system filesystem program_options regex iostreams date_time
+-- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found version "3.6.1")
+-- Looking for ignition-math6 -- found version 6.9.2
+-- Searching for dependencies of ignition-math6
+-- Looking for OGRE...
+-- OGRE_PREFIX_WATCH changed.
+-- Checking for module 'OGRE'
+--   Found OGRE, version 1.9.0
+-- Found Ogre Ghadamon (1.9.0)
+-- Found OGRE: optimized;/usr/lib/x86_64-linux-gnu/libOgreMain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreMain.so
+-- Looking for OGRE_Paging...
+-- Found OGRE_Paging: optimized;/usr/lib/x86_64-linux-gnu/libOgrePaging.so;debug;/usr/lib/x86_64-linux-gnu/libOgrePaging.so
+-- Looking for OGRE_Terrain...
+-- Found OGRE_Terrain: optimized;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so
+-- Looking for OGRE_Property...
+-- Found OGRE_Property: optimized;/usr/lib/x86_64-linux-gnu/libOgreProperty.so;debug;/usr/lib/x86_64-linux-gnu/libOgreProperty.so
+-- Looking for OGRE_RTShaderSystem...
+-- Found OGRE_RTShaderSystem: optimized;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so;debug;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so
+-- Looking for OGRE_Volume...
+-- Found OGRE_Volume: optimized;/usr/lib/x86_64-linux-gnu/libOgreVolume.so;debug;/usr/lib/x86_64-linux-gnu/libOgreVolume.so
+-- Looking for OGRE_Overlay...
+-- Found OGRE_Overlay: optimized;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so;debug;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so
+-- Looking for ignition-math6 -- found version 6.9.2
+-- Looking for ignition-transport8 -- found version 8.2.1
+-- Searching for dependencies of ignition-transport8
+-- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found suitable version "3.6.1", minimum required is "3")
+-- Config-file not installed for ZeroMQ -- checking for pkg-config
+-- Checking for module 'libzmq >= 4'
+--   Found libzmq , version 4.3.2
+-- Found ZeroMQ: TRUE (Required is at least version "4")
+-- Checking for module 'uuid'
+--   Found uuid, version 2.34.0
+-- Found UUID: TRUE
+-- Looking for ignition-msgs5 -- found version 5.8.1
+-- Searching for dependencies of ignition-msgs5
+-- Looking for ignition-math6 -- found version 6.9.2
+-- Checking for module 'tinyxml2'
+--   Found tinyxml2, version 6.2.0
+-- Looking for ignition-msgs5 -- found version 5.8.1
+-- Looking for ignition-common3 -- found version 3.14.0
+-- Searching for dependencies of ignition-common3
+-- Looking for dlfcn.h - found
+-- Looking for libdl - found
+-- Found DL: TRUE
+-- Searching for <ignition-common3> component [graphics]
+-- Looking for ignition-common3-graphics -- found version 3.14.0
+-- Searching for dependencies of ignition-common3-graphics
+-- Looking for ignition-math6 -- found version 6.9.2
+-- Looking for ignition-fuel_tools4 -- found version 4.4.0
+-- Searching for dependencies of ignition-fuel_tools4
+-- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "7.68.0")
+-- Checking for module 'jsoncpp'
+--   Found jsoncpp, version 1.7.4
+-- Found JSONCPP: TRUE
+-- Checking for module 'yaml-0.1'
+--   Found yaml-0.1, version 0.2.2
+-- Found YAML: TRUE
+-- Checking for module 'libzip'
+--   Found libzip, version 1.5.1
+-- Found ZIP: TRUE
+-- Looking for ignition-common3 -- found version 3.14.0
+-- Looking for ignition-math6 -- found version 6.9.2
+-- Looking for ignition-msgs5 -- found version 5.8.1
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/kaiyu/repo/robotdev/turtlebot/build
+####
+#### Running command: "make -j16 -l16" in "/home/kaiyu/repo/robotdev/turtlebot/build"
+####
+Scanning dependencies of target std_msgs_generate_messages_nodejs
+Scanning dependencies of target turtlebot3_msgs_generate_messages_nodejs
+Scanning dependencies of target sensor_msgs_generate_messages_cpp
+Scanning dependencies of target nav_msgs_generate_messages_eus
+Scanning dependencies of target nav_msgs_generate_messages_lisp
+Scanning dependencies of target geometry_msgs_generate_messages_eus
+Scanning dependencies of target actionlib_msgs_generate_messages_eus
+Scanning dependencies of target rosgraph_msgs_generate_messages_eus
+Scanning dependencies of target nav_msgs_generate_messages_cpp
+Scanning dependencies of target nav_msgs_generate_messages_nodejs
+Scanning dependencies of target roscpp_generate_messages_cpp
+Scanning dependencies of target geometry_msgs_generate_messages_py
+Scanning dependencies of target sensor_msgs_generate_messages_lisp
+Scanning dependencies of target sensor_msgs_generate_messages_eus
+Scanning dependencies of target sensor_msgs_generate_messages_py
+Scanning dependencies of target roscpp_generate_messages_eus
+[  0%] Built target std_msgs_generate_messages_nodejs
+[  0%] Built target turtlebot3_msgs_generate_messages_nodejs
+[  0%] Built target sensor_msgs_generate_messages_cpp
+[  0%] Built target geometry_msgs_generate_messages_eus
+[  0%] Built target roscpp_generate_messages_cpp
+[  0%] Built target nav_msgs_generate_messages_eus
+[  0%] Built target nav_msgs_generate_messages_lisp
+[  0%] Built target actionlib_msgs_generate_messages_eus
+[  0%] Built target nav_msgs_generate_messages_nodejs
+[  0%] Built target geometry_msgs_generate_messages_py
+[  0%] Built target nav_msgs_generate_messages_cpp
+[  0%] Built target sensor_msgs_generate_messages_lisp
+Scanning dependencies of target tf2_msgs_generate_messages_eus
+[  0%] Built target rosgraph_msgs_generate_messages_eus
+[  0%] Built target roscpp_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_py
+Scanning dependencies of target rosgraph_msgs_generate_messages_nodejs
+Scanning dependencies of target actionlib_msgs_generate_messages_py
+Scanning dependencies of target actionlib_generate_messages_cpp
+Scanning dependencies of target std_msgs_generate_messages_lisp
+Scanning dependencies of target geometry_msgs_generate_messages_lisp
+Scanning dependencies of target roscpp_generate_messages_py
+Scanning dependencies of target turtlebot3_msgs_generate_messages_py
+Scanning dependencies of target tf_generate_messages_cpp
+Scanning dependencies of target std_msgs_generate_messages_cpp
+Scanning dependencies of target tf_generate_messages_eus
+Scanning dependencies of target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target tf2_msgs_generate_messages_eus
+Scanning dependencies of target geometry_msgs_generate_messages_cpp
+Scanning dependencies of target tf2_msgs_generate_messages_cpp
+Scanning dependencies of target geometry_msgs_generate_messages_nodejs
+[  0%] Built target actionlib_generate_messages_cpp
+Scanning dependencies of target tf2_msgs_generate_messages_py
+[  0%] Built target actionlib_msgs_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_nodejs
+[  0%] Built target std_msgs_generate_messages_lisp
+[  0%] Built target turtlebot3_msgs_generate_messages_py
+[  0%] Built target roscpp_generate_messages_py
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[  0%] Built target tf_generate_messages_cpp
+[  0%] Built target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target std_msgs_generate_messages_cpp
+Scanning dependencies of target rosgraph_msgs_generate_messages_py
+Scanning dependencies of target actionlib_generate_messages_lisp
+[  0%] Built target tf2_msgs_generate_messages_py
+Scanning dependencies of target roscpp_generate_messages_lisp
+Scanning dependencies of target actionlib_generate_messages_eus
+Scanning dependencies of target rosgraph_msgs_generate_messages_cpp
+Scanning dependencies of target actionlib_msgs_generate_messages_cpp
+Scanning dependencies of target std_msgs_generate_messages_eus
+Scanning dependencies of target actionlib_generate_messages_py
+Scanning dependencies of target tf_generate_messages_py
+Scanning dependencies of target tf_generate_messages_lisp
+Scanning dependencies of target actionlib_msgs_generate_messages_lisp
+Scanning dependencies of target actionlib_msgs_generate_messages_nodejs
+Scanning dependencies of target nav_msgs_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_py
+Scanning dependencies of target actionlib_generate_messages_nodejs
+Scanning dependencies of target tf_generate_messages_nodejs
+[  0%] Built target actionlib_generate_messages_lisp
+Scanning dependencies of target tf2_msgs_generate_messages_lisp
+[  0%] Built target roscpp_generate_messages_lisp
+[  0%] Built target actionlib_generate_messages_eus
+[  0%] Built target std_msgs_generate_messages_eus
+[  0%] Built target rosgraph_msgs_generate_messages_cpp
+[  0%] Built target actionlib_msgs_generate_messages_cpp
+[  0%] Built target tf_generate_messages_py
+[  0%] Built target actionlib_generate_messages_py
+[  0%] Built target tf_generate_messages_lisp
+[  0%] Built target tf_generate_messages_nodejs
+[  0%] Built target actionlib_generate_messages_nodejs
+[  0%] Built target actionlib_msgs_generate_messages_nodejs
+[  0%] Built target nav_msgs_generate_messages_py
+[  0%] Built target actionlib_msgs_generate_messages_lisp
+Scanning dependencies of target turtlebot3_msgs_generate_messages_cpp
+Scanning dependencies of target tf2_msgs_generate_messages_nodejs
+[  0%] Built target tf2_msgs_generate_messages_lisp
+Scanning dependencies of target turtlebot3_msgs_generate_messages_lisp
+Scanning dependencies of target std_msgs_generate_messages_py
+Scanning dependencies of target sensor_msgs_generate_messages_nodejs
+Scanning dependencies of target roscpp_generate_messages_nodejs
+Scanning dependencies of target gazebo_msgs_generate_messages_lisp
+Scanning dependencies of target turtlebot3_msgs_generate_messages_eus
+Scanning dependencies of target dynamic_reconfigure_generate_messages_nodejs
+Scanning dependencies of target gazebo_msgs_generate_messages_cpp
+Scanning dependencies of target std_srvs_generate_messages_lisp
+Scanning dependencies of target dynamic_reconfigure_generate_messages_lisp
+[  0%] Built target turtlebot3_msgs_generate_messages_cpp
+Scanning dependencies of target std_srvs_generate_messages_py
+Scanning dependencies of target trajectory_msgs_generate_messages_lisp
+Scanning dependencies of target dynamic_reconfigure_generate_messages_py
+[  0%] Built target tf2_msgs_generate_messages_nodejs
+Scanning dependencies of target dynamic_reconfigure_gencfg
+[  0%] Built target turtlebot3_msgs_generate_messages_eus
+[  0%] Built target turtlebot3_msgs_generate_messages_lisp
+[  0%] Built target sensor_msgs_generate_messages_nodejs
+[  0%] Built target roscpp_generate_messages_nodejs
+[  0%] Built target gazebo_msgs_generate_messages_lisp
+[  0%] Built target std_msgs_generate_messages_py
+[  0%] Built target dynamic_reconfigure_generate_messages_nodejs
+[  0%] Built target gazebo_msgs_generate_messages_cpp
+...
+Scanning dependencies of target turtlebot3_fake_node
+[  0%] Built target dynamic_reconfigure_generate_messages_cpp
+Scanning dependencies of target turtlebot3_drive
+[ 25%] Building CXX object turtlebot3_simulations/turtlebot3_fake/CMakeFiles/turtlebot3_fake_node.dir/src/turtlebot3_fake.cpp.o
+[ 50%] Building CXX object turtlebot3_simulations/turtlebot3_gazebo/CMakeFiles/turtlebot3_drive.dir/src/turtlebot3_drive.cpp.o
+[ 75%] Linking CXX executable /home/kaiyu/repo/robotdev/turtlebot/devel/lib/turtlebot3_gazebo/turtlebot3_drive
+[ 75%] Built target turtlebot3_drive
+[100%] Linking CXX executable /home/kaiyu/repo/robotdev/turtlebot/devel/lib/turtlebot3_fake/turtlebot3_fake_node
+[100%] Built target turtlebot3_fake_node

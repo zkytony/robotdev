@@ -558,3 +558,14 @@ I then found on [ROS Wiki](http://wiki.ros.org/ROS/EnvironmentVariables) that:
 >  the `ROS_ROOT` and `ROS_PACKAGE_PATH` enable ROS to locate packages and stacks in the filesystem. You must also set the PYTHONPATH so that the Python interpreter can find ROS libraries.
 Note that by default (even in virtualenv), `PYTHONPATH` is empty (that doesn't mean
 Python has nowhere to look for packages. Check out [this post](https://stackoverflow.com/questions/20966157/pythonpath-showing-empty-in-ubuntu-13-04)).
+
+
+## No module named 'rospkg'
+
+Solution: `pip install rospkg`
+
+Besides this one, you also need to install a few others.
+The command to run is:
+```
+`pip install empy catkin-pkg rospkg defusedxml`
+```
