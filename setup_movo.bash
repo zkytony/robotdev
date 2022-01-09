@@ -92,7 +92,9 @@ if ! useros; then
 fi
 
 # update submodules (clone necessary stuff)
-git submodule update --init --recursive
+if confirm "Update git submodules?"; then
+   git submodule update --init --recursive
+fi
 
 # Creates movo workspace.
 # create the movo workspace directory
