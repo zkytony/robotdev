@@ -72,6 +72,17 @@ function install_libfreenect2
     cd $repo_root
 }
 
+function install_librealsense
+{
+    # Follow instructions here: https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
+    sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+    sudo apt-get install librealsense2-dkms
+    sudo apt-get install librealsense2-utils
+    sudo apt-get install librealsense2-dev
+    sudo apt-get install librealsense2-dbg
+}
+
 
 ##------------------- Main Setup Logic ------------------ ##
 # use ros
@@ -114,6 +125,7 @@ if first_time_build; then
         exit 1
     fi
     install_libfreenect2
+    install_librealsense
 fi
 
 # Download the kinova movo stack; first try to do submodule update;

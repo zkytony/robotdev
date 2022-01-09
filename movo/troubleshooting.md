@@ -119,3 +119,52 @@ function install_libfreenect2
 }
 ```
 This resolved the issue.
+
+## Could not find a package configuration file provided by "realsense2" with any of the following names
+
+```
+-- +++ processing catkin package: 'realsense2_camera'
+-- ==> add_subdirectory(kinova-movo/movo_common/movo_third_party/realsense2_camera)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+CMake Warning at kinova-movo/movo_common/movo_third_party/realsense2_camera/CMakeLists.txt:27
+(find_package):
+  By not providing "Findrealsense2.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "realsense2", but CMake did not find one.
+
+  Could not find a package configuration file provided by "realsense2" with
+  any of the following names:
+
+    realsense2Config.cmake
+    realsense2-config.cmake
+
+  Add the installation prefix of "realsense2" to CMAKE_PREFIX_PATH or set
+  "realsense2_DIR" to a directory containing one of the above files.  If
+  "realsense2" provides a separate development package or SDK, be sure it has
+  been installed.
+
+
+CMake Error at kinova-movo/movo_common/movo_third_party/realsense2_camera/CMakeLists.txt:29 (m
+essage):
+
+
+
+
+   Intel RealSense SDK 2.0 is missing, please install it from https://github.com/IntelRealSens
+e/librealsense/releases
+```
+Solution: install realsense.
+```bash
+function install_librealsense
+{
+    # Follow instructions here: https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
+    sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+    sudo apt-get install librealsense2-dkms
+    sudo apt-get install librealsense2-utils
+    sudo apt-get install librealsense2-dev
+    sudo apt-get install librealsense2-dbg
+}
+```
+The key is to install the last two packages for developers.
+This is resolved.
