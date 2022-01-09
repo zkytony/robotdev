@@ -85,3 +85,37 @@ txt:22 (find_package):
   been installed.
 
 ```
+Solution: Install [libfreenect2](https://github.com/OpenKinect/libfreenect2).
+
+My bash script code:
+```bash
+function install_libfreenect2
+{
+    # follow instructions here: https://github.com/OpenKinect/libfreenect2#linux
+    if [ ! -d "thirdparty/libfreenect2/" ]; then
+        cd thirdparty
+        git clone https://github.com/OpenKinect/libfreenect2.git
+        cd ..
+    fi
+
+    cd thirdparty/libfreenect2
+    if [ ! -d "build" ]; then
+        sudo apt-get install build-essential cmake pkg-config
+        sudo apt-get install libusb-1.0-0-dev
+        sudo apt-get install libturbojpeg0-dev
+        sudo apt-get install libglfw3-dev
+        # OpenCL, CUDA, skipped. Assume CUDA is already installed.
+        sudo apt-get install libva-dev libjpeg-dev
+        sudo apt-get install libopenni2-dev
+        mkdir build && cd build
+        # Note: You need to specify cmake
+        # -Dfreenect2_DIR=$HOME/freenect2/lib/cmake/freenect2 for CMake based
+        # third-party application to find libfreenect2.
+        cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/freenect2
+        make
+        make install
+    fi
+    cd $repo_root
+}
+```
+This resolved the issue.

@@ -31,6 +31,7 @@ function first_time_build
     fi
 }
 
+##------------------- Main Setup Logic ------------------ ##
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."

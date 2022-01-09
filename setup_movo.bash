@@ -43,11 +43,45 @@ function first_time_build
     fi
 }
 
+function install_libfreenect2
+{
+    # follow instructions here: https://github.com/OpenKinect/libfreenect2#linux
+    if [ ! -d "thirdparty/libfreenect2/" ]; then
+        cd thirdparty
+        git clone https://github.com/OpenKinect/libfreenect2.git
+        cd ..
+    fi
+
+    cd thirdparty/libfreenect2
+    if [ ! -d "build" ]; then
+        sudo apt-get install build-essential cmake pkg-config
+        sudo apt-get install libusb-1.0-0-dev
+        sudo apt-get install libturbojpeg0-dev
+        sudo apt-get install libglfw3-dev
+        # OpenCL, CUDA, skipped. Assume CUDA is already installed.
+        sudo apt-get install libva-dev libjpeg-dev
+        sudo apt-get install libopenni2-dev
+        mkdir build && cd build
+        # Note: You need to specify cmake
+        # -Dfreenect2_DIR=$HOME/freenect2/lib/cmake/freenect2 for CMake based
+        # third-party application to find libfreenect2.
+        cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/freenect2
+        make
+        make install
+    fi
+    cd $repo_root
+}
+
+
+##------------------- Main Setup Logic ------------------ ##
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."
     exit 1
 fi
+
+# update submodules (clone necessary stuff)
+git submodule update --init --recursive
 
 # Creates movo workspace.
 # create the movo workspace directory
@@ -79,14 +113,10 @@ if first_time_build; then
         echo -e "Unable to install required movo packages due to incompatible Ubuntu version."
         exit 1
     fi
+    install_libfreenect2
 fi
 
 # Download the kinova movo stack; first try to do submodule update;
-# if doesn't work (only the first time), then add the submodule
-if [ ! -e "movo/src/kinova-movo/LICENSE" ]; then
-    git submodule update --init --recursive
-fi
-
 if [ ! -d "movo/src/kinova-movo" ]; then
     cd movo/src
     git submodule add git@github.com:zkytony/kinova-movo.git
