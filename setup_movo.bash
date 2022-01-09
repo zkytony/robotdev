@@ -109,7 +109,7 @@ fi
 # activate virtualenv; Note that this is the only
 # functionality of this script if turtlebot has been setup
 # before.
-source turtlebot/venv/turtlebot/bin/activate
+source movo/venv/movo/bin/activate
 
 # Install necessary packages
 if first_time_build; then
@@ -139,6 +139,6 @@ fi
 if first_time_build; then
     build_movo_stack
 else
-    echo -e "If you want to build the turtlebot project, run 'build_turtlebot'"
+    echo -e "If you want to build the movo project, run 'build_movo'"
 fi
 cd $repo_root
