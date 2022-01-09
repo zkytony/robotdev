@@ -34,7 +34,7 @@ function first_time_build
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."
-    exit
+    exit 1
 fi
 
 # Creates turtlebot workspace.
@@ -58,10 +58,21 @@ if first_time_build; then
     pip uninstall em
     pip install empy
     pip install catkin-pkg
+    if ubuntu_version_equal 20.04; then
+        sudo apt-get install ros-noetic-turtlebot3-msgs
+        sudo apt-get install ros-noetic-turtlebot3
+    else
+        echo -e "Unable to install required turtlebot packages due to incompatible Ubuntu version."
+        exit 1
+    fi
 fi
 
-# Follow the instructions here: https://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/
+if [ ! -e "turtlebot/src/turtlebot3_simulations/LICENSE" ]; then
+    git submodule update --init --recursive
+fi
+
 if [ ! -d "turtlebot/src/turtlebot3_simulations" ]; then
+    # Follow the instructions here: https://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/
     cd turtlebot/src/
     git submodule add https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
     cd ../..
