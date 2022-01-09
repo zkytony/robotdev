@@ -126,6 +126,7 @@ if first_time_build; then
     fi
     install_libfreenect2
     install_librealsense
+    sudo apt-get install libopencv-core-dev
 fi
 
 # Download the kinova movo stack; first try to do submodule update;
