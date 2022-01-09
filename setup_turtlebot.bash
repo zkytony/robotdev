@@ -70,6 +70,8 @@ if first_time_build; then
     fi
 fi
 
+# obtain code; first try to do submodule update;
+# if doesn't work (only the first time), then add the submodule
 if [ ! -e "turtlebot/src/turtlebot3_simulations/LICENSE" ]; then
     git submodule update --init --recursive
 fi

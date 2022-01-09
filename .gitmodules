@@ -1,3 +1,6 @@
 [submodule "turtlebot/src/turtlebot3_simulations"]
 	path = turtlebot/src/turtlebot3_simulations
 	url = https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+[submodule "movo/src/kinova-movo"]
+	path = movo/src/kinova-movo
+	url = git@github.com:zkytony/kinova-movo.git

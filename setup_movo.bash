@@ -6,26 +6,13 @@ else
 fi
 repo_root=$PWD
 
-# Creates movo workspace.
-# create the movo workspace directory
-if [ ! -d "movo/src" ]; then
-    mkdir -p movo/src
-fi
-# create a dedicated virtualenv for movo workspace
-if [ ! -d "movo/venv/movo" ]; then
-    cd movo/
-    virtualenv -p python3 venv/movo
-    cd ..
-fi
-# Download the kinova movo stack
-if [ ! -d "movo/src/kinova-movo" ]; then
-    cd movo/src
-    git submodule add git@github.com:zkytony/kinova-movo.git
-    cd ../..
-fi
+# Always assume at the start of a function,
+# or any if clause, the working directory is
+# the root directory of the repository.
 
-# Run the automatic installation script, if not already
-if [ ! -e "movo/src/kinova-movo/DONE_SETUP" ]; then
+function build_movo_stack
+{
+    # Run the automatic installation script, if not already
     if confirm "Run movo setup script?"; then
         echo -e "OK"
         box_out "As the setup_remote_pc script runs,"\
@@ -40,7 +27,69 @@ if [ ! -e "movo/src/kinova-movo/DONE_SETUP" ]; then
         echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
         cd $repo_root
     fi
+    cd movo
+    catkin_make
+}
+
+# Returns true if this is the first time
+# we build the ROS packages related to a robot
+function first_time_build
+{
+    if [ ! -e "movo/src/.DONE_SETUP" ]; then
+        # has not successfully setup
+        true && return
+    else
+        false
+    fi
+}
+
+# use ros
+if ! useros; then
+    echo "Cannot use ROS. Abort."
+    exit 1
 fi
 
-cd movo
-catkin_make
+# Creates movo workspace.
+# create the movo workspace directory
+if [ ! -d "movo/src" ]; then
+    mkdir -p movo/src
+fi
+# create a dedicated virtualenv for movo workspace
+if [ ! -d "movo/venv/movo" ]; then
+    cd movo/
+    virtualenv -p python3 venv/movo
+    cd ..
+fi
+
+# activate virtualenv; Note that this is the only
+# functionality of this script if turtlebot has been setup
+# before.
+source turtlebot/venv/turtlebot/bin/activate
+
+# Install necessary packages
+if first_time_build; then
+    # ros python packages
+    pip uninstall em
+    pip install empy catkin-pkg rospkg defusedxml
+    # other necessary packages
+    pip install numpy
+fi
+
+# Download the kinova movo stack; first try to do submodule update;
+# if doesn't work (only the first time), then add the submodule
+if [ ! -e "movo/src/kinova-movo/LICENSE" ]; then
+    git submodule update --init --recursive
+fi
+
+if [ ! -d "movo/src/kinova-movo" ]; then
+    cd movo/src
+    git submodule add git@github.com:zkytony/kinova-movo.git
+    cd ../..
+fi
+
+if first_time_build; then
+    build_movo_stack
+else
+    echo -e "If you want to build the turtlebot project, run 'build_turtlebot'"
+fi
+cd $repo_root
