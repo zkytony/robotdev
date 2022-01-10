@@ -1,0 +1,21 @@
+# This image allows you to have a Ubuntu 16.04 + ROS Kinetic setup.
+# You can mount the path to the 'robotdev' repository in your host
+# machine to the same path in the container. We ask you to use the
+# same username in the container as in your host machine. This
+# simplifies the maintenance of the 'robotdev' repository.
+# This setup relies on the nice ros:kinetic image provided
+# on Docker Hub.
+# /author: Kaiyu Zheng
+FROM ros:kinetic
+
+# create a user
+ARG hostuser=kaiyu
+
+RUN useradd -ms /bin/bash $hostuser
+USER $hostuser
+WORKDIR /home/$hostuser
+ENV HOME=/home/$hostuser
+
+RUN mkdir $HOME/repo
+
+CMD ["bash"]
