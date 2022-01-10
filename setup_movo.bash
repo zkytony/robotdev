@@ -12,23 +12,32 @@ repo_root=$PWD
 
 function build_movo_stack
 {
-    # Run the automatic installation script, if not already
-    if confirm "Run movo setup script?"; then
+    cd movo
+    if catkin_make; then
+        echo "MOVO SETUP DONE." >> src/.DONE_SETUP
+    else
+        rm src/.DONE_SETUP
+    fi
+    cd $repo_root
+}
+
+function setup_move_remote_pc
+{
+    # Run the provided setup_remove_pc script, if not already
+    # Note that this is more designed for interacting with the real robot.
+    box_out "As the setup_remote_pc script runs,"\
+            "it will prompt you at different points."\
+            "Pay attention to the question when it asks."
+    if confirm "Setup movo remote pc?"; then
         echo -e "OK"
-        box_out "As the setup_remote_pc script runs,"\
-                "it will prompt you at different points."\
-                "Pay attention to the question when it asks."
         cd movo/src/kinova-movo/movo_pc_setup
         chmod +x setup_remove_pc
         echo -e "***** Executing setup_remove_pc script *****"
         ./setup_remove_pc
-        echo "MOVO PC SETUP DONE." >> movo/src/.DONE_SETUP
         echo -e "Setup done."
         echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
         cd $repo_root
     fi
-    cd movo
-    catkin_make
 }
 
 # Returns true if this is the first time
@@ -100,6 +109,7 @@ fi
 # functionality of this script if turtlebot has been setup
 # before.
 source movo/venv/movo/bin/activate
+export ROS_PACKAGE_PATH=$repo_root/movo/src/:${ROS_PACKAGE_PATH}
 
 # Install necessary packages
 if first_time_build; then
@@ -128,6 +138,11 @@ fi
 if first_time_build; then
     build_movo_stack
 else
-    echo -e "If you want to build the movo project, run 'build_movo'"
+    echo -e "If you want to build the movo project, run 'build_movo_stack'"
 fi
+
+if [ -e movo/src/.DONE_SETUP ]; then
+    setup_move_remote_pc
+fi
+
 cd $repo_root
