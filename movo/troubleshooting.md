@@ -168,3 +168,92 @@ function install_librealsense
 ```
 The key is to install the last two packages for developers.
 This is resolved.
+
+**UPDATE 01/09/2022 19:38: realsense is removed (by kinova themselves). My repo has been updated.**
+
+## Assorted Catkin Build Errors
+
+1. A bunch of errors regarding migration from OpenCV 3 to 4. The key points appears to be:
+
+  * Use
+     ```
+     #include <opencv2/opencv.hpp>
+     ```
+     and several other `<opencv2>` header files.
+
+  * Change names, e.g. `CV_AA` to `LINE_AA`, etc. Mostly can be done through googling.
+
+2. Errors about migrating TF to TF2.
+
+   This happened for the package `movo_assisted_teleop`.
+
+   The first thing is to figure out what to do. I decided to port over to TF2
+   instead of figuring out how to make TF work, because it is noetic, because
+   we are moving forward.
+
+   First, there is a `tf2_ros` namespace. You need to include the tf2 header
+   files correctly. Refer to documentation online for noetic.
+
+   The notable one, regarding passing in a pointer to `tf2_ros::Buffer`
+   to `base_local_planner`, I asked a question on [RosAsk](https://answers.ros.org/question/393967/cannot-convert-tf2_rostransformlistener-to-tf2_rosbuffer/).
+   Later I figured out a way to deal with it, by:
+   ```cpp
+   // ./movo_navigation/movo_assisted_teleop/include/movo_assisted_teleop/movo_assisted_teleop.h
+   tf2_ros::Buffer *tfb_;
+   tf2_ros::TransformListener tf_;
+   ...
+   ```
+   and then initialize the `tf_` by passing the dereference of `*tfb_`. I
+   came up with this solution based on reading the documentation.
+
+
+3. Remove realsense
+
+4. Gazebo migration (7? to 11)
+
+   This was a lot of effort. Check out the following commits:
+
+   * bf924d2e32fb8374bb75bc28804386dafcbfdbd4
+   * 5cfc15a7eb49b3804a76c6a8d2e3d1676233e6db
+
+
+5. `boost::shared_ptr` to `std::shared_ptr` in `joint_trajectory_controller`
+
+    The error is:
+    ```
+     /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/movo_third_party/joint_trajectory_controller
+    /include/joint_trajectory_controller/joint_trajectory_controller_impl.h:109:49: error: conversion from
+    ‘urdf::JointConstSharedPtr’ {aka ‘std::shared_ptr<const urdf::Joint>’} to non-scalar type ‘joint_trajec
+    tory_controller::internal::UrdfJointConstPtr’ {aka ‘boost::shared_ptr<const urdf::Joint>’} requested
+      109 |     UrdfJointConstPtr urdf_joint = urdf.getJoint(joint_names[i]);
+          |                                    ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+      ```
+
+    [This RosAsk thread](https://answers.ros.org/question/366073/urdfmodel-boostshared_ptrurdflink-boostshared_ptrurdfjoint/)
+    basically asked about the same error. The solution is to change
+    `boost::shared_ptr` to `std::shared_ptr` when declaring the type
+    of `UrdfJointConstPtr`. The solution referenced [this commit](https://github.com/RethinkRobotics/baxter_simulator/pull/130/commits/e2f874ddb937077a7b92e4f5fe9cde3b64446cc0).
+
+
+6. Advanced C++ abstract class error
+
+   ```
+  In file included from /opt/ros/noetic/include/class_loader/class_loader_core.hpp:45,
+                   from /opt/ros/noetic/include/class_loader/class_loader.hpp:46,
+                   from /opt/ros/noetic/include/class_loader/multi_library_class_loader.hpp:42,
+                   from /opt/ros/noetic/include/pluginlib/class_loader.hpp:38,
+                   from /opt/ros/noetic/include/costmap_2d/costmap_2d_ros.h:50,
+                   from /opt/ros/noetic/include/nav_core/base_local_planner.h:42,
+                   from /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/movo_third_party/eband
+  _local_planner/include/eband_local_planner/eband_local_planner_ros.h:44,
+                   from /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/movo_third_party/eband
+  _local_planner/src/eband_local_planner_ros.cpp:38:
+  /opt/ros/noetic/include/class_loader/meta_object.hpp: In instantiation of ‘B* class_loader::impl::MetaO
+  bject<C, B>::create() const [with C = eband_local_planner::EBandPlannerROS; B = nav_core::BaseLocalPlan
+  ner]’:
+  /opt/ros/noetic/include/class_loader/meta_object.hpp:196:7:   required from here
+  /opt/ros/noetic/include/class_loader/meta_object.hpp:198:12: error: invalid new-expression of abstract
+  class type ‘eband_local_planner::EBandPlannerROS’
+    198 |     return new C;
+        |
+   ```
