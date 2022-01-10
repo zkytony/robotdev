@@ -264,3 +264,12 @@ This is resolved.
     In fact, this class was still present in melodic. It looks like
     [teb_local_planner](http://wiki.ros.org/teb_local_planner), however, survived
     till noetic.
+
+
+   Solution: copy and paste the latest code from [eband_local_planner](https://github.com/utexas-bwi/eband_local_planner)
+   to replace the existing, outdated code for:
+   - eband_local_planner.h and .cpp
+   - eband_local_planner_ros.h and .cpp
+   - conversions_and_types.h and .cpp
+
+   After this issue, the build is successful!!!!!
