@@ -7,6 +7,7 @@ fi
 repo_root=$PWD
 rlab_network_interface=$(get_rlab_interface)   # Note: set this to your computer's interface
 MOVO2_IP="138.16.161.17"
+MOVO_INTERNAL_NETWORK="10.66.171.0"
 
 # Always assume at the start of a function,
 # or any if clause, the working directory is
@@ -108,7 +109,7 @@ fi
 source movo/venv/movo/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/movo/src/:${ROS_PACKAGE_PATH}
 echo -e "Adding route to movo's internal network. Requires sudo rights"
-sudo route add -net 10.66.171.0\
+sudo route add -net ${MOVO_INTERNAL_NETWORK}\
      netmask 255.255.255.0\
      gw ${MOVO2_IP}\
      dev ${rlab_network_interface}
