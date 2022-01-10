@@ -107,3 +107,15 @@ function update_git_submodules {
         git submodule update --init --recursive
     fi
 }
+
+
+function get_rlab_interface {
+    (echo -e "import netifaces as ni;" ;
+     echo -e "for intf in ni.interfaces():" ;
+     echo -e "    addrs = ni.ifaddresses(intf);" ;
+     echo -e "    if ni.AF_INET not in addrs:" ;
+     echo -e "        continue" ;
+     echo -e "    ip = addrs[ni.AF_INET][0]['addr'];" ;
+     echo -e "    if ip.startswith('138.16.161'):" ;
+     echo -e "        print(intf)" ) | python
+}

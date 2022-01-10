@@ -5,6 +5,8 @@ else
     . "./tools.sh"
 fi
 repo_root=$PWD
+rlab_network_interface=$(get_rlab_interface)   # Note: set this to your computer's interface
+MOVO2_IP="138.16.161.17"
 
 # Always assume at the start of a function,
 # or any if clause, the working directory is
@@ -31,9 +33,9 @@ function setup_move_remote_pc
     if confirm "Setup movo remote pc?"; then
         echo -e "OK"
         cd movo/src/kinova-movo/movo_pc_setup
-        chmod +x setup_remove_pc
+        chmod +x setup_remote_pc
         echo -e "***** Executing setup_remove_pc script *****"
-        ./setup_remove_pc
+        ./setup_remote_pc
         echo -e "Setup done."
         echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
         cd $repo_root
@@ -105,6 +107,11 @@ fi
 # before.
 source movo/venv/movo/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/movo/src/:${ROS_PACKAGE_PATH}
+echo -e "Adding route to movo's internal network. Requires sudo rights"
+sudo route add -net 10.66.171.0\
+     netmask 255.255.255.0\
+     gw ${MOVO2_IP}\
+     dev ${rlab_network_interface}
 
 # Install necessary packages
 if first_time_build; then
@@ -113,6 +120,7 @@ if first_time_build; then
     pip install empy catkin-pkg rospkg defusedxml
     # other necessary packages
     pip install numpy
+    pip install netifaces
     if ubuntu_version_equal 20.04; then
         sudo apt install ros-noetic-moveit
     else

@@ -86,6 +86,7 @@ if first_time_build; then
     pip uninstall em  # required
     pip install empy catkin-pkg rospkg defusedxml  # required
     pip install numpy  # required
+    pip install netifaces
     # TODO: install necessary packages
     if ubuntu_version_equal 20.04; then
         # TODO: ubuntu-specific installations
