@@ -67,3 +67,4 @@ movo/src/kinova-movo/DONE_SETUP
 DONE_SETUP
 
 thirdparty/libfreenect2  # its own repo
+thirdparty/
