@@ -1,3 +1,4 @@
+# PART 1: Issues encountered when trying to build kinova-movo in ROS Noetic
 ## Could not find a configuration file for package "OpenCV" that is compatible with requested version "3".
 This error happens when building `aruco`
 ```
@@ -340,3 +341,13 @@ The error is really I think a result of using Noetic.
 Everywhere I looked people suggest using ROS Kinetic in docker.
 
 **NOETIC DOES NOT WORK. ROLL BACK TO 16.04**
+
+
+# PART 2: Issues encountered when trying to setup movo stack on 20.04 through a Docker container of Ubuntu 16.04 and ROS Kinetic
+
+**Motivation:** Although I could build kinova-movo in 20.04 with ROS Noetic, the packages
+don't work as expected and wierd errors are thrown. So I think the right way is to
+set up a Ubuntu 16.04 environment and install ROS Kinetic. I am unable to boot into
+USB on this laptop "Zephyr" I am using, and also, using a container is a more long term
+solution, as Deemer points out. As a result, I am going to set up a Docker container
+based on a Ubuntu 16.04 image in which I will install ROS Kinetic.
