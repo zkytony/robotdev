@@ -100,3 +100,10 @@ function check_exists_and_update_submodule {
         git submodule update --init --recursive $1
     fi
 }
+
+function update_git_submodules {
+    # update submodules (clone necessary stuff)
+    if confirm "Update git submodules? NOTE: YOU MAY LOSE PROGRESS IF YOUR COMMIT POINTER IS BEHIND SUBMODULE'S LATEST COMMIT."; then
+        git submodule update --init --recursive
+    fi
+}

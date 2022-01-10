@@ -64,12 +64,6 @@ if ! useros; then
     exit 1
 fi
 
-# update submodules (clone necessary stuff)
-if confirm "Update git submodules?"; then
-    # TODO: add submodule update commands
-    git submodule update --init --recursive <path_to_submodule>
-fi
-
 # creates workspace for the robot
 if [ ! -d "${robot_name}/src" ]; then
     mkdir -p ${robot_name}/src

@@ -88,11 +88,6 @@ if ! useros; then
     exit 1
 fi
 
-# update submodules (clone necessary stuff)
-if confirm "Update git submodules?"; then
-    check_exists_and_update_submodule movo/src/kinova-movo/
-fi
-
 # Creates movo workspace.
 # create the movo workspace directory
 if [ ! -d "movo/src" ]; then

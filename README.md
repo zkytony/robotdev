@@ -12,5 +12,6 @@ hub for all the robot-related development efforts.
 
 To setup your Linux machine (Ubuntu 20.04) for a robot:
 ```
+git submodule update --init --recursive  # optional
 source setup_{robot_name}.bash
 ```
