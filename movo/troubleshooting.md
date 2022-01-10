@@ -238,22 +238,22 @@ This is resolved.
 6. Advanced C++ abstract class error
 
    ```
-  In file included from /opt/ros/noetic/include/class_loader/class_loader_core.hpp:45,
+   In file included from /opt/ros/noetic/include/class_loader/class_loader_core.hpp:45,
                    from /opt/ros/noetic/include/class_loader/class_loader.hpp:46,
                    from /opt/ros/noetic/include/class_loader/multi_library_class_loader.hpp:42,
                    from /opt/ros/noetic/include/pluginlib/class_loader.hpp:38,
                    from /opt/ros/noetic/include/costmap_2d/costmap_2d_ros.h:50,
                    from /opt/ros/noetic/include/nav_core/base_local_planner.h:42,
                    from /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/movo_third_party/eband
-  _local_planner/include/eband_local_planner/eband_local_planner_ros.h:44,
+   _local_planner/include/eband_local_planner/eband_local_planner_ros.h:44,
                    from /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/movo_third_party/eband
-  _local_planner/src/eband_local_planner_ros.cpp:38:
-  /opt/ros/noetic/include/class_loader/meta_object.hpp: In instantiation of ‘B* class_loader::impl::MetaO
-  bject<C, B>::create() const [with C = eband_local_planner::EBandPlannerROS; B = nav_core::BaseLocalPlan
-  ner]’:
-  /opt/ros/noetic/include/class_loader/meta_object.hpp:196:7:   required from here
-  /opt/ros/noetic/include/class_loader/meta_object.hpp:198:12: error: invalid new-expression of abstract
-  class type ‘eband_local_planner::EBandPlannerROS’
+   _local_planner/src/eband_local_planner_ros.cpp:38:
+   /opt/ros/noetic/include/class_loader/meta_object.hpp: In instantiation of ‘B* class_loader::impl::MetaO
+   bject<C, B>::create() const [with C = eband_local_planner::EBandPlannerROS; B = nav_core::BaseLocalPlan
+   ner]’:
+   /opt/ros/noetic/include/class_loader/meta_object.hpp:196:7:   required from here
+   /opt/ros/noetic/include/class_loader/meta_object.hpp:198:12: error: invalid new-expression of abstract
+   class type ‘eband_local_planner::EBandPlannerROS’
     198 |     return new C;
         |
    ```
