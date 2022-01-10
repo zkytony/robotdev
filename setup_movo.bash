@@ -25,22 +25,19 @@ function build_movo_stack
 
 function setup_move_remote_pc
 {
-    # Run the provided setup_remove_pc script, if not already
-    # Note that this is more designed for interacting with the real robot.
-    # box_out "As the setup_remote_pc script runs,"\
-    #         "it will prompt you at different points."\
-    #         "Pay attention to the question when it asks."
-    # if confirm "Setup movo remote pc?"; then
-    #     echo -e "OK"
-    #     cd movo/src/kinova-movo/movo_pc_setup
-    #     chmod +x setup_remote_pc
-    #     echo -e "***** Executing setup_remove_pc script *****"
-    #     ./setup_remote_pc
-    #     echo -e "Setup done."
-    #     echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
-    #     cd $repo_root
-    # fi
-    echo -e "note: Will not execute setup_remote_pc because MOVO is functioning.\n You are now good to continue."
+    if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI) ?"; then
+        echo -e "OK"
+        export ROS_HOSTNAME=$(hostname)
+        export ROS_MASTER_URI="http://movo2:11311"
+        export ROS_IP="138.16.161.191"
+        echo -e "You computer has been configured. Now do:"
+        echo -e "- ssh movo@movo2"
+        echo -e "- ssh into movo1 from movo2 (run ssh movo1)"
+        echo -e "- sudo ifconfig wlan0 down in movo1"
+        echo -e "- go back to movo2, run:"
+        echo -e "   roslaunch movo_bringup movo_system.launch"
+        cd $repo_root
+    fi
 }
 
 # Returns true if this is the first time
