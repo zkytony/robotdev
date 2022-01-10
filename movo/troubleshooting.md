@@ -273,3 +273,32 @@ This is resolved.
    - conversions_and_types.h and .cpp
 
    After this issue, the build is successful!!!!!
+
+
+## roslaunch: error: no such option: --sigint-timeout
+
+```
+started roslaunch server http://zephyr:34041/
+remote[movo1-0] starting roslaunch
+remote[movo1-0]: creating ssh connection to movo1:22, user[movo]
+launching remote roslaunch child with command: [env ROS_MASTER_URI=http://movo2:11311 /home/movo/env.sh roslaunch -c movo1-0 -u http://zephyr:34041/ --run_id d27329ee-723c-11ec-92ff-00215cbdfd44 --sigint-timeout 15.0 --sigterm-timeout 2.0]
+remote[movo1-0]: ssh connection created
+remote[movo1-0]: Usage: roslaunch [options] [package] <filename> [arg_name:=value...]
+       roslaunch [options] <filename> [<filename>...] [arg_name:=value...]
+
+If <filename> is a single dash ('-'), launch XML is read from standard input.
+
+roslaunch: error: no such option: --sigint-timeout
+
+[movo1-0] killing on exit
+RLException: remote roslaunch failed to launch: movo1
+The traceback for the exception was written to the log file
+[mapping_bringup-2] process has died [pid 41432, exit code 1, cmd /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/si_utils/src/si_utils/timed_roslaunch 10 movo_demos assisted_teleop.launch local:=false __name:=mapping_bringup __log:=/home/kaiyu/.ros/log/d27329ee-723c-11ec-92ff-00215cbdfd44/mapping_bringup-2.log].
+log file: /home/kaiyu/.ros/log/d27329ee-723c-11ec-92ff-00215cbdfd44/mapping_bringup-2*.log
+```
+The problem is `roslaunch` tries to run a command on movo.
+The command is composed on my local machine running Noetic, but
+movo's `roslaunch` is only Kinetic. So it doesn't recognize
+the options `--sigint-timeout` because it is only [recently added](http://docs.ros.org/en/latest-available/changelogs/roslaunch/changelog.html).
+
+Relevant [ROS Ask](https://answers.ros.org/question/372195/remote-roslaunch-from-host-noetic-machine-to-remote-melodic-machine-failed/).
