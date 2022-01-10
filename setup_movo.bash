@@ -27,7 +27,6 @@ function setup_move_remote_pc
 {
     if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI) ?"; then
         echo -e "OK"
-        export ROS_HOSTNAME=$(hostname)
         export ROS_MASTER_URI="http://movo2:11311"
         export ROS_IP="138.16.161.191"
         echo -e "You computer has been configured. Now do:"
@@ -83,9 +82,14 @@ function install_libfreenect2
 
 ##------------------- Main Setup Logic ------------------ ##
 # use ros
+if ! ubuntu_version_equal 16.04; then
+    echo "MOVO development requires Ubuntu 16.04 and ROS kinetic. Abort."
+    return 1
+fi
+
 if ! useros; then
     echo "Cannot use ROS. Abort."
-    exit 1
+    return 1
 fi
 
 # Creates movo workspace.
@@ -123,7 +127,7 @@ if first_time_build; then
         sudo apt install ros-noetic-moveit
     else
         echo -e "Unable to install required movo packages due to incompatible Ubuntu version."
-        exit 1
+        return 1
     fi
     install_libfreenect2
     sudo apt-get install libopencv-core-dev

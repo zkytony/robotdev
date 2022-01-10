@@ -302,3 +302,41 @@ movo's `roslaunch` is only Kinetic. So it doesn't recognize
 the options `--sigint-timeout` because it is only [recently added](http://docs.ros.org/en/latest-available/changelogs/roslaunch/changelog.html).
 
 Relevant [ROS Ask](https://answers.ros.org/question/372195/remote-roslaunch-from-host-noetic-machine-to-remote-melodic-machine-failed/).
+
+I found that in `/opt/ros/noetic/lib/python3/dist-packages/roslaunch/remoteprocess.py`:
+```python
+class SSHChildROSLaunchProcess(roslaunch.server.ChildROSLaunchProcess):
+    """
+    Process wrapper for launching and monitoring a child roslaunch process over SSH
+    """
+    def __init__(self, run_id, name, server_uri, machine, master_uri=None, sigint_timeout=DEFAULT_TIMEOUT_SIGINT, sigterm_timeout=DEFAULT_TIMEOUT_SIGTERM):
+        if not machine.env_loader:
+            raise ValueError("machine.env_loader must have been assigned before creating ssh child instance")
+        args = [machine.env_loader, 'roslaunch', '-c', name, '-u', server_uri, '--run_id', run_id,
+                '--sigint-timeout', str(sigint_timeout), '--sigterm-timeout', str(sigterm_timeout)]
+        ...
+```
+You can see that `--sigint-timeout` is appended into the args.
+
+**WARNING: I REMOVED THIS.** It now looks like this:
+```python
+class SSHChildROSLaunchProcess(roslaunch.server.ChildROSLaunchProcess):
+    def __init__(self, run_id, name, server_uri, machine, master_uri=None, sigint_timeout=DEFAULT_TIMEOUT_SIGINT, sigterm_timeout=DEFAULT_TIMEOUT_SIGTERM):
+        if not machine.env_loader:
+            raise ValueError("machine.env_loader must have been assigned before creating ssh child instance")
+        args = [machine.env_loader, 'roslaunch', '-c', name, '-u', server_uri, '--run_id', run_id]
+                # '--sigint-timeout', str(sigint_timeout), '--sigterm-timeout', str(sigterm_timeout)]
+   ...
+```
+
+
+## Unable to run Teleop
+
+I cannot start teleop with movo and use joy stick to control it,
+if I do the roslaunch command on my remote computer.
+
+The error is really I think a result of using Noetic.
+
+Everywhere I looked people suggest using ROS Kinetic in docker.
+
+**NOETIC DOES NOT WORK. ROLL BACK TO 16.04**

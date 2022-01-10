@@ -61,7 +61,7 @@ function first_time_build
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."
-    exit 1
+    return 1
 fi
 
 # creates workspace for the robot
@@ -92,7 +92,7 @@ if first_time_build; then
         # TODO: ubuntu-specific installations
     else
         echo -e "Unable to install required ${robot_name} packages due to incompatible Ubuntu version."
-        exit 1
+        return 1
     fi
     # TODO: more non-ubuntu-specific installations
 fi
