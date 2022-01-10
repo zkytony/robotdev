@@ -5,7 +5,6 @@ else
     . "./tools.sh"
 fi
 repo_root=$PWD
-rlab_network_interface=$(get_rlab_interface)   # Note: set this to your computer's interface
 MOVO2_IP="138.16.161.17"
 MOVO_INTERNAL_NETWORK="10.66.171.0"
 
@@ -41,7 +40,7 @@ function setup_move_remote_pc
     #     echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
     #     cd $repo_root
     # fi
-    echo -e "Will not execute setup_remote_pc because MOVO is functioning. You are now good to continue."
+    echo -e "note: Will not execute setup_remote_pc because MOVO is functioning.\n You are now good to continue."
 }
 
 # Returns true if this is the first time
@@ -113,7 +112,7 @@ echo -e "Adding route to movo's internal network. Requires sudo rights"
 sudo route add -net ${MOVO_INTERNAL_NETWORK}\
      netmask 255.255.255.0\
      gw ${MOVO2_IP}\
-     dev ${rlab_network_interface}
+     dev $(get_rlab_interface)
 
 # Install necessary packages
 if first_time_build; then
