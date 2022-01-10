@@ -22,7 +22,7 @@ function build_movo_stack
         chmod +x setup_remove_pc
         echo -e "***** Executing setup_remove_pc script *****"
         ./setup_remove_pc
-        echo "MOVO PC SETUP DONE." >> movo/kinova-movo/DONE_SETUP
+        echo "MOVO PC SETUP DONE." >> movo/src/.DONE_SETUP
         echo -e "Setup done."
         echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
         cd $repo_root
