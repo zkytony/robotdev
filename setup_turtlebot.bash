@@ -74,7 +74,7 @@ fi
 # obtain code; first try to do submodule update;
 # if doesn't work (only the first time), then add the submodule
 if [ ! -e "turtlebot/src/turtlebot3_simulations/LICENSE" ]; then
-    git submodule update --init --recursive
+    git submodule update --init --recursive turtlebot/src/turtlebot3_simulations
 fi
 
 if [ ! -d "turtlebot/src/turtlebot3_simulations" ]; then

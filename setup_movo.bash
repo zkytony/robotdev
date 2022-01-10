@@ -90,7 +90,7 @@ fi
 
 # update submodules (clone necessary stuff)
 if confirm "Update git submodules?"; then
-   git submodule update --init --recursive
+   git submodule update --init --recursive movo/src/kinova-movo/
 fi
 
 # Creates movo workspace.
