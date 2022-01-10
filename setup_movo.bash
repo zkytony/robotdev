@@ -28,19 +28,20 @@ function setup_move_remote_pc
 {
     # Run the provided setup_remove_pc script, if not already
     # Note that this is more designed for interacting with the real robot.
-    box_out "As the setup_remote_pc script runs,"\
-            "it will prompt you at different points."\
-            "Pay attention to the question when it asks."
-    if confirm "Setup movo remote pc?"; then
-        echo -e "OK"
-        cd movo/src/kinova-movo/movo_pc_setup
-        chmod +x setup_remote_pc
-        echo -e "***** Executing setup_remove_pc script *****"
-        ./setup_remote_pc
-        echo -e "Setup done."
-        echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
-        cd $repo_root
-    fi
+    # box_out "As the setup_remote_pc script runs,"\
+    #         "it will prompt you at different points."\
+    #         "Pay attention to the question when it asks."
+    # if confirm "Setup movo remote pc?"; then
+    #     echo -e "OK"
+    #     cd movo/src/kinova-movo/movo_pc_setup
+    #     chmod +x setup_remote_pc
+    #     echo -e "***** Executing setup_remove_pc script *****"
+    #     ./setup_remote_pc
+    #     echo -e "Setup done."
+    #     echo -e "Note: To run any of the sim_ functions please disconnect the remote PC from the robot."
+    #     cd $repo_root
+    # fi
+    echo -e "Will not execute setup_remote_pc because MOVO is functioning. You are now good to continue."
 }
 
 # Returns true if this is the first time
