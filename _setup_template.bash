@@ -105,8 +105,9 @@ if [ ! -d "${robot_name}/src/<submodule repo name>" ]; then
 fi
 
 # Start building
-if [ first_time_build ] || [ confirm "rebuild?" ] ; then
-    # build the workspace
+if first_time_build; then
+    eval "build_${robot_name}_stack"
+elif confirm "rebuild?"; then
     eval "build_${robot_name}_stack"
 else
     echo -e "If you want to build the ${robot_name} project, run 'build_${robot_name}_stack'"

@@ -138,8 +138,10 @@ if [ ! -d "movo/src/kinova-movo/movo_apps/movo_motor_skills" ]; then
 fi
 
 # Start building
-if [ first_time_build ] || [ confirm "rebuild?" ]; then
+if first_time_build; then
     build_movo_stack
+elif confirm "rebuild?"; then
+     build_movo_stack
 else
     echo -e "If you want to build the movo project, run 'build_movo_stack'"
 fi
