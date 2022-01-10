@@ -257,3 +257,10 @@ This is resolved.
     198 |     return new C;
         |
    ```
+
+    The problem is the class `eband_local_planner::EBandPlannerROS` is no longer
+    part of noetic. It was in [indigo](http://docs.ros.org/en/indigo/api/eband_local_planner/html/classeband__local__planner_1_1EBandPlannerROS.html),
+    but the corresponding [noetic link](http://docs.ros.org/en/noetic/api/eband_local_planner/html/classeband__local__planner_1_1EBandPlannerROS.html) is 404.
+    In fact, this class was still present in melodic. It looks like
+    [teb_local_planner](http://wiki.ros.org/teb_local_planner), however, survived
+    till noetic.
