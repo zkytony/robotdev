@@ -88,6 +88,9 @@ function useros() {
     if ubuntu_version_equal 20.04; then
         source /opt/ros/noetic/setup.bash
         true && return
+    elif ubuntu_version_equal 16.04; then
+        source /opt/ros/kinetic/setup.bash
+        true && return
     else
         echo -e "No suitable ROS version installed"
         false
