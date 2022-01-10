@@ -110,6 +110,7 @@ if [ ! -d "${robot_name}/src/<submodule repo name>" ]; then
     cd ../..
 fi
 
+# Start building
 if [ first_time_build ] || [ confirm "rebuild?" ] ; then
     # build the workspace
     eval "build_${robot_name}_stack"

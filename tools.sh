@@ -26,31 +26,27 @@ function box_out()
     tput sgr 0
 }
 
-# getting ubuntu version (from my dotfiles)
-function get_major_version
-{
+function get_major_version {
+    # getting ubuntu version (from my dotfiles)
     # $1: a string of form xx.yy where xx is major version,
     #     and yy is minor version.
     v="$(echo ${1} | sed -e 's/\.[0-9]*//')"
     return $(expr $v + 0)
 }
 
-function get_minor_version
-{
+function get_minor_version {
     # $1: a string of form xx.yy where xx is major version,
     #     and yy is minor version.
     v="$(echo ${1} | sed -e 's/[0-9]*\.//')"
     return $(expr $v + 0)
 }
 
-function ubuntu_version
-{
+function ubuntu_version {
     version="$(lsb_release -r | sed -e 's/[\s\t]*Release:[\s\t]*//')"
     echo "$version"
 }
 
-function ubuntu_version_greater_than
-{
+function ubuntu_version_greater_than {
     version=$(ubuntu_version)
     get_major_version $version
     major=$?
@@ -64,8 +60,7 @@ function ubuntu_version_greater_than
     (( $major > $given_major )) || { (( $major == $given_major )) && (( $minor > $given_minor )); }
 }
 
-function ubuntu_version_less_than
-{
+function ubuntu_version_less_than {
     version=$(ubuntu_version)
     get_major_version $version
     major=$?
@@ -79,8 +74,7 @@ function ubuntu_version_less_than
     (( $major < $given_major )) || { (( $major == $given_major )) && (( $minor < $given_minor )); }
 }
 
-function ubuntu_version_equal
-{
+function ubuntu_version_equal {
     if ! ubuntu_version_less_than $1; then
 	if ! ubuntu_version_greater_than $1; then
 	    true && return
@@ -90,13 +84,19 @@ function ubuntu_version_equal
 }
 
 
-function useros()
-{
+function useros() {
     if ubuntu_version_equal 20.04; then
         source /opt/ros/noetic/setup.bash
         true && return
     else
         echo -e "No suitable ROS version installed"
         false
+    fi
+}
+
+
+function check_exists_and_update_submodule {
+    if [ -d $1 ]; then
+        git submodule update --init --recursive $1
     fi
 }

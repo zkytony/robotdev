@@ -90,7 +90,7 @@ fi
 
 # update submodules (clone necessary stuff)
 if confirm "Update git submodules?"; then
-   git submodule update --init --recursive movo/src/kinova-movo/
+    check_exists_and_update_submodule movo/src/kinova-movo/
 fi
 
 # Creates movo workspace.
@@ -135,7 +135,15 @@ if [ ! -d "movo/src/kinova-movo" ]; then
     cd ../..
 fi
 
-if first_time_build; then
+# add movo_motor_skills to kinova-movo/movo_apps
+if [ ! -d "movo/src/kinova-movo/movo_apps/movo_motor_skills" ]; then
+    cd movo/src/kinova-movo/movo_apps
+    git submodule add git@github.com:zkytony/movo_motor_skills.git
+    cd $repo_root
+fi
+
+# Start building
+if [ first_time_build ] || [ confirm "rebuild?" ]; then
     build_movo_stack
 else
     echo -e "If you want to build the movo project, run 'build_movo_stack'"
@@ -143,6 +151,10 @@ fi
 
 if [ -e movo/src/.DONE_SETUP ]; then
     setup_move_remote_pc
+
+    if [ -e movo/functions.sh ]; then
+        source movo/functions.sh
+    fi
 fi
 
 cd $repo_root
