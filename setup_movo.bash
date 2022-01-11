@@ -40,7 +40,7 @@ function install_libfreenect2
 
 function setup_movo_remote_pc
 {
-    echo -e "OK"
+    useros
     echo -e "Adding route to movo's internal network. Requires sudo rights"
     sudo route add -net ${MOVO_INTERNAL_NETWORK}\
          netmask 255.255.255.0\
@@ -87,6 +87,7 @@ fi
 export ROS_PACKAGE_PATH=$repo_root/movo/src/:${ROS_PACKAGE_PATH}
 
 if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI, packet forwarding etc) ?"; then
+    echo -e "OK"
     setup_movo_remote_pc
 fi
 cd $repo_root/movo
