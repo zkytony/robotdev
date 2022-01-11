@@ -38,4 +38,7 @@ RUN mkdir $HOME/repo
 # Different shell color
 RUN echo "export PS1='\e[33;1m\u@\h:\e[31m\w\e[0m\$ '" >> $HOME/.bashrc
 
+# print some info on start
+RUN echo "echo -e 'Welcome! You are now in a docker container ().'" >> $HOME/.bashrc
+RUN echo "echo -e \"Docker ID: $(basename $(cat /proc/1/cpuset))\"" >> $HOME/.bashrc
 CMD ["bash"]
