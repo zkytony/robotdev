@@ -8,14 +8,30 @@
 # /author: Kaiyu Zheng
 FROM ros:kinetic
 
+# Install software
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends apt-utils
+RUN apt-get install -y emacs
+RUN apt-get install -y sudo
+
 # create a user
 ARG hostuser=kaiyu
+ARG password=kaiyu00
 
-RUN useradd -ms /bin/bash $hostuser
+RUN adduser --disabled-password --gecos '' $hostuser
+RUN adduser $hostuser sudo
+# Ensure sudo group users are not asked for a password when using sudo command
+# by ammending sudoers file
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
+/etc/sudoers
+
 USER $hostuser
 WORKDIR /home/$hostuser
 ENV HOME=/home/$hostuser
 
 RUN mkdir $HOME/repo
+
+# Different shell color
+RUN echo "export PS1='\e[33;1m\u@\h:\e[31m\W\e[0m\$ '" >> $HOME/.bashrc
 
 CMD ["bash"]
