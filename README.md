@@ -24,36 +24,24 @@ the Docker container for that ROS version.
 
 For example, to start the container for robotdev using ROS Kinetic:
 
-1. Build the docker image. Replace 'kaiyu' to the username of yourself on your host machine.
-   Update the 'password' as well.
-    ```
-    # assume you are at the repository's root
-    docker build -f Dockerfile.kinetic\
-        -t robotdev:kinetic\
-        --build-arg hostuser=kaiyu\
-        --rm\
-        .
-    ```
-    The `--rm` option is for you to more conveniently rebuild the image.
+1. Build the docker image. Replace 'kaiyu' to the username of yourself on your host machine
+   ```
+   source docker/build.kinetic.sh --hostuser=kaiyu
+   ```
 
-    If you run `docker images`, you should see:
+   If you run `docker images`, you should see:
      ```
      REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
      robotdev     kinetic   3293f13a9b25   7 seconds ago   1.13GB
      ```
 
-2. Create and start the container. Use bind mount
-   because we assume you will be using the same
-   `robotdev` repository inside and outside the container.
-
+2. Run the docker container
    ```
-   # assume you are at the repository's root
-   docker run -it\
-       --volume $(pwd):/home/kaiyu/repo/robotdev/\
-       -e "TERM=xterm-256color"\
-       --privileged\
-       --network=host\
-       robotdev:kinetic
+   source docker/run.kinetic.sh
+   ```
+   To run it so that GUI (X11 forwarding) is supported:
+   ```
+   source docker/run.kinetic.sh --gui
    ```
 
    Note that if you exit from a container, you can restart it as follows.
@@ -72,8 +60,3 @@ For example, to start the container for robotdev using ROS Kinetic:
    docker attach vigilant_keller
    ```
    You will regain the shell (may need to press enter once).
-
-
-3. To run RVIZ, you can start a new container with the following code:
-   ```
-   ```

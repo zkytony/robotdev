@@ -158,3 +158,68 @@ function build_ros_ws
     fi
     cd ..
 }
+
+function split_by {
+    # Convenient function
+    # usage: split_by <string> <separator>
+    # example: split_by 'a--b'  '--'
+    # The output will be stored in an array called $substrings
+    # The size of the array is stored in $len. So, in the
+    # above example, $len=2, $substrings[0]=a and $substrings[1]=b
+    # Reference: https://unix.stackexchange.com/a/378549/193800
+    string=$1
+    separator=$2
+
+    tmp=${string//"$separator"/$'\2'}
+    IFS=$'\2' read -a arr <<< "$tmp"
+    len=0
+    for substr in "${arr[@]}" ; do
+        substrings[$len]=$substr
+        ((len++))
+    done
+}
+
+function match_var_arg {
+    # usage: match_single_var_arg <arg>
+    # If <arg> is of format --variable=value
+    # return true. Otherwise, return false.
+    regex='--[a-zA-Z0-9]+=(.*)'
+    if [[ $1 =~ $regex ]]; then
+        true && return
+    else
+        false
+    fi
+}
+
+function parse_var_arg {
+    # usage: parse_single_var_arg <arg>
+    # If <arg> is of format --variable=value
+    # then parse and set the variables $var_name
+    # and $var_value respectively. Otherwise,
+    # return false.
+    if match_var_arg $1; then
+        split_by $1 '--'
+        split_by ${substrings[1]} '='
+        var_name=${substrings[0]}
+        var_value=${substrings[1]}
+        true && return
+    else
+        false
+    fi
+}
+
+
+function is_flag {
+    # usage: is_option <arg>
+    # returns true if <arg> is of format -x or --x
+    # where x could be a single character or multiple characters.
+    # Note that --x=y will not be accepted because it is a
+    # variable not a flag.
+    if match_var_arg $1; then
+        false
+    else
+        if [[ $1 == -* ]]; then
+            true && return
+        fi
+    fi
+}
