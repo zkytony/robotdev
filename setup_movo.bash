@@ -10,7 +10,7 @@ function install_libfreenect2
 
     cd thirdparty/libfreenect2
     if [ -d "build" ]; then
-        if confirm "build exists. Rebuild?"; then
+        if confirm "libfreenect2 build exists. Rebuild?"; then
             rm -rf build
         else
             cd $repo_root

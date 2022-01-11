@@ -150,9 +150,11 @@ function first_time_build
 
 function build_ros_ws
 {
+    cd $1
     if catkin_make; then
-        echo "$1 SETUP DONE." >> $1/src/.DONE_SETUP
+        echo "$1 SETUP DONE." >> src/.DONE_SETUP
     else
-        rm $1/src/.DONE_SETUP
+        rm src/.DONE_SETUP
     fi
+    cd ..
 }
