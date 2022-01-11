@@ -37,24 +37,6 @@ function install_libfreenect2
     cd $repo_root
 }
 
-# Run this on the host machine
-function setup_submodules
-{
-    # Download the kinova movo stack; first try to do submodule update;
-    if [ ! -d "movo/src/kinova-movo" ]; then
-        cd movo/src
-        git submodule add git@github.com:zkytony/kinova-movo.git
-        cd ../..
-    fi
-
-    # add movo_motor_skills to kinova-movo/movo_apps
-    if [ ! -d "movo/src/kinova-movo/movo_apps/movo_motor_skills" ]; then
-        cd movo/src/kinova-movo/movo_apps
-        git submodule add git@github.com:zkytony/movo_motor_skills.git
-        cd $repo_root
-    fi
-}
-
 
 function setup_movo_remote_pc
 {
@@ -95,7 +77,6 @@ if ! ubuntu_version_equal 16.04; then
 fi
 
 if first_time_build movo; then
-    setup_submodules
     pip install netifaces
     install_libfreenect2
     build_ros_ws movo
