@@ -56,6 +56,24 @@ For example, to start the container for robotdev using ROS Kinetic:
        robotdev:kinetic
    ```
 
+   Note that if you exit from a container, you can restart it as follows.
+   First list the containers that are stopped:
+   ```
+   docker ps --filter "status=exited"
+   CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS                            PORTS     NAMES
+   b4c0f9d589f0   robotdev:kinetic   "/ros_entrypoint.sh …"   4 minutes ago   Exited (130) About a minute ago             vigilant_keller
+   ```
+   Then, run `docker restart`. Note that it supports autocompletion by container names.
+   ```
+   docker restart vigilant_keller
+   ```
+   Then, run the following
+   ```
+   docker attach vigilant_keller
+   ```
+   You will regain the shell (may need to press enter once).
+
+
 3. To run RVIZ, you can start a new container with the following code:
    ```
    ```
