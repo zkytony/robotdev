@@ -16,6 +16,7 @@ RUN apt-get install -y sudo
 RUN apt-get install -y python-pip
 RUN apt-get install -y net-tools
 RUN apt-get install -y iputils-ping
+RUN apt-get install -y openssh-client openssh-server
 RUN apt-get install -y ros-kinetic-desktop-full
 RUN apt-get install -y ros-kinetic-navigation
 RUN apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers
