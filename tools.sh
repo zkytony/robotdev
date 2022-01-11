@@ -122,3 +122,37 @@ function get_rlab_interface {
      echo -e "    if ip.startswith('138.16.161'):" ;
      echo -e "        print(intf)" ) | python
 }
+
+function get_rlab_ip {
+    (echo -e "import netifaces as ni;" ;
+     echo -e "for intf in ni.interfaces():" ;
+     echo -e "    addrs = ni.ifaddresses(intf);" ;
+     echo -e "    if ni.AF_INET not in addrs:" ;
+     echo -e "        continue" ;
+     echo -e "    ip = addrs[ni.AF_INET][0]['addr'];" ;
+     echo -e "    if ip.startswith('138.16.161'):" ;
+     echo -e "        print(ip)" ) | python
+}
+
+
+# Returns true if this is the first time
+# we build the ROS packages related to a robot
+function first_time_build
+{
+    if [ ! -e "$1/src/.DONE_SETUP" ]; then
+        # has not successfully setup
+        true && return
+    else
+        false
+    fi
+}
+
+
+function build_ros_ws
+{
+    if catkin_make; then
+        echo "$1 SETUP DONE." >> $1/src/.DONE_SETUP
+    else
+        rm $1/src/.DONE_SETUP
+    fi
+}
