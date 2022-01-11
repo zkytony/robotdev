@@ -20,14 +20,21 @@ source setup_{robot_name}.bash
 ## Docker
 By default, we assume you use ROS Noetic on Ubuntu 20.04.
 If you are using a different version of ROS, please use
-the Docker container for that ROS version. For example,
-to start the container for robotdev using ROS Kinetic:
+the Docker container for that ROS version.
+
+For example, to start the container for robotdev using ROS Kinetic:
 
 1. Build the docker image. Replace 'kaiyu' to the username of yourself on your host machine.
+   Update the 'password' as well.
     ```
     # assume you are at the repository's root
-    docker build -f Dockerfile.kinetic -t robotdev:kinetic --build-arg hostuser=kaiyu.
+    docker build -f Dockerfile.kinetic\
+        -t robotdev:kinetic\
+        --build-arg hostuser=kaiyu\
+        --rm\
+        .
     ```
+    The `--rm` option is for you to more conveniently rebuild the image.
 
     If you run `docker images`, you should see:
      ```
@@ -42,7 +49,10 @@ to start the container for robotdev using ROS Kinetic:
    ```
    # assume you are at the repository's root
    docker run -it\
-       --mount type=bind,source=$(pwd),target=/home/kaiyu/repo/robotdev/\
+       --volume $(pwd):/home/kaiyu/repo/robotdev/\
+       -e "TERM=xterm-256color"\
+       --privileged\
+       --network=host\
        robotdev:kinetic
    ```
 
