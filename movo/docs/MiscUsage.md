@@ -1,7 +1,7 @@
 
-## Misc Usage
+# Misc Usage
 
-### Networking
+## Networking
 1. Connect to RLAB wifi. Then `ping movo2` should show:
 ```
 $ ping movo2
@@ -25,7 +25,7 @@ sudo route add -net 10.66.171.0 netmask 255.255.255.0 gw 138.16.161.17 dev <netw
 ```
 where `network interface` is the name of the network that has an 138.16.161.X IP address (RLAB).
 
-### Bring up MOVO
+## Bring up MOVO
 1. First, on your PC, check if you can ping both movo1 and movo2 through the `10.66.171.X` IP addresses. If you cannot ping movo1, then SSH into movo2 and then ssh into movo1, and then run `sudo ifconfig wlan0 down` on movo1. This disables the WiFi network interface on movo1 such that it can only talk to movo2.
 
 2. ssh into MOVO2. Run
@@ -38,7 +38,7 @@ $ roswtf
 ```
 This will make sure network works (i.e. topics can be received).
 
-#### Convenience
+### Convenience
 Copy and paste the following into your `~/.basrhc` for convenience
 ```bash
 usemovo()
@@ -58,13 +58,37 @@ usemovo()
 ```
 
 
-### Using Joy stick:
+## Using Joy stick:
 1. `roslaunch movo_demos robot_assisted_teleop.launch`
 2. `roslaunch movo_remote_teleop movo_remote_teleop.launch`
 Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/movo/movo-joystick) for button mapping.
 
 
-### Mapping
+### Note when Docker container
+
+When you plug the joystick into your computer,
+you should see `/dev/input/js0`. If you do not see this file on the file
+system of your docker container, then you need to stop the container, commit it (saves the modified container state into a new image), and then run the new image (i.e. run from the new entry point). Now the `--privleged` tag should allow your new container to see the joystick. Note that you could use the same image name so that you could run the same bash script under `robotdev/docker`.
+
+For example, let's say you were running a container for the image `robotdev:kinetic`. Now you just plugged in the joystick into your host computer.
+First, stop the container:
+```
+docker container ls   # list active containers
+docker stop <container>
+```
+Then, commit the container you just stopped
+```
+docker commit <container> robotdev:kinetic
+```
+Note that this essentially _overrides_ the previous `robotdev:kinetic` image.
+You can immediately list the images by `docker images` and you should see this image being created a few seconds ago.
+
+Now, you can just run the new image (with a new entry point) as usual:
+```
+source docekr/run.kinetic.sh --gui
+```
+
+## Mapping
 1. Simply run
 ```
 roslaunch movo_object_search mapping.launch
@@ -76,7 +100,7 @@ rosrun map_server map_saver -f <map_name>
 ```
 in the `movo_demos/map` directory. Copy this map to `movo_object_search/maps` as well for convenience of creating topological maps later.
 
-### Navigation
+## Navigation
 Just Localization
 1. Run `roslaunch movo_object_search localization.launch map_file:=cit122` where "cit122" could be replaced by another map file name.
 
@@ -86,8 +110,8 @@ Move_base + localization
 1. ssh into MOVO2.
 2. run `roslaunch movo_demos map_nav.launch map_file:=cit122`. The [reference](https://github.com/Kinovarobotics/kinova-movo/wiki/2.-How-Tos) on kinova repo is wrong!
 
-### Sensors
-#### Point Cloud
+## Sensors
+### Point Cloud
 Likely it is very slow to transmit point cloud from MOVO to local computer via WIFI. There is a file `./movo_7dof_moveit_config/config/sensors.yaml` which has some configuration about point cloud. Among these configurations, according to [this doc](http://docs.ros.org/indigo/api/pr2_moveit_tutorials/html/planning/src/doc/perception_configuration.html),
  - point_subsample:  Choose one of every point_subsample points.
  - max_range: Points further than this will not be used. On MOVO, this is set to just 2.0m!
@@ -127,19 +151,19 @@ rosrun image_transport republish compressed in:=(in_base_topic) raw out:=(out_ba
 ```
 
 
-### Ros Tricks
-#### Save a message to a file
+## Ros Tricks
+### Save a message to a file
 If you want to save a particular text message directly to a file you can do
 ```
 rostopic echo -p /your_topic/goes/here > /path/to/your/file
 ```
 you won't see any ouptut here, but in your file you'll see the message in a CSV format.
 
-#### Echo a single message
+### Echo a single message
 ```
 rostopic echo -n1 <other options> /topic
 ```
-#### Ros <param> is different from "args" in <node> tag.
+### Ros <param> is different from "args" in <node> tag.
 The following two are completely different:
 ```
 <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/axis_camera raw out:=/axis_camera/image_raw" />
@@ -178,7 +202,7 @@ Use this:
 </launch>
 ```
 
-### Troubleshooting
+## Troubleshooting
 1. synchronization issue
 
 I am facing this nasty synchronization issue that basically prevents the `depth_image_proc` node to publish anything.
