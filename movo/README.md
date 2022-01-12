@@ -61,6 +61,11 @@ issues encountered while setting up this workspace.
    ```
    Check if you can ping movo1.
 
+4. Make sure that the SSH public key of your container is added
+   to the `.ssh/authorized_keys` file on both MOVO1 and MOVO2.
+
+
+
 
 ## Usage and more
 
