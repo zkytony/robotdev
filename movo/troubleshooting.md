@@ -351,3 +351,30 @@ set up a Ubuntu 16.04 environment and install ROS Kinetic. I am unable to boot i
 USB on this laptop "Zephyr" I am using, and also, using a container is a more long term
 solution, as Deemer points out. As a result, I am going to set up a Docker container
 based on a Ubuntu 16.04 image in which I will install ROS Kinetic.
+
+I have resolved all the problems without taking a note.
+
+
+# PART 3: Working on MOVO remotely using Docker container
+
+###  Server u'movo1' not found in known_hosts
+
+   When running `roslaunch movo_demos robot_assisted_teleop.launch` inside the docker container to launch the joystick nodes, I get an error:
+   ```
+   ...
+   remote[movo1-0]: failed to launch on movo1:
+
+   Unable to establish ssh connection to [movo@movo1:22]: Server u'movo1' not found in known_hosts
+
+
+   [movo1-0] killing on exit
+   unable to start remote roslaunch child: movo1-0
+   The traceback for the exception was written to the log file
+   [mapping_bringup-2] process has died [pid 2163, exit code 1, cmd /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/si_utils/src/si_utils/timed_roslaunch 10 movo_demos assisted_teleop.launch local:=false __name:=mapping_bringup __log:=/home/kaiyu/.ros/log/76870f54-7333-11ec-92ff-00215cbdfd44/mapping_bringup-2.log].
+   log file: /home/kaiyu/.ros/log/76870f54-7333-11ec-92ff-00215cbdfd44/mapping_bringup-2*.log
+
+   ```
+   I found a related [ROS Ask](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/) and the answer says:
+   >ROS has a flaw (feature?) in that it uses a library to so SSH, rather than the usual SSH client. This library does not support the default key algorithm used by the typical SSH client. This means that even though you can SSH to the remote machine, ROS cannot, because the key algorithm isn't supported.
+   >
+   >The fix is to remove the stored key in `~/.ssh/known_hosts`, then SSH again to the remote machine, specifying the `-oHostKeyAlgorithms='ssh-rsa'` command-line option to force the use of the the RSA algorithm. Once this is done ROS can connect to the remote machine.

@@ -62,9 +62,18 @@ issues encountered while setting up this workspace.
    Check if you can ping movo1.
 
 4. Make sure that the SSH public key of your container is added
-   to the `.ssh/authorized_keys` file on both MOVO1[
- and MOVO2.
+   to the `.ssh/authorized_keys` file on both MOVO1 and MOVO2.
 
+    **IMPORTANT** When you SSH into MOVO1 and MOVO2 for **the first time**
+    from within the container, please run the following command
+    ```
+    ssh movo@movo1 -oHostKeyAlgorithms='ssh-rsa'
+    ssh movo@movo2 -oHostKeyAlgorithms='ssh-rsa'
+
+    ```
+    If you don't provide the option, you will run into an issue when starting a node on MOVO1 from your remote PC, due to a ROS-specific issue. See [this ROS Ask answer](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/?answer=244064#post-id-244064).
+
+    If you happened to SSH into MOVO1 and MOVO2 without running the `ssh` command with the option as above, remove the corresponding entries from your `.ssh/known_hosts` file.
 
 
 ## Usage and more
