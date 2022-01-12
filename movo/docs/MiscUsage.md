@@ -88,6 +88,8 @@ Now, you can just run the new image (with a new entry point) as usual:
 source docekr/run.kinetic.sh --gui
 ```
 
+Side tip: If you encounter an error message `Couldn't open joystick force feedback!`, you can ignore it, and the joystick should still function as expected ([reference](https://github.com/ros-drivers/joystick_drivers/issues/134#issuecomment-507338762))
+
 ## Mapping
 1. Simply run
 ```
