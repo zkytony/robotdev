@@ -64,7 +64,7 @@ usemovo()
 Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/movo/movo-joystick) for button mapping.
 
 
-### Note when Docker container
+### Note when using docker container
 
 When you plug the joystick into your computer,
 you should see `/dev/input/js0`. If you do not see this file on the file

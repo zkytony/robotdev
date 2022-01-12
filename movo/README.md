@@ -69,7 +69,6 @@ issues encountered while setting up this workspace.
     ```
     ssh movo@movo1 -oHostKeyAlgorithms='ssh-rsa'
     ssh movo@movo2 -oHostKeyAlgorithms='ssh-rsa'
-
     ```
     If you don't provide the option, you will run into an issue when starting a node on MOVO1 from your remote PC, due to a ROS-specific issue. See [this ROS Ask answer](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/?answer=244064#post-id-244064).
 
