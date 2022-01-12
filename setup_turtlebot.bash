@@ -1,18 +1,15 @@
-# Run this script by source setup_turtlebot.bash
-if [[ ! $PWD = *robotdev ]]; then
-    echo "You must be in the root directory of the robotdev repository."
-else
-    . "./tools.sh"
-fi
-repo_root=$PWD
+# Path to Turtlebot workspace, relative to repository root;
+# No begin or trailing slash.
+TURTLEBOT_PATH="turtlebot"
 
+#------------- FUNCTIONS  ----------------
 # Always assume at the start of a function,
 # or any if clause, the working directory is
 # the root directory of the repository.
 
 function build_turtlebot
 {
-    cd $repo_root/turtlebot
+    cd $repo_root/${TURTLEBOT_PATH}
     if catkin_make; then
         # cmake build is successful. Mark
         echo "TURTLEBOT SETUP DONE." >> src/.DONE_SETUP
@@ -23,7 +20,7 @@ function build_turtlebot
 
 function first_time_build
 {
-    if [ ! -e "turtlebot/src/.DONE_SETUP" ]; then
+    if [ ! -e "${TURTLEBOT_PATH}/src/.DONE_SETUP" ]; then
         # has not successfully setup
         true && return
     else
@@ -31,7 +28,16 @@ function first_time_build
     fi
 }
 
-##------------------- Main Setup Logic ------------------ ##
+#------------- Main Logic  ----------------
+# Run this script by source setup_turtlebot.bash
+if [[ ! $PWD = *robotdev ]]; then
+    echo "You must be in the root directory of the robotdev repository."
+else
+    . "./tools.sh"
+fi
+repo_root=$PWD
+
+
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."
@@ -40,12 +46,12 @@ fi
 
 # Creates turtlebot workspace.
 # create the turtlebot workspace directory
-if [ ! -d "turtlebot/src" ]; then
-    mkdir -p turtlebot/src
+if [ ! -d "${TURTLEBOT_PATH}/src" ]; then
+    mkdir -p ${TURTLEBOT_PATH}/src
 fi
 # create a dedicated virtualenv for turtlebot workspace
-if [ ! -d "turtlebot/venv/turtlebot" ]; then
-    cd turtlebot/
+if [ ! -d "${TURTLEBOT_PATH}/venv/turtlebot" ]; then
+    cd ${TURTLEBOT_PATH}/
     virtualenv -p python3 venv/turtlebot
     cd ..
 fi
@@ -53,8 +59,8 @@ fi
 # activate virtualenv; Note that this is the only
 # functionality of this script if turtlebot has been setup
 # before.
-source turtlebot/venv/turtlebot/bin/activate
-export ROS_PACKAGE_PATH=$repo_root/turtlebot/src/turtlebot3_simulations:${ROS_PACKAGE_PATH}
+source ${TURTLEBOT_PATH}/venv/turtlebot/bin/activate
+export ROS_PACKAGE_PATH=$repo_root/${TURTLEBOT_PATH}/src/turtlebot3_simulations:${ROS_PACKAGE_PATH}
 
 if first_time_build; then
     # ros python packages
@@ -71,9 +77,9 @@ if first_time_build; then
     fi
 fi
 
-if [ ! -d "turtlebot/src/turtlebot3_simulations" ]; then
+if [ ! -d "${TURTLEBOT_PATH}/src/turtlebot3_simulations" ]; then
     # Follow the instructions here: https://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/
-    cd turtlebot/src/
+    cd ${TURTLEBOT_PATH}/src/
     git submodule add https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
     cd ../..
 fi
