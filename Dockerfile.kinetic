@@ -20,6 +20,7 @@ RUN apt-get install -y openssh-client openssh-server
 RUN apt-get install -y ros-kinetic-desktop-full
 RUN apt-get install -y ros-kinetic-navigation
 RUN apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers
+RUN apt-get install -y ros-kinetic-joy
 
 # create a user
 ARG hostuser=kaiyu
