@@ -6,6 +6,6 @@
 * The environment variables used in `movo.urrdf.xacro` are defined under `movo_common/movo_config/movo_config.bash`.
 * By default, if you set `MOVO_HAS_TWO_KINOVA_ARMS` to be `false`, then it assumes you have the right arm attached (which many not be always desirable). So, I suggest even if you have only the left arm attached, you should leave this variable to be true.
    * In fact, somebody (as of 01/12/2022) had added a line in `movo_config.bash` to hack this:
-     ```
+     ```bash
      export KINOVA_RIGHT_ARM_IP_ADDRESS=10.66.171.16  # NOTE: hack to make movo boot while right arm nonresponsive
      ```
