@@ -200,3 +200,28 @@ Anyway. I came across ntp configuration. Just some notes:
 2. [The `stratum` configuration indicates how many hops away from a reference clock that its time is unreliable. And the default value of 10 is probably too high.](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/sect-understanding_chrony_and-its_configuration)
 3. [Comprehensive document on ntp configuration](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s1-understanding_the_ntpd_configuration_file)
 4. [A reference of using `*.ubuntu.pool.ntp.org` as server list in /etc/network`](https://help.ubuntu.com/lts/serverguide/NTP.html)
+
+
+
+
+2. Server u'movo1' not found in known_hosts
+
+   When running `roslaunch movo_demos robot_assisted_teleop.launch` inside the docker container to launch the joystick nodes, I get an error:
+   ```
+   ...
+   remote[movo1-0]: failed to launch on movo1:
+
+   Unable to establish ssh connection to [movo@movo1:22]: Server u'movo1' not found in known_hosts
+
+
+   [movo1-0] killing on exit
+   unable to start remote roslaunch child: movo1-0
+   The traceback for the exception was written to the log file
+   [mapping_bringup-2] process has died [pid 2163, exit code 1, cmd /home/kaiyu/repo/robotdev/movo/src/kinova-movo/movo_common/si_utils/src/si_utils/timed_roslaunch 10 movo_demos assisted_teleop.launch local:=false __name:=mapping_bringup __log:=/home/kaiyu/.ros/log/76870f54-7333-11ec-92ff-00215cbdfd44/mapping_bringup-2.log].
+   log file: /home/kaiyu/.ros/log/76870f54-7333-11ec-92ff-00215cbdfd44/mapping_bringup-2*.log
+
+   ```
+   I found a related [ROS Ask](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/) and the answer says:
+   >ROS has a flaw (feature?) in that it uses a library to so SSH, rather than the usual SSH client. This library does not support the default key algorithm used by the typical SSH client. This means that even though you can SSH to the remote machine, ROS cannot, because the key algorithm isn't supported.
+   >
+   >The fix is to remove the stored key in ~/.ssh/known_hosts, then SSH again to the remote machine, specifying the -oHostKeyAlgorithms='ssh-rsa' command-line option to force the use of the the RSA algorithm. Once this is done ROS can connect to the remote machine.
