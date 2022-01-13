@@ -1,3 +1,5 @@
+# Path to MOVO workspace, relative to repository root;
+# No begin or trailing slash.
 MOVO_PATH="movo"
 
 #------------- FUNCTIONS  ----------------
