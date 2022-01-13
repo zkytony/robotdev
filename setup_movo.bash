@@ -83,8 +83,6 @@ if first_time_build movo; then
     pip install netifaces
     install_libfreenect2
     build_ros_ws $MOVO_PATH
-elif confirm "rebuild?"; then
-    build_ros_ws $MOVO_PATH
 fi
 
 useros
