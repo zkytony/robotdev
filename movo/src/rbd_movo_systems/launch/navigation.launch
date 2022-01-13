@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="map_file" default="scili8-full" />
+
+  <include file="$(find movo_demos)/launch/nav/map_nav.launch">
+    <arg name="map_file" default="$(arg map_file)" />
+  </include>
+</launch>

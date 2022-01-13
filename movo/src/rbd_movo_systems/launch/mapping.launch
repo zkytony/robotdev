@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- GMapping proxy -->
+<launch>
+  <arg name="assisted_teleop" default="false"/>
+  <arg name="sensor_nav" default="false"/>
+  <arg name="local" default="true"/>
+
+  <include file="$(find movo_demos)/launch/nav/mapping.launch">
+    <arg name="assisted_teleop" value="$(arg assisted_teleop)"/>
+    <arg name="sensor_nav" value="$(arg sensor_nav)"/>
+    <arg name="local" value="$(arg local)"/>
+  </include>
+</launch>

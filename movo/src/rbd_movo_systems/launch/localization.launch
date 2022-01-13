@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!-- Launches the AMCL for localization. -->
+
+<launch>
+  <arg name="map_file" default="test_simple"/>
+  <arg name="scan_topic" default="/movo/base_scan_filtered"/>
+
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find rbd_movo_systems)/maps/$(arg map_file).yaml" />
+
+  <node pkg="amcl" type="amcl" name="amcl">
+    <!-- All the amcl parameters goes here -->
+    <rosparam command="load" file="$(find movo_demos)/config/2d_nav/amcl.yaml"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+  </node>
+</launch>

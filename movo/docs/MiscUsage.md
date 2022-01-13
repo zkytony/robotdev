@@ -93,14 +93,14 @@ Side tip: If you encounter an error message `Couldn't open joystick force feedba
 ## Mapping
 1. Simply run
 ```
-roslaunch movo_object_search mapping.launch
+roslaunch rbd_movo_systems mapping.launch
 ```
 2. Then, in the RViz of `viz_object_search.launch` you will see the mapping happening.
 3. When mapping is done, do
 ```
 rosrun map_server map_saver -f <map_name>
 ```
-in the `movo_demos/map` directory. Copy this map to `movo_object_search/maps` as well for convenience of creating topological maps later.
+in the `movo_demos/map` directory. Copy this map to `rbd_movo_systems/maps` as well for convenience of creating topological maps later.
 
 ## Navigation
 Just Localization
