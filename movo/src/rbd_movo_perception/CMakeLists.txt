@@ -12,3 +12,6 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(ar_pattern_detector src/ar_pattern_detector.cpp)
+target_link_libraries(ar_pattern_detector    ${catkin_LIBRARIES})
