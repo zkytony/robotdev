@@ -1,0 +1,7 @@
+string group_name
+---
+float32[] joint_values
+geometry_msgs/Pose pose
+bool has_goal
+bool has_plan
+---

@@ -1,0 +1,10 @@
+# Define the goal
+geometry_msgs/Pose pose
+string group_name
+bool trans_only
+---
+uint32 status
+---
+# Define a feedback message
+uint32 status
+geometry_msgs/Pose pose

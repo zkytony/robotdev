@@ -1,0 +1,13 @@
+# Define the goal
+string group_name
+uint32 action
+bool wait
+
+# params for stroke writing
+int32 stroke_index
+---
+uint32 status
+---
+# Define a feedback message
+uint32 status
+geometry_msgs/Pose pose

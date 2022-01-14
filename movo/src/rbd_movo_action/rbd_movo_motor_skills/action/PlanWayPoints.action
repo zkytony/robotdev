@@ -1,0 +1,9 @@
+# Define the goal
+geometry_msgs/Pose[] waypoints
+string group_name
+---
+uint32 status
+---
+# Define a feedback message
+uint32 status
+geometry_msgs/Pose pose

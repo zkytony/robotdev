@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>movo_motor_skills</name>
+  <name>rbd_movo_motor_skills</name>
   <version>0.0.0</version>
-  <description>The movo_motor_skills package</description>
+  <description>The rbd_movo_motor_skills package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
