@@ -33,8 +33,8 @@ from rbd_movo_motor_skills.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMove
     PlanWaypointsAction, PlanWaypointsGoal, PlanWaypointsResult, PlanWaypointsFeedback, \
     GetStateAction, GetStateGoal, GetStateResult, GetStateFeedback
 
-import rbd_movo_motor_skills.common as common
-import rbd_movo_motor_skills.util as util
+import rbd_movo_motor_skills.old.common as common
+import rbd_movo_motor_skills.old.util as util
 
 common.DEBUG_LEVEL = 1
 

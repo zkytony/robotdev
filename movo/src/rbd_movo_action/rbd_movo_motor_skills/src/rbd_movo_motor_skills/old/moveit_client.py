@@ -17,9 +17,9 @@ from rbd_movo_motor_skills.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMove
     PlanJointSpaceAction, PlanJointSpaceGoal, PlanJointSpaceResult, PlanJointSpaceFeedback, \
     PlanWaypointsAction, PlanWaypointsGoal, PlanWaypointsResult, PlanWaypointsFeedback,\
     GetStateAction, GetStateGoal, GetStateResult, GetStateFeedback
-from rbd_movo_motor_skills.common import ActionType
-import rbd_movo_motor_skills.util as util
-from rbd_movo_motor_skills.moveit_planner import MoveitPlanner
+from rbd_movo_motor_skills.old.common import ActionType
+import rbd_movo_motor_skills.old.util as util
+from rbd_movo_motor_skills.old.moveit_planner import MoveitPlanner
 
 import argparse
 

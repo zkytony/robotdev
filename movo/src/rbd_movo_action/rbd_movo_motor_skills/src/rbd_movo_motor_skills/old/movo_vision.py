@@ -26,8 +26,8 @@ import numpy as np
 import sensor_msgs.msg
 import cv2
 import copy
-import writing3d.util as util
-import writing3d.common as common
+import rbd_movo_motor_skills.old.common as common
+import rbd_movo_motor_skills.old.util as util
 import argparse
 from cv_bridge import CvBridge, CvBridgeError
 
