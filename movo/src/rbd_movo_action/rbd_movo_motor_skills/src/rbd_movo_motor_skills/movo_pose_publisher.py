@@ -3,6 +3,7 @@
 # Publish to angular_vel_cmd
 # Publish to velocity_vel_cmd
 # /author: Kaiyu Zheng
+# NOTE 01-14-2022: this script does not seem to be working
 
 import rospy
 from std_msgs.msg import Header

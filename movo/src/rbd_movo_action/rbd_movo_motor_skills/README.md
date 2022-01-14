@@ -30,4 +30,34 @@ You should see a bunch of messages with no error,
 followed by some (likely blue) highlighted texts "Starting moveit_planner_server"...
 
 
-Now, you can run the client to send motion planning requests.
+Now, you can run the client to send motion planning requests.  There are several
+ways to move the arm. First, you can set a pose target for the end effector,
+with quaternion or not:
+```
+./moveit_client right_arm -g x y z --ee
+./moveit_client right_arm -g x y z qx qy qz qw --ee
+```
+If the `--ee` is not supplied, the list of coordinates will be interpreted as joint space goal pose.
+
+Second, you can supply a file of YAML format with a list of pose targets
+(waypoints). The YAML file can also be just a list of 7 target joint positions
+(joint space goal).
+```
+./moveit_client left_arm -f <path_to_file>
+```
+For example
+```
+./moveit_client left_arm -f ../../cfg/left_clearaway.yml
+```
+Now, the planner server should show a message
+```
+A plan has been made. See it in RViz [check Show Trail and Show Collisions]
+```
+indicating the plan has been made. You can actually visualize the trajectory
+in RVIZ by MotionPlanning -> Planned Path -> check Show Trail. There are other visualization toggles you can play with.
+
+Caveats:
+1. The `moveit_planner` plans for only one goal at a time. You must manually
+   clear the previous goal by running `./moveit_client left_arm -k`
+2. If you want to **execute** a motion plan, you need to do
+   `./moveit_client left_arm -e`. **NOTE: NOT WORKING. (Works but there is a weird delay?)**

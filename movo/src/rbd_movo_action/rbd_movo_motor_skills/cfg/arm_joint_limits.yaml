@@ -1,0 +1,16 @@
+right_shoulder_lift:
+    [0.7, 1.0]
+right_elbow:
+    [0.7, 1.0]
+right_wrist_3:
+    [0.7, 1.0]
+
+# changed
+right_shoulder_pan:
+    [0.0, 0.0]
+right_arm_half:
+    [0.0, 0.0]
+right_wrist_spherical_1:
+    [0.0, 0.0]
+right_wrist_spherical_2:
+    [0.0, 0.0]
