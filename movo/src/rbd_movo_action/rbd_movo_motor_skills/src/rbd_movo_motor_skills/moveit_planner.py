@@ -367,7 +367,7 @@ class MoveitPlanner:
 def main():
     parser = argparse.ArgumentParser(description='Movo Moveit Planner.')
     parser.add_argument("-j", "--joint_limits_file",
-                        type=str, help="Directory to save the collected data", default="../../../cfg/arm_joint_limits.yml")
+                        type=str, help="Directory to save the collected data", default="../../cfg/arm_joint_limits.yaml")
     parser.add_argument("-e", "--ee-frames", type=str, nargs="+", help="End effector frames for each move_group")
     parser.add_argument('group_names', type=str, nargs="+", help="Group name(s) that the client wants to talk to")
     args = parser.parse_args()
