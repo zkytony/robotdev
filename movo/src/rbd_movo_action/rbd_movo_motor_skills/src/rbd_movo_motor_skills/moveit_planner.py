@@ -27,16 +27,14 @@ import tf
 import threading
 import subprocess
 
-from writing3d.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMoveEEResult, PlanMoveEEFeedback, \
+from rbd_movo_motor_skills.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMoveEEResult, PlanMoveEEFeedback, \
     ExecMoveitPlanAction, ExecMoveitPlanGoal, ExecMoveitPlanResult, ExecMoveitPlanFeedback, \
     PlanJointSpaceAction, PlanJointSpaceGoal, PlanJointSpaceResult, PlanJointSpaceFeedback,\
     PlanWaypointsAction, PlanWaypointsGoal, PlanWaypointsResult, PlanWaypointsFeedback, \
     GetStateAction, GetStateGoal, GetStateResult, GetStateFeedback
 
-import writing3d.common as common
-import writing3d.util as util
-# import writing3d.core.pens as pens
-
+import rbd_movo_motor_skills.common as common
+import rbd_movo_motor_skills.util as util
 
 common.DEBUG_LEVEL = 1
 

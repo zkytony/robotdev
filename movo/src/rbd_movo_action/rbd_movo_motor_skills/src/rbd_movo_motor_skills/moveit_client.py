@@ -12,14 +12,14 @@ import yaml
 import math
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-from writing3d.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMoveEEResult, PlanMoveEEFeedback, \
+from rbd_movo_motor_skills.msg import PlanMoveEEAction, PlanMoveEEGoal, PlanMoveEEResult, PlanMoveEEFeedback, \
     ExecMoveitPlanAction, ExecMoveitPlanGoal, ExecMoveitPlanResult, ExecMoveitPlanFeedback, \
     PlanJointSpaceAction, PlanJointSpaceGoal, PlanJointSpaceResult, PlanJointSpaceFeedback, \
     PlanWaypointsAction, PlanWaypointsGoal, PlanWaypointsResult, PlanWaypointsFeedback,\
     GetStateAction, GetStateGoal, GetStateResult, GetStateFeedback
-from writing3d.common import ActionType
-import writing3d.util as util
-from writing3d.robot.moveit_planner import MoveitPlanner
+from rbd_movo_motor_skills.common import ActionType
+import rbd_movo_motor_skills.util as util
+from rbd_movo_motor_skills.moveit_planner import MoveitPlanner
 
 import argparse
 
