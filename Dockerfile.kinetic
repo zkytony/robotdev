@@ -25,6 +25,7 @@ RUN apt-get install -y ros-kinetic-joy
 RUN apt-get install -y ros-kinetic-gmapping ros-kinetic-navigation
 RUN apt-get install -y ros-kinetic-rviz-imu-plugin
 RUN apt-get install -y ros-kinetic-ar-track-alvar
+RUN apt-get install -y ros-kinetic-moveit-commander
 
 # create a user
 ARG hostuser=kaiyu
