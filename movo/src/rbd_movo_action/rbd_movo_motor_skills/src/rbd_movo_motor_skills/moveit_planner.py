@@ -171,35 +171,35 @@ class MoveitPlanner:
 
 
     def print_joint_limits(self):
-        # TODO: now only prints right arm
+        # TODO: now only prints left arm
         util.info("Joint Limits", bold=True)
-        util.info2("right_shoulder_pan")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_shoulder_pan_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_shoulder_pan_joint/max_acceleration"))
+        util.info2("left_shoulder_pan")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_shoulder_pan_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_shoulder_pan_joint/max_acceleration"))
 
-        util.info2("right_shoulder_lift")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_shoulder_lift_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_shoulder_lift_joint/max_acceleration"))
+        util.info2("left_shoulder_lift")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_shoulder_lift_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_shoulder_lift_joint/max_acceleration"))
 
-        util.info2("right_arm_half")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_arm_half_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_arm_half_joint/max_acceleration"))
+        util.info2("left_arm_half")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_arm_half_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_arm_half_joint/max_acceleration"))
 
-        util.info2("right_elbow")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_elbow_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_elbow_joint/max_acceleration"))
+        util.info2("left_elbow")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_elbow_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_elbow_joint/max_acceleration"))
 
-        util.info2("right_wrist_spherical_1")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_spherical_1_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_spherical_1_joint/max_acceleration"))
+        util.info2("left_wrist_spherical_1")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_spherical_1_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_spherical_1_joint/max_acceleration"))
 
-        util.info2("right_wrist_spherical_2")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_spherical_2_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_spherical_2_joint/max_acceleration"))
+        util.info2("left_wrist_spherical_2")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_spherical_2_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_spherical_2_joint/max_acceleration"))
 
-        util.info2("right_wrist_3")
-        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_3_joint/max_velocity"))
-        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/right_wrist_3_joint/max_acceleration"))
+        util.info2("left_wrist_3")
+        print("vel: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_3_joint/max_velocity"))
+        print("acc: %f" % rospy.get_param("robot_description_planning/joint_limits/left_wrist_3_joint/max_acceleration"))
 
 
     def compute_fk(self, ee_link, joint_names, joint_positions, base_frame="odom"):
