@@ -417,7 +417,7 @@ Segmentation fault (core dumped)
    `--nvidia` flag to both the `build.kinetic.sh` and `run.kinetic.sh`
    if you are running this on a computer with NVidia GPU.
    
-### able to see /tf under `rostopic list` but gets no message when doing `rostopic echo tf`
+## Able to see /tf under `rostopic list` but gets no message when doing `rostopic echo tf`
 
 This happened after I ran `setup_movo.bash` successfully and I can ping both MOVO1 and MOVO2.
 
