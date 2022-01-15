@@ -12,11 +12,14 @@ fi
 
 # parse args
 gui=false
+nvidia=false
 for arg in "$@"
 do
     if is_flag arg; then
         if [[ $arg = "--gui" ]]; then
             gui=true
+        elif [[ $arg = "--nvidia" ]]; then
+            nvidia=true
         fi
     fi
 done
@@ -60,6 +63,11 @@ else
     echo ""
     echo "Running docker..."
 
+    runtime_nvidia=""
+    if $nvidia; then
+        runtime_nvidia="--runtime=nvidia"
+    fi
+
     docker run -it\
            --volume $(pwd):/home/$USER/repo/robotdev/\
            --env "TERM=xterm-256color"\
@@ -69,5 +77,6 @@ else
            --volume $XAUTH:$XAUTH\
            --privileged\
            --network=host\
+           ${runtime_nvidia}\
            robotdev:kinetic
 fi

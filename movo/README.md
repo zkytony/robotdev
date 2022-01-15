@@ -21,13 +21,19 @@ issues encountered while setting up this workspace.
    ```
    source docker/build.kinetic.sh
    ```
-   This script will create a docker image using the [Dockerfile](../Dockerfile.kinetic) provided.
+   This script will create a docker image using the [Dockerfile](../Dockerfile.kinetic) provided. If you are on a computer with NVidia GPU,
+   ```
+   source docker/build.kinetic.sh --nvidia
+   ```
 
    After the docker image is created, start a container by running the following (still from the root of the repository)
    ```
    source docker/run.kinetic.sh
    ```
-   This will drop you into a bash shell. You are, in fact, in an Ubuntu 16.04 environment, with necessary ROS-related software packages installed.
+   This will drop you into a bash shell. You are, in fact, in an Ubuntu 16.04 environment, with necessary ROS-related software packages installed. If you are on a computer with NVidia GPU,
+   ```
+   source docker/run.kinetic.sh --nvidia
+   ```
 
 3. To build MOVO source code, go to the repository's root and run:
    ```
@@ -36,6 +42,25 @@ issues encountered while setting up this workspace.
    Equivalently, you can run `catkin_make` while inside `robotdev/movo`, that is, the workspace of MOVO. Note that the `catkin_make` might not directly succeed because additional packages, such as libfreenect2, must be installed. The bash script `setup_movo.bash` will take care of that.
 
    Once the `catkin_make` (a CMake process) finishes the build successfully at 100%, you are good to go.
+
+
+4. Make sure that movo's IP addresses are in your `/etc/hosts` file. Otherwise, you may get the issue where you can do `rostopic list` but you cannot do `rostopic echo tf` (no message is received). In my computer, I have my `/etc/hosts` file like this:
+   ```
+    127.0.0.1       localhost
+    127.0.1.1       zephyr
+
+    # The following lines are desirable for IPv6 capable hosts                                    
+    ::1     ip6-localhost ip6-loopback
+    fe00::0 ip6-localnet
+    ff00::0 ip6-mcastprefix
+    ff02::1 ip6-allnodes
+    ff02::2 ip6-allrouters
+
+    # for movo                                                                                    
+    10.66.171.2 movo1
+    10.66.171.1 movo2
+    138.16.161.17 movo
+   ```
 
 
 ## Working on MOVO
