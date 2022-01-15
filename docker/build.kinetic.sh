@@ -12,6 +12,7 @@ fi
 
 # parse args
 hostuser=$USER  # the user inside the container
+nvidia=""
 for arg in "$@"
 do
     if parse_var_arg arg; then
@@ -20,13 +21,17 @@ do
         else
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
+    elif is_flag arg; then
+        if [[ $arg = "--nvidia" ]]; then
+            nvidia=".nvidia"
+        fi
     fi
 done
 
 # Build the docker image.  The `--rm` option is for you to more conveniently
 # rebuild the image.
 cd $PWD/../  # get to the root of the repository
-docker build -f Dockerfile.kinetic\
+docker build -f Dockerfile.kinetic${nvidia}\
        -t robotdev:kinetic\
        --build-arg hostuser=$hostuser\
        --rm\
