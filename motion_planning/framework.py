@@ -2,6 +2,7 @@
 # /author: kaiyu zheng
 
 import yaml
+import os
 
 class Cue:
     """A Cue specifies information that signals the
@@ -101,11 +102,25 @@ class SkillManager:
     SkillManager starts a subprocess to run that launch file
     which effectively starts the process of completing the skill.
     """
-    def __init__(self):
-        pass
+    def __init__(self, config={}):
+        self._skill_name = None
+        self._skill_spec = None
 
-    def loads(self):
-        pass
+    def load(self, skill_file_path):
+        if self._skill_spec is None:
+            with open(skill_file_path) as f:
+                self._skill_spec = yaml.safe_load(f)
+                self._skill_name = self._get_name(skill_file_path)
+        else:
+            raise ValueError("This skill manager has already loaded a skill."\
+                             "You must start a new manager for a different skill.")
 
     def init(self):
         pass
+
+    def _get_name(self, skill_file_path):
+        return os.path.basename(skill_file_path)
+
+    @property
+    def skill_name(self):
+        return self._skill_name

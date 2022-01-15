@@ -33,3 +33,9 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+install(
+  PROGRAMS
+  scripts/run_skill.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
