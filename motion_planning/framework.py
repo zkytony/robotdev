@@ -1,4 +1,4 @@
-# skill planning framework
+# motor skill planning & creation framework
 # /author: kaiyu zheng
 
 import yaml
@@ -50,6 +50,8 @@ class Executor:
 class Verifier:
     """A verifier's job is to check for a given cue,
     and communicate with the Manager"""
+    def __init__(self, cue):
+        pass
 
 
 class SkillManager:
