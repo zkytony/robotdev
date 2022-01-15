@@ -63,18 +63,20 @@ else
     echo ""
     echo "Running docker..."
 
-    dk=docker
-    if nvidia; then
-        dk=nvidia-docker
+    runtime_nvidia=""
+    if $nvidia; then
+        runtime_nvidia="--runtime=nvidia"
     fi
-    ${dk} run -it\
-          --volume $(pwd):/home/$USER/repo/robotdev/\
-          --env "TERM=xterm-256color"\
-          --env "DISPLAY=$DISPLAY"\
-          --volume /tmp/.X11-unix/:/tmp/.X11-unix:rw\
-          --env "XAUTHORITY=$XAUTH"\
-          --volume $XAUTH:$XAUTH\
-          --privileged\
-          --network=host\
-          robotdev:kinetic
+
+    docker run -it\
+           --volume $(pwd):/home/$USER/repo/robotdev/\
+           --env "TERM=xterm-256color"\
+           --env "DISPLAY=$DISPLAY"\
+           --volume /tmp/.X11-unix/:/tmp/.X11-unix:rw\
+           --env "XAUTHORITY=$XAUTH"\
+           --volume $XAUTH:$XAUTH\
+           --privileged\
+           --network=host\
+           ${runtime_nvidia}\
+           robotdev:kinetic
 fi

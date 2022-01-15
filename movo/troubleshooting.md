@@ -374,25 +374,29 @@ I have resolved all the problems without taking a note.
    log file: /home/kaiyu/.ros/log/76870f54-7333-11ec-92ff-00215cbdfd44/mapping_bringup-2*.log
 
    ```
-   I found a related [ROS Ask](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/) and the answer says:
-   >ROS has a flaw (feature?) in that it uses a library to so SSH, rather than the usual SSH client. This library does not support the default key algorithm used by the typical SSH client. This means that even though you can SSH to the remote machine, ROS cannot, because the key algorithm isn't supported.
-   >
-   >The fix is to remove the stored key in `~/.ssh/known_hosts`, then SSH again to the remote machine, specifying the `-oHostKeyAlgorithms='ssh-rsa'` command-line option to force the use of the the RSA algorithm. Once this is done ROS can connect to the remote machine.
 
+   Summary of solution:
 
-### "libGL error: No matching fbConfigs or visuals found" and "libGL error: failed to load driver: swrast"
-When I am starting `rviz` on my office computer inside the same docker container, I get:
-```
-$ rviz
-[ INFO] [1642208663.492000075]: rviz version 1.12.17
-[ INFO] [1642208663.492042508]: compiled against Qt version 5.5.1
-[ INFO] [1642208663.492050232]: compiled against OGRE version 1.9.0 (Ghadamon)
-libGL error: No matching fbConfigs or visuals found
-libGL error: failed to load driver: swrast
-Could not initialize OpenGL for RasterGLSurface, reverting to RasterSurface.
-libGL error: No matching fbConfigs or visuals found
-libGL error: failed to load driver: swrast
-Segmentation fault (core dumped)
-```
+   1. Install `nvidia-docker`. That will provide you with the ability to use the tag `--runtime=nvidia` for `docker run`. Follow the [installation guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker). It is just a few steps. Make sure their test works.
 
-This [github thread](https://github.com/diegoferigo/dockerfiles/issues/6#issuecomment-376770447) says the issue is with NVidia GPU (my office computer has 1070).
+   2. Use `nvidia/cudagl:9.0-base-ubuntu16.04` as base image instead of `ros:kinetic`. Install ROS Kinetic through Dockerfile. Essentially do:
+   ```Dockefile
+   FROM nvidia/cudagl:9.0-base-ubuntu16.04
+
+   ENV UBUNTU_RELEASE=xenial
+   RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $UBUNTU_RELEASE main" > /etc/apt/sources.list.d/ros-latest.list'
+   RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+   RUN apt-get update && apt-get install -y \
+       ros-kinetic-desktop-full \
+    && rm -rf /var/lib/apt/lists/*
+   ```
+   [Credit.](https://github.com/ros-visualization/rviz/issues/1170#issuecomment-632188358)
+
+   3. Use the `--runtime=nvidia` flag when doing `docker run` to start your
+      container. This follows the command in the second approach mentioned in the ROS [Hardware Acceleration tutorial](http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration).
+
+   Note that all of these changes have been incoporated into our setup.
+   There is now `Dockerfile.kinetic.nvidia`, and you provide the
+   `--nvidia` flag to both the `build.kinetic.sh` and `run.kinetic.sh`
+   if you are running this on a computer with NVidia GPU.
