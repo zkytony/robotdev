@@ -378,3 +378,21 @@ I have resolved all the problems without taking a note.
    >ROS has a flaw (feature?) in that it uses a library to so SSH, rather than the usual SSH client. This library does not support the default key algorithm used by the typical SSH client. This means that even though you can SSH to the remote machine, ROS cannot, because the key algorithm isn't supported.
    >
    >The fix is to remove the stored key in `~/.ssh/known_hosts`, then SSH again to the remote machine, specifying the `-oHostKeyAlgorithms='ssh-rsa'` command-line option to force the use of the the RSA algorithm. Once this is done ROS can connect to the remote machine.
+
+
+### "libGL error: No matching fbConfigs or visuals found" and "libGL error: failed to load driver: swrast"
+When I am starting `rviz` on my office computer inside the same docker container, I get:
+```
+$ rviz
+[ INFO] [1642208663.492000075]: rviz version 1.12.17
+[ INFO] [1642208663.492042508]: compiled against Qt version 5.5.1
+[ INFO] [1642208663.492050232]: compiled against OGRE version 1.9.0 (Ghadamon)
+libGL error: No matching fbConfigs or visuals found
+libGL error: failed to load driver: swrast
+Could not initialize OpenGL for RasterGLSurface, reverting to RasterSurface.
+libGL error: No matching fbConfigs or visuals found
+libGL error: failed to load driver: swrast
+Segmentation fault (core dumped)
+```
+
+This [github thread](https://github.com/diegoferigo/dockerfiles/issues/6#issuecomment-376770447) says the issue is with NVidia GPU (my office computer has 1070).
