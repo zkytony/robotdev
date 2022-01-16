@@ -84,8 +84,8 @@ enum class SkillWorkerStatus { kStarted, kWorking, kStopped, kError }
 
 class SkillWorker {
 public:
-    void start();
-    void stop();
+    void Start();
+    void Stop();
 }
 
 class Checkpoint {
@@ -103,11 +103,11 @@ public:
     Skill skill;  // skill to manage
     int cindex = -1;   // current checkpoint index
 
-    bool is_initialized() const { return this->cindex >= 0; }
+    bool isInitialized() const { return this->cindex >= 0; }
 
-    void init();  // initialize
+    void Init();  // initialize
 
-    void load(std::string &skill_file_path);
+    void Load(std::string &skill_file_path);
 };
 
 }
