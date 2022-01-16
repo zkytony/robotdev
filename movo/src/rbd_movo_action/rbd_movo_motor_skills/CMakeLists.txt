@@ -30,12 +30,26 @@ generate_messages (
 catkin_package()
 
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
 install(
   PROGRAMS
   scripts/run_skill.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  shared/include
+)
+
+# shared motor skills library
+add_library(motor_skills
+  shared/src/framework.cpp
+)
+
+
+add_executable(hello_world shared/src/hello_world.cpp)
+target_link_libraries(hello_world ${catkin_LIBRARIES} motor_skills)
+
+add_executable(hello src/hello.cpp)
+target_link_libraries(hello_world ${catkin_LIBRARIES})
