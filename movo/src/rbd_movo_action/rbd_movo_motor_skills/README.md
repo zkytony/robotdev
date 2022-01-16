@@ -7,7 +7,14 @@ catkin_create_pkg movo_motor_skills ar_track_alvar std_msgs rospy roscpp pcl_ros
 catkin_make -DCATKIN_WHITELIST_PACKAGES="movo_motor_skills"
 ```
 
-## Using the moveit_client and moveit_planner
+## Build
+Go to the root of the workspace, i.e. `robotdev/movo`
+```
+catkin_make -DCATKIN_WHITELIST_PACKAGES="rbd_movo_motor_skills"
+```
+
+
+## (UNUSED) Using the moveit_client and moveit_planner
 
 Run the planner
 ```
