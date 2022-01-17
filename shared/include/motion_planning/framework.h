@@ -134,12 +134,20 @@ typedef struct skill_team_types_pair {
     std::string executor;
 } SkillTeamTypes;
 // allow printing out the SkillTeamTypes
-std::ostream &operator <<(std::ostream &, const skill_team_types_pair &);
+std::ostream &operator <<(std::ostream &, const SkillTeamTypes &);
 
 
 class Checkpoint {
 public:
     Checkpoint();
+    Checkpoint(const std::string &name,
+               const std::vector<Cue> &perception_cues,
+               const std::vector<Cue> &actuation_cues);
+
+private:
+    std::vector<Cue> perception_cues_;
+    std::vector<Cue> actuation_cues_;
+    std::string name_;
 };
 
 
@@ -164,7 +172,7 @@ public:
 
 private:
     SkillTeamConfig config_;
-    std::vector<Cue> cues_;
+    std::vector<Checkpoint> cues_;
     std::vector<SkillWorker> workers_;
 
 };
