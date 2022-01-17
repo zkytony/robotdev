@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(rbd_movo_motor_skills)
 
+add_compile_options(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS
   pcl_msgs
   pcl_ros
