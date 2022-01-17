@@ -5,16 +5,25 @@
 ##################################################################
 
 # Two checkpoints
-- checkpoint_name: "See AR Tag"
-  perception_cues:
-    - type: ARTagRelativePose
-      args:
-        dist: 0.75
-        base_frame: kinect2_color_optical_frame
+config:
+  ARTagRelativePose:
+    verifier: ARTagPoseVerifier
+    executor: null
+  JointConfig:
+    verifier: JointConfigVerifier
+    executor: JointConfigMotionPlanner
 
-- checkpoint_name: "Move left arm away"
-  actuation_cues:
-    - type: JointConfig
-      args:
-        joints: [1.5767106749437447, 1.4281398419470581, 1.0960585677162804, 2.6155123444877586, 0.010692620904992456, -0.51173865399974, 1.660113023959811]
-        group: left_arm
+skill:
+  - name: "See AR Tag"
+    perception_cues:
+      - type: ARTagRelativePose
+        args:
+          dist: 0.75
+          base_frame: kinect2_color_optical_frame
+
+  - name: "Move left arm away"
+    actuation_cues:
+      - type: JointConfig
+        args:
+          joints: [1.5767106749437447, 1.4281398419470581, 1.0960585677162804, 2.6155123444877586, 0.010692620904992456, -0.51173865399974, 1.660113023959811]
+          group: left_arm
