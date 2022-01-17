@@ -4,6 +4,8 @@ project(rbd_movo_motor_skills)
 # allow c++11
 add_compile_options(-std=c++11)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS "export compile_commands.json" ON)
+
 find_package(catkin REQUIRED COMPONENTS
   pcl_msgs
   pcl_ros
@@ -57,5 +59,10 @@ target_link_libraries(hello_world
   yaml-cpp
 )
 
-add_executable(hello src/hello.cpp)
-target_link_libraries(hello_world ${catkin_LIBRARIES})
+# Test
+add_executable(test_motor_skill_framework shared/tests/test_motor_skill_framework.cpp)
+target_link_libraries(test_motor_skill_framework
+  ${catkin_LIBRARIES}
+  motor_skills
+  yaml-cpp
+)

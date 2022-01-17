@@ -8,7 +8,7 @@
 config:
   ARTagRelativePose:
     verifier: ARTagPoseVerifier
-    executor: null
+    executor: "NA"   # not-applicable
   JointConfig:
     verifier: JointConfigVerifier
     executor: JointConfigMotionPlanner

@@ -77,6 +77,8 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <iostream>
 
 namespace rbd {
 
@@ -100,8 +102,11 @@ public:
 
 class SkillWorker {
 public:
+    SkillWorker();
     void Start();
     void Stop();
+
+    static const std::string NA;
 };
 
 
@@ -122,6 +127,15 @@ private:
     Goal goal_;
 };
 
+// A pair of verifier and executor class types
+// used to handle one checkpoint
+typedef struct skill_team_types_pair {
+    std::string verifier;
+    std::string executor;
+} SkillTeamTypes;
+// allow printing out the SkillTeamTypes
+std::ostream &operator <<(std::ostream &, const skill_team_types_pair &);
+
 
 class Checkpoint {
 public:
@@ -131,21 +145,25 @@ public:
 
 // A skill is a list of checkpoints
 typedef std::vector<Checkpoint> Skill;
+typedef std::map<std::string, SkillTeamTypes> SkillTeamConfig;
 
 class SkillManager {
 public:
     SkillManager();
 
     Skill skill;  // skill to manage
-    int cindex = -1;   // current checkpoint index
+    int current_checkpoint_index = -1;   // current checkpoint index
 
-    bool isInitialized() const { return this->cindex >= 0; }
+    SkillTeamConfig &config() { return this->config_; }
+
+    bool isInitialized() const { return this->current_checkpoint_index >= 0; }
 
     void Init();  // initialize
 
     void Load(const std::string &skill_file_path);
 
 private:
+    SkillTeamConfig config_;
     std::vector<Cue> cues_;
     std::vector<SkillWorker> workers_;
 
