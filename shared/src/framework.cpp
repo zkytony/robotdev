@@ -7,4 +7,9 @@ SkillManager::SkillManager() {
     //...
 }
 
+void SkillManager::Load(const std::string &skill_file_path) {
+}
+
+
+
 }

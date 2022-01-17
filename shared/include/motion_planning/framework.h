@@ -143,7 +143,7 @@ public:
 
     void Init();  // initialize
 
-    void Load(std::string &skill_file_path);
+    void Load(const std::string &skill_file_path);
 
 private:
     std::vector<Cue> cues_;

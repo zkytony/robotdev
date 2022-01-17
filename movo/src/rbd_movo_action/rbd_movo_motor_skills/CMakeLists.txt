@@ -49,9 +49,12 @@ add_library(motor_skills
   shared/src/framework.cpp
 )
 
-
 add_executable(hello_world shared/src/hello_world.cpp)
-target_link_libraries(hello_world ${catkin_LIBRARIES} motor_skills)
+target_link_libraries(hello_world
+  ${catkin_LIBRARIES}
+  motor_skills
+  yaml-cpp
+)
 
 add_executable(hello src/hello.cpp)
 target_link_libraries(hello_world ${catkin_LIBRARIES})
