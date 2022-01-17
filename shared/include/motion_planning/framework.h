@@ -80,18 +80,54 @@
 
 namespace rbd {
 
-enum class SkillWorkerStatus { kStarted, kWorking, kStopped, kError }
+enum class SkillWorkerStatus { kStarted, kWorking, kStopped, kError };
+
+class Cue {
+public:
+    Cue();
+    Cue(std::string &n):name(n) {}
+    const std::string name;
+};
+
+class Goal {
+public:
+    Goal();
+    // Creates a goal for achieving cue
+    Goal(Cue c):cue(c) {};
+    const Cue cue;
+};
+
 
 class SkillWorker {
 public:
     void Start();
     void Stop();
-}
+};
+
+
+class Verifier : SkillWorker {
+public:
+    Verifier();
+    Verifier(Cue cue);
+private:
+    Cue cue_;
+};
+
+
+class Executor : SkillWorker {
+public:
+    Executor();
+    Executor(Goal goal);
+private:
+    Goal goal_;
+};
+
 
 class Checkpoint {
 public:
     Checkpoint();
 };
+
 
 // A skill is a list of checkpoints
 typedef std::vector<Checkpoint> Skill;
@@ -108,6 +144,11 @@ public:
     void Init();  // initialize
 
     void Load(std::string &skill_file_path);
+
+private:
+    std::vector<Cue> cues_;
+    std::vector<SkillWorker> workers_;
+
 };
 
 }
