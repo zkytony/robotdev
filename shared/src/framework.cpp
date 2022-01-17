@@ -19,19 +19,18 @@ std::ostream &operator <<(std::ostream &os, const SkillTeamTypes &p) {
     os << "(verifier: " << p.verifier << "; executor: " << p.executor << ")";
 }
 
-
 Checkpoint::Checkpoint(const string &name,
                        const std::vector<Cue> &perception_cues,
                        const std::vector<Cue> &actuation_cues)
     : perception_cues_(perception_cues),
       actuation_cues_(actuation_cues),
-      name_(name) {}
+      name_(name) {
+}
 
-
-SkillManager::SkillManager() {}
+SkillManager::SkillManager() {
+}
 
 void SkillManager::Load(const string &skill_file_path) {
-
     YAML::Node spec = YAML::LoadFile(skill_file_path);
 
     // Check if the spec is valid (has both config and skill)
@@ -57,6 +56,13 @@ void SkillManager::Load(const string &skill_file_path) {
     YAML::Node skill_spec = spec["skill"];
     for (YAML::const_iterator it=skill_spec.begin(); it!=skill_spec.end(); ++it) {
         YAML::Node checkpoint_spec = *it;
+
+        // list of perception cues
+        YAML::Node pp = checkpoint_spec["perception_cues"];
+        for (YAML::const_iterator itpc=pp.begin(); itpc!=pp.end(); ++itpc) {
+            YAML::Node pcue_spec = *it;
+            string cue_type = pcue_spec["type"].as<string>();
+        }
     }
 
 
