@@ -32,6 +32,7 @@ SkillManager::SkillManager() {
 
 void SkillManager::Load(const string &skill_file_path) {
     YAML::Node spec = YAML::LoadFile(skill_file_path);
+    std::cout << "FILE LOADED" << std::endl;
 
     // Check if the spec is valid (has both config and skill)
     if (!spec["config"] || !spec["skill"]) {
@@ -58,10 +59,12 @@ void SkillManager::Load(const string &skill_file_path) {
         YAML::Node checkpoint_spec = *it;
 
         // list of perception cues
-        YAML::Node pp = checkpoint_spec["perception_cues"];
-        for (YAML::const_iterator itpc=pp.begin(); itpc!=pp.end(); ++itpc) {
-            YAML::Node pcue_spec = *it;
-            string cue_type = pcue_spec["type"].as<string>();
+        if (checkpoint_spec["perception_cues"]) {
+            YAML::Node pp = checkpoint_spec["perception_cues"];
+            for (YAML::const_iterator itpc=pp.begin(); itpc!=pp.end(); ++itpc) {
+                YAML::Node pcue_spec = *itpc;
+                string cue_type = pcue_spec["type"].as<string>();
+            }
         }
     }
 

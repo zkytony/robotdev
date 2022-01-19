@@ -60,7 +60,9 @@ target_link_libraries(hello_world
 )
 
 # Test
-add_executable(test_motor_skill_framework shared/tests/test_motor_skill_framework.cpp)
+add_executable(test_motor_skill_framework
+  shared/tests/test_motor_skill_framework.cpp
+  shared/src/framework.cpp)
 target_link_libraries(test_motor_skill_framework
   ${catkin_LIBRARIES}
   motor_skills
