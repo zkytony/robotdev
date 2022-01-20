@@ -129,24 +129,64 @@ class Checkpoint:
 
 class Skill:
     """A skill is a list of checkpoints"""
-    def __init__(self, checkpoints):
+    def __init__(self, name, checkpoints):
+        self._name = name
         self._checkpoints = checkpoints
+    @property
+    def name(self):
+        return self._name
+    @property
+    def checkpoints(self):
+        return self._checkpoints
 
 import yaml
+import os
 class SkillManager:
     """See documentation above."""
-    def __init__(self):
+    def __init__(self, pkg_base_dir):
+        """
+        Args:
+            pkg_base_dir (str): Path to the root directory of the ROS package
+                where you host your implementation of the verifier, executor classes.
+                The skills should be stored under <pkg_base_dir>/cfg/skills
+                The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
+        """
         self._current_checkpoint_index = -1
         self._skill = None
         self._workers = set()    # the set of skill workers currently running
         self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
+        self.pkg_base_dir = pkg_base_dir
+
+    @property
+    def dir_launch(self):
+        return os.path.join(self.pkg_base_dir, "launch", "skills")
+
+    @property
+    def dir_skills(self):
+        return os.path.join(self.pkg_base_dir, "cfg", "skills")
+
+    def _path_to_skill_file(self, skill_file_relpath):
+        return os.path.join(self.dir_skills, skill_file_relpath)
+
+    def _path_to_skill_launch_file(self):
+        if self._skill is not None:
+            return os.path.join(self.dir_launch, "{}.launch".format(self._skill.name))
+        else:
+            raise ValueError("Skill not yet loaded. Does not have the notion of launch file path.")
+
+    def _init_dirs(self):
+        if not os.path.exists(self.dir_skills):
+            os.makedirs(self.dir_skills)
+        if not os.path.exists(self.dir_launch):
+            os.makedirs(self.dir_launch)
 
     @property
     def is_initialized(self):
         return self._current_checkpoint_index >= 0
 
-    def load(self, skill_file_path):
-        """Loads the skill from the path"""
+    def load(self, skill_file_relpath):
+        """Loads the skill from the path;
+        Note that it is relative to <pkg_base_dir>/cfg/skills"""
         # loads the skill file
         with open(skill_file_path) as f:
             spec = yaml.safe_load(f)
@@ -184,8 +224,14 @@ class SkillManager:
             if "actuation_cues" in ckspec:
                 assert type(ckspec["actuation_cues"]) == list, "actuation cues should be a list."
 
-    def init(self):
+    def init(self, roslaunch_writer, ):
         """Initializes the skill manager. Will create a roslaunch file,
-        and save that at a particular path."""
+        and save that at a particular path.
 
+        Args:
+            roslaunch_writer (ROSLaunchWriter): A ROSLaunchWriter object.
+                Note: passing in this object to avoid importing.
+        """
+        # make dirs
+        self._init_dirs()
         pass
