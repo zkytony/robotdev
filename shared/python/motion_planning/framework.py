@@ -94,150 +94,6 @@ import subprocess
 
 from std_msgs.msg import String
 
-
-class SkillWorker:
-    """A Skill Worker is a class that can start and stop
-    a ROS node."""
-    def __init__(self, name):
-        self.name = name
-
-    @staticmethod
-    def start(self, pkg, node_executable, node_name, args):
-        """
-        Args:
-            pkg (str): package with the worker's executable
-            node_executable (str): the name of the executable node
-            node_name (str): the unqiue name of this node. Note that
-                multiple nodes of the same executable may run together,
-                but they should have different names
-            args (dict): dictionary. Will be converted into a yaml string
-                to pass into the node.
-        """
-        return subprocess.Popen(["rosrun",
-                                 pkg,
-                                 node_executable,
-                                 node_name,
-                                 yaml.dump(args)])
-
-    @staticmethod
-    def stop(self, p):
-        try:
-            if p.poll() is None:  # process hasn't terminated yet
-                os.kill(p.pid, signal.SIGINT)
-        except OSError as e:
-            if errno == 3:
-                # No such process error. We ignore this.
-                pass
-            else:
-                raise e
-
-
-class Verifier(SkillWorker):
-    """A verifier's job is to verify if a cue is observed.
-    The verifier will publish whether a cue is reached to
-    a designated topic specific to this verifier."""
-    DONE = True
-    NOT_DONE = False
-    def __init__(self, name, cue):
-        """
-        Args:
-            cue (dict): cue a dictionary with required fields 'type' and 'args'
-        """
-        super().__init__(name)
-        if type(cue) != dict\
-           or "type" not in cue\
-           or "args" not in cue:
-            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
-        self.cue = cue
-
-    @property
-    def topic(self):
-        raise NotImplementedError()
-
-    @property
-    def always_check(self):
-        """If True, then the verifier will always be checking
-        during the execution of the skill. Otherwise, the verifier
-        will stop checking once it has successfully verified once.
-
-        Default False; Override this function by your child class
-        if necessary."""
-        return False
-
-
-class Executor(SkillWorker):
-    """An executor's job is to execute to achieve a goal,
-    which is derived from a cue."""
-    def __init__(self, name, cue):
-        super().__init__(name)
-        if type(cue) != dict\
-           or "type" not in cue\
-           or "args" not in cue:
-            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
-        self.goal = self.make_goal(cue)
-
-    @staticmethod
-    def make_goal(cue):
-        raise NotImplementedError
-
-
-class Checkpoint:
-    """Describes a checkpoint in a skill where we expect the
-    robot to observe certain perception cues and actuation cues.
-    Note that there is no ordering among the cues within a checkpoint."""
-    def __init__(self, name, perception_cues, actuation_cues):
-        """
-        Args:
-            name (str): name of the checkpoint
-            perception_cues (list): list of cues
-            actuation_cues (list): list of cues
-
-        Note that a cue is a dictionary with required fields 'type' and 'args'
-        """
-        self._name = name
-        self._perception_cues = perception_cues
-        self._actuation_cues = actuation_cues
-
-    def setup(self, config):
-        """Setup the verifier and executor objects using given config.
-        These objects should be set up so that their nodes ready to be run.
-
-        Args:
-            config: maps from cue_type to (Verifier, Executor)
-        Returns:
-            List of (worker_node_executable, args) tuples. Note: We do not
-            directly setup the SkillWorker objects here, because
-            those objects are intended to be individual nodes, which
-            will be created by separate processes (see SkillWorker.start)"""
-        workers = []
-        node_name_prefixes = set()
-        for cue in self._perception_cues:
-            verifier_node_executable, executor_node_executable = config[cue['type']]
-            name_prefix = "{}_{}".format(cue['type'], self._name.replace(" ", "_").lower())
-            if name_prefix in node_name_prefixes:
-                raise ValueError("Node prefix {} already exists."\
-                                 "Cannot start nodes of the same name."\
-                                 .format(name_prefix))
-            node_name_prefixes.add(name_prefix)
-            if verifier_class != "NA":
-                args = dict(cue['args']) + {"name": name_prefix + "_Vfr"}
-                workers.append("verifier", verifier_node_executable, args)
-            if executor_class != "NA":
-                args = dict(cue['args']) + {"name": name_prefix + "_Exe"}
-                workers.append("executor", executor_node_executable, args)
-        return workers
-
-
-class Skill:
-    """A skill is a list of checkpoints"""
-    def __init__(self, name, checkpoints):
-        self._name = name
-        self.checkpoints = checkpoints
-    @property
-    def name(self):
-        return self._name
-
-
 class SkillManager:
     """See documentation above."""
     def __init__(self, **kwargs):
@@ -452,3 +308,146 @@ class SkillManager:
     def _checkpoint_passed(self):
         return all(self._current_checkpoint_status[v] == Verifier.DONE
                    for v in self._current_checkpoint_status)
+
+
+class Checkpoint:
+    """Describes a checkpoint in a skill where we expect the
+    robot to observe certain perception cues and actuation cues.
+    Note that there is no ordering among the cues within a checkpoint."""
+    def __init__(self, name, perception_cues, actuation_cues):
+        """
+        Args:
+            name (str): name of the checkpoint
+            perception_cues (list): list of cues
+            actuation_cues (list): list of cues
+
+        Note that a cue is a dictionary with required fields 'type' and 'args'
+        """
+        self._name = name
+        self._perception_cues = perception_cues
+        self._actuation_cues = actuation_cues
+
+    def setup(self, config):
+        """Setup the verifier and executor objects using given config.
+        These objects should be set up so that their nodes ready to be run.
+
+        Args:
+            config: maps from cue_type to (Verifier, Executor)
+        Returns:
+            List of (worker_node_executable, args) tuples. Note: We do not
+            directly setup the SkillWorker objects here, because
+            those objects are intended to be individual nodes, which
+            will be created by separate processes (see SkillWorker.start)"""
+        workers = []
+        node_name_prefixes = set()
+        for cue in self._perception_cues:
+            verifier_node_executable, executor_node_executable = config[cue['type']]
+            name_prefix = "{}_{}".format(cue['type'], self._name.replace(" ", "_").lower())
+            if name_prefix in node_name_prefixes:
+                raise ValueError("Node prefix {} already exists."\
+                                 "Cannot start nodes of the same name."\
+                                 .format(name_prefix))
+            node_name_prefixes.add(name_prefix)
+            if verifier_class != "NA":
+                args = dict(cue['args']) + {"name": name_prefix + "_Vfr"}
+                workers.append("verifier", verifier_node_executable, args)
+            if executor_class != "NA":
+                args = dict(cue['args']) + {"name": name_prefix + "_Exe"}
+                workers.append("executor", executor_node_executable, args)
+        return workers
+
+
+class Skill:
+    """A skill is a list of checkpoints"""
+    def __init__(self, name, checkpoints):
+        self._name = name
+        self.checkpoints = checkpoints
+    @property
+    def name(self):
+        return self._name
+
+
+class SkillWorker:
+    """A Skill Worker is a class that can start and stop
+    a ROS node."""
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def start(self, pkg, node_executable, node_name, args):
+        """
+        Args:
+            pkg (str): package with the worker's executable
+            node_executable (str): the name of the executable node
+            node_name (str): the unqiue name of this node. Note that
+                multiple nodes of the same executable may run together,
+                but they should have different names
+            args (dict): dictionary. Will be converted into a yaml string
+                to pass into the node.
+        """
+        return subprocess.Popen(["rosrun",
+                                 pkg,
+                                 node_executable,
+                                 node_name,
+                                 yaml.dump(args)])
+
+    @staticmethod
+    def stop(self, p):
+        try:
+            if p.poll() is None:  # process hasn't terminated yet
+                os.kill(p.pid, signal.SIGINT)
+        except OSError as e:
+            if errno == 3:
+                # No such process error. We ignore this.
+                pass
+            else:
+                raise e
+
+
+class Verifier(SkillWorker):
+    """A verifier's job is to verify if a cue is observed.
+    The verifier will publish whether a cue is reached to
+    a designated topic specific to this verifier."""
+    DONE = True
+    NOT_DONE = False
+    def __init__(self, name, cue):
+        """
+        Args:
+            cue (dict): cue a dictionary with required fields 'type' and 'args'
+        """
+        super().__init__(name)
+        if type(cue) != dict\
+           or "type" not in cue\
+           or "args" not in cue:
+            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
+        self.cue = cue
+
+    @property
+    def topic(self):
+        raise NotImplementedError()
+
+    @property
+    def always_check(self):
+        """If True, then the verifier will always be checking
+        during the execution of the skill. Otherwise, the verifier
+        will stop checking once it has successfully verified once.
+
+        Default False; Override this function by your child class
+        if necessary."""
+        return False
+
+
+class Executor(SkillWorker):
+    """An executor's job is to execute to achieve a goal,
+    which is derived from a cue."""
+    def __init__(self, name, cue):
+        super().__init__(name)
+        if type(cue) != dict\
+           or "type" not in cue\
+           or "args" not in cue:
+            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
+        self.goal = self.make_goal(cue)
+
+    @staticmethod
+    def make_goal(cue):
+        raise NotImplementedError
