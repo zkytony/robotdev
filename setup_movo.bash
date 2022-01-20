@@ -82,7 +82,7 @@ fi
 if first_time_build movo; then
     pip install netifaces
     pip install pathlib
-    pip install pyyaml
+    pip install pyyaml==3.11
     install_libfreenect2
     build_ros_ws $MOVO_PATH
 fi
