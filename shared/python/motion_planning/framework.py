@@ -204,8 +204,11 @@ class SkillManager:
             # Build workers and run them
             checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
             workers = checkpoint.setup(self._config)
-            for worker_type, worker_node_executable, args in workers:
-                p = SkillWorker.start(self.pkg_name, worker_node_executable, args)
+            for worker_type, worker_node_executable, worker_node_name, args in workers:
+                p = SkillWorker.start(self.pkg_name,
+                                      worker_node_executable,
+                                      worker_node_name,
+                                      args)
                 self._p_workers[p] = (worker_type, worker_node_executable)
 
             # Now, the workers have started. We just need to wait for the
@@ -219,11 +222,11 @@ class SkillManager:
                 worker_type, worker_node_executable = self._p_workers[p]
                 rospy.loginfo("Stopping {} {}".format(worker_type, worker_node_executable))
                 SkillWorker.stop(p)
-                self._p_workers.remove(p)
 
             # reset state for the next checkpoint
             self._current_checkpoint_index += 1
             self._current_checkpoint_status = {}
+            self._p_workers = {}
 
     def _get_params(self):
         def _g(p):
@@ -266,13 +269,13 @@ class SkillManager:
                 "checkpoint {} has neither perception cue nor actuation cue".format(i)
             if "perception_cues" in ckspec:
                 assert type(ckspec["perception_cues"]) == list, "perception cues should be a list."
-                for c in ckcspec['perception_cues']:
-                    assert c in cue_types, "cue type {} not in config".format(c)
+                for c in ckspec['perception_cues']:
+                    assert c['type'] in cue_types, "cue type {} not in config".format(c)
 
             if "actuation_cues" in ckspec:
                 assert type(ckspec["actuation_cues"]) == list, "actuation cues should be a list."
-                for c in ckcspec['actuation_cues']:
-                    assert c in cue_types, "cue type {} not in config".format(c)
+                for c in ckspec['actuation_cues']:
+                    assert c['type'] in cue_types, "cue type {} not in config".format(c)
 
     def _verify_callback(self, m, args):
         """
@@ -331,7 +334,7 @@ class Checkpoint:
 
         Note that a cue is a dictionary with required fields 'type' and 'args'
         """
-        self._name = name
+        self.name = name
         self._perception_cues = perception_cues
         self._actuation_cues = actuation_cues
 
@@ -350,18 +353,18 @@ class Checkpoint:
         node_name_prefixes = set()
         for cue in self._perception_cues:
             verifier_node_executable, executor_node_executable = config[cue['type']]
-            name_prefix = "{}_{}".format(cue['type'], self._name.replace(" ", "_").lower())
+            name_prefix = "{}_{}".format(cue['type'], self.name.replace(" ", "_").lower())
             if name_prefix in node_name_prefixes:
                 raise ValueError("Node prefix {} already exists."\
                                  "Cannot start nodes of the same name."\
                                  .format(name_prefix))
             node_name_prefixes.add(name_prefix)
-            if verifier_class != "NA":
-                args = dict(cue['args']) + {"name": name_prefix + "_Vfr"}
-                workers.append("verifier", verifier_node_executable, args)
-            if executor_class != "NA":
-                args = dict(cue['args']) + {"name": name_prefix + "_Exe"}
-                workers.append("executor", executor_node_executable, args)
+            if verifier_node_executable != "NA":
+                node_name = name_prefix + "_Vfr"
+                workers.append(("verifier", verifier_node_executable, node_name, cue['args']))
+            if executor_node_executable != "NA":
+                node_name = name_prefix + "_Exe"
+                workers.append(("executor", executor_node_executable, node_name, cue['args']))
         return workers
 
 
@@ -382,7 +385,7 @@ class SkillWorker:
         self.name = name
 
     @staticmethod
-    def start(self, pkg, node_executable, node_name, args):
+    def start(pkg, node_executable, node_name, args):
         """
         Args:
             pkg (str): package with the worker's executable
@@ -400,7 +403,7 @@ class SkillWorker:
                                  yaml.dump(args)])
 
     @staticmethod
-    def stop(self, p):
+    def stop(p):
         try:
             if p.poll() is None:  # process hasn't terminated yet
                 os.kill(p.pid, signal.SIGINT)
