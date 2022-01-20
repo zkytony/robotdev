@@ -94,7 +94,7 @@ import subprocess
 
 from std_msgs.msg import String
 
-class SkillManager:
+class SkillManager(object):
     """See documentation above."""
     def __init__(self, skill_file_relpath, **kwargs):
         """
@@ -334,7 +334,7 @@ class SkillManager:
             SkillWorker.stop(p)
 
 
-class Checkpoint:
+class Checkpoint(object):
     """Describes a checkpoint in a skill where we expect the
     robot to observe certain perception cues and actuation cues.
     Note that there is no ordering among the cues within a checkpoint."""
@@ -381,7 +381,7 @@ class Checkpoint:
         return workers
 
 
-class Skill:
+class Skill(object):
     """A skill is a list of checkpoints"""
     def __init__(self, name, checkpoints):
         self._name = name
@@ -391,7 +391,7 @@ class Skill:
         return self._name
 
 
-class SkillWorker:
+class SkillWorker(object):
     """A Skill Worker is a class that can start and stop
     a ROS node."""
     def __init__(self, name):
@@ -442,7 +442,7 @@ class Verifier(SkillWorker):
             name (str): Name of the node for this verifier.
             cue (dict): cue a dictionary with required fields 'type' and 'args'
         """
-        super().__init__(name)
+        super(Verifier, self).__init__(name)
         if type(cue) != dict\
            or "type" not in cue\
            or "args" not in cue:
@@ -474,7 +474,7 @@ class Executor(SkillWorker):
     """An executor's job is to execute to achieve a goal,
     which is derived from a cue."""
     def __init__(self, name, cue):
-        super().__init__(name)
+        super(Executor, self).__init__(name)
         if type(cue) != dict\
            or "type" not in cue\
            or "args" not in cue:

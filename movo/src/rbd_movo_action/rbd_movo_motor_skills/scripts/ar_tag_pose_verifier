@@ -11,7 +11,7 @@ class ARTagPoseVerifier(Verifier):
     file first.
     """
     def __init__(self, name, cue, rate=10):
-        super().__init__(name, cue, rate=rate)
+        super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
 
     def _verify(self):
         return Verifier.NOT_DONE
