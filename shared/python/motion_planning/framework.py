@@ -374,10 +374,10 @@ class Checkpoint(object):
             node_name_prefixes.add(name_prefix)
             if verifier_node_executable != "NA":
                 node_name = name_prefix + "_Vfr"
-                workers.append(("verifier", verifier_node_executable, node_name, cue['args']))
+                workers.append(("verifier", verifier_node_executable, node_name, cue))
             if executor_node_executable != "NA":
                 node_name = name_prefix + "_Exe"
-                workers.append(("executor", executor_node_executable, node_name, cue['args']))
+                workers.append(("executor", executor_node_executable, node_name, cue))
         return workers
 
 
@@ -452,7 +452,7 @@ class Verifier(SkillWorker):
 
         # Initialize the verifier node
         rospy.init_node(self.name)
-        rospy.loginfo("Initialized verifier node", self.name)
+        rospy.loginfo("Initialized verifier node {}".format(self.name))
         self.pub = rospy.Publisher(self.topic, String, queue_size=10)
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(rate)
