@@ -1,4 +1,3 @@
-from rbd_movo_motor_skills.motion_planning.framework import SkillManager
 from rbd_movo_motor_skills.utils.ros_utils import ROSLaunchWriter
 
 def test_roslaunch_writer():
@@ -17,13 +16,5 @@ def test_roslaunch_writer():
     rlw.add_blocks(blocks)
     print(rlw.dump())
 
-
-def test():
-    mgr = SkillManager()
-    skill_file_path = "../cfg/skills/general.left_clearaway.skill"
-    mgr.load(skill_file_path)
-
-
 if __name__ == "__main__":
     test_roslaunch_writer()
-    test()

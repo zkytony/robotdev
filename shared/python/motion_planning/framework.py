@@ -78,6 +78,13 @@ will interact with other nodes (e.g. launch them).
 # Implementation details:
 # - a 'cue' is a dictionary with required fields 'type' and 'args'
 
+import yaml
+import os
+import rospy
+
+from std_msgs.msg import String
+
+
 class SkillWorker:
     """A Skill Worker is a class that can start and stop
     a ROS node."""
@@ -131,20 +138,21 @@ class Skill:
     """A skill is a list of checkpoints"""
     def __init__(self, name, checkpoints):
         self._name = name
-        self._checkpoints = checkpoints
+        self.checkpoints = checkpoints
     @property
     def name(self):
         return self._name
-    @property
-    def checkpoints(self):
-        return self._checkpoints
 
-import yaml
-import os
 class SkillManager:
     """See documentation above."""
-    def __init__(self, pkg_base_dir):
+    def __init__(self, pkg_base_dir, **kwargs):
         """
+        When you call the 'start' method, a node named 'skill_manager' will be run.
+
+        The node publishes to:
+
+         - skill/name (std_msgs/String) name of skill
+
         Args:
             pkg_base_dir (str): Path to the root directory of the ROS package
                 where you host your implementation of the verifier, executor classes.
@@ -157,38 +165,30 @@ class SkillManager:
         self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
         self.pkg_base_dir = pkg_base_dir
 
-    @property
-    def dir_launch(self):
-        return os.path.join(self.pkg_base_dir, "launch", "skills")
+        # publishers
+        self._pub_skillname = rospy.Publisher("skill/name", String, queue_size=10)
+        self._rate_skillname = kwargs.get("rate_skillname", 0.5)  # default 2hz
 
     @property
     def dir_skills(self):
         return os.path.join(self.pkg_base_dir, "cfg", "skills")
 
-    def _path_to_skill_file(self, skill_file_relpath):
+    def _path_to_skill(self, skill_file_relpath):
         return os.path.join(self.dir_skills, skill_file_relpath)
 
-    def _path_to_skill_launch_file(self):
-        if self._skill is not None:
-            return os.path.join(self.dir_launch, "{}.launch".format(self._skill.name))
-        else:
-            raise ValueError("Skill not yet loaded. Does not have the notion of launch file path.")
-
     def _init_dirs(self):
-        if not os.path.exists(self.dir_skills):
-            os.makedirs(self.dir_skills)
         if not os.path.exists(self.dir_launch):
             os.makedirs(self.dir_launch)
 
     @property
-    def is_initialized(self):
-        return self._current_checkpoint_index >= 0
+    def initialized(self):
+        return self._initialized
 
     def load(self, skill_file_relpath):
         """Loads the skill from the path;
         Note that it is relative to <pkg_base_dir>/cfg/skills"""
         # loads the skill file
-        with open(skill_file_path) as f:
+        with open(self._path_to_skill(skill_file_relpath)) as f:
             spec = yaml.safe_load(f)
             SkillManager._validate_skill_spec(spec)
 
@@ -198,12 +198,13 @@ class SkillManager:
             self._config[cue_type] = (cs["verifier"], cs["executor"])
 
         # load skills (checkpoint specs)
-        skill = []
+        checkpoints = []
         for ckspec in spec["skill"]:
-            skill.append(Checkpoint(ckspec['name'],
+            checkpoints.append(Checkpoint(ckspec['name'],
                                     ckspec.get('perception_cues', []),
                                     ckspec.get('actuation_cues', [])))
-        self._skill = skill
+        self._skill = Skill(os.path.basename(skill_file_relpath),
+                            checkpoints)
 
     @staticmethod
     def _validate_skill_spec(spec):
@@ -224,14 +225,15 @@ class SkillManager:
             if "actuation_cues" in ckspec:
                 assert type(ckspec["actuation_cues"]) == list, "actuation cues should be a list."
 
-    def init(self, roslaunch_writer, ):
-        """Initializes the skill manager. Will create a roslaunch file,
-        and save that at a particular path.
-
-        Args:
-            roslaunch_writer (ROSLaunchWriter): A ROSLaunchWriter object.
-                Note: passing in this object to avoid importing.
+    def start(self):
+        """Starts the SkillManager node -> This means
+        you want to execute the skill.
         """
-        # make dirs
-        self._init_dirs()
-        pass
+        print("Starting skill manager for {}".format(self._skill.name))
+        rospy.init_node("skill_manager")
+
+        # publish skill name
+        rospy.Timer(rospy.Duration(self._rate_skillname),
+                    lambda event: self._pub_skillname.publish(String(self._skill.name)))
+
+        rospy.spin()
