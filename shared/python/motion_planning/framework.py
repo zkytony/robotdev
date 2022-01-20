@@ -359,7 +359,7 @@ class Checkpoint(object):
             will be created by separate processes (see SkillWorker.start)"""
         workers = []
         node_name_prefixes = set()
-        for cue in self._perception_cues:
+        for cue in self._perception_cues + self._actuation_cues:
             verifier_node_executable, executor_node_executable = config[cue['type']]
             name_prefix = "{}_{}".format(cue['type'], self.name.replace(" ", "_").lower())
             if name_prefix in node_name_prefixes:
