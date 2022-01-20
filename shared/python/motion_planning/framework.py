@@ -193,10 +193,7 @@ class SkillManager(object):
                     lambda event: self._pub_skillname.publish(String(self._skill.name)))
         # publish current checkpoint
         rospy.Timer(rospy.Duration(1./self._rate_info),
-                    lambda event: self._pub_checkpoint.publish(
-                        String("Working on [{}/{}] {}".format(self._current_checkpoint_index,
-                                                              len(self._skill.checkpoints),
-                                                              self.current_checkpoint.name))))
+                    lambda event: self._pub_checkpoint.publish(self._current_checkpoint_index))
 
         # Starts running the skill - run the verifier and executor
         # for each checkpoint and monitors the progress.
