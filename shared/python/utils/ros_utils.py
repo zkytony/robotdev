@@ -78,13 +78,13 @@ class ROSLaunchWriter:
             block_str += "\n</{}>\n".format(block_type)
         return block_str
 
-    def dump(self, f=None):
+    def dump(self, f=None, indent_size=4):
         """Outputs the roslaunch file to given file stream, if provided.
         Otherwise, returns the entire string of the XML file."""
         lines = "<?xml version=\"1.0\"?>\n"
         lines += "<launch>\n"
         for block in self._blocks:
-            lines += self._dump_block(block, 0) + "\n"
+            lines += self._dump_block(block, 0, indent_size=indent_size) + "\n"
         lines += "</launch>"
         if f is not None:
             f.writelines(lines)
