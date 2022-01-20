@@ -101,6 +101,7 @@ class SkillWorker:
     def stop(self):
         raise NotImplementedError
 
+
 class Verifier(SkillWorker):
     """A verifier's job is to verify if a cue is observed.
     The verifier will publish whether a cue is reached to
@@ -133,7 +134,6 @@ class Verifier(SkillWorker):
         Default False; Override this function by your child class
         if necessary."""
         return False
-
 
 
 class Executor(SkillWorker):
@@ -203,7 +203,7 @@ class SkillManager:
     """See documentation above."""
     def __init__(self, pkg_base_dir, **kwargs):
         """
-        When you call the 'start' method, a node named 'skill_manager' will be run.
+        When you call the 'run' method, a node named 'skill_manager' will be run.
 
         The node publishes to:
 
@@ -228,13 +228,18 @@ class SkillManager:
 
         # publishers
         self._pub_skillname = rospy.Publisher("skill/name", String, queue_size=10)
+        self._pub_checkpoint = rospy.Publisher("skill/checkpoint", String, queue_size=10)
         # parameters
-        self._rate_skillname = kwargs.get("rate_skillname", 2)  # default 2hz
+        self._rate_info = kwargs.get("rate_info", 5)  # default 5hz
         self._rate_verification_check = kwargs.get("rate_verification_check", 10)  # default 10hz
 
     @property
     def skill(self):
         return self._skill
+
+    @property
+    def current_checkpoint(self):
+        return self._skill.checkpoints[self._current_checkpoint_index]
 
     @property
     def dir_skills(self):
@@ -299,47 +304,6 @@ class SkillManager:
                 for c in ckcspec['actuation_cues']:
                     assert c in cue_types, "cue type {} not in config".format(c)
 
-
-    def start(self):
-        """Starts the SkillManager node -> This means
-        you want to execute the skill.
-        """
-        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
-        rospy.init_node("skill_manager")
-
-        # publish skill name
-        rospy.Timer(rospy.Duration(1./self._rate_skillname),
-                    lambda event: self._pub_skillname.publish(String(self._skill.name)))
-
-        self._current_checkpoint_index = 0
-        while self._current_checkpoint_index < len(self._skill.checkpoints):
-            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
-            # Build workers and run them
-            checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
-            workers = checkpoint.setup(self._config)
-            for w in workers:
-                w.start()
-                self._workers.add(w)
-
-            # Now, the workers have started. We just need to wait for the
-            # verifiers to all pass.
-            rospy.loginfo("Waiting for verifier")
-            verifiers = set(w for w in workers if isinstance(w, Verifier))
-            self._wait_for_verifiers(verifiers)
-
-            # stop the workers
-            for w in workers:
-                w.stop()
-
-            # reset state for the next checkpoint
-            self._current_checkpoint_index += 1
-            self._current_checkpoint_status = {}
-
-
-    def _checkpoint_passed(self):
-        return all(self._current_checkpoint_status[v] == Verifier.DONE
-                   for v in self._current_checkpoint_status)
-
     def _verify_callback(self, m, args):
         """
         called when receiving a message from verifier
@@ -373,3 +337,50 @@ class SkillManager:
         rate = rospy.Rate(self._rate_verification_check)
         while not self._verification_passed():
             rate.sleep()
+
+
+    def _checkpoint_passed(self):
+        return all(self._current_checkpoint_status[v] == Verifier.DONE
+                   for v in self._current_checkpoint_status)
+
+
+    def run(self):
+        """Starts the SkillManager node -> This means
+        you want to execute the skill.
+        """
+        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
+        rospy.init_node("skill_manager")
+
+        # publish skill name
+        rospy.Timer(rospy.Duration(1./self._rate_info),
+                    lambda event: self._pub_skillname.publish(String(self._skill.name)))
+        # publish current checkpoint
+        rospy.Timer(rospy.Duration(1./self._rate_info),
+                    lambda event: self._pub_checkpoint.publish(
+                        String("Working on [{}/{}] {}".format(self._current_checkpoint_index,
+                                                              len(self._skill.checkpoints),
+                                                              self.current_checkpoint.name))))
+
+        self._current_checkpoint_index = 0
+        while self._current_checkpoint_index < len(self._skill.checkpoints):
+            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
+            # Build workers and run them
+            checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
+            workers = checkpoint.setup(self._config)
+            for w in workers:
+                w.start()
+                self._workers.add(w)
+
+            # Now, the workers have started. We just need to wait for the
+            # verifiers to all pass.
+            rospy.loginfo("Waiting for verifier")
+            verifiers = set(w for w in workers if isinstance(w, Verifier))
+            self._wait_for_verifiers(verifiers)
+
+            # stop the workers
+            for w in workers:
+                w.stop()
+
+            # reset state for the next checkpoint
+            self._current_checkpoint_index += 1
+            self._current_checkpoint_status = {}
