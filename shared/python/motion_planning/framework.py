@@ -146,7 +146,9 @@ class SkillManager:
 
     @property
     def current_checkpoint(self):
+        print(self._current_checkpoint_index)
         return self._skill.checkpoints[self._current_checkpoint_index]
+
 
     @property
     def dir_skills(self):
@@ -210,12 +212,14 @@ class SkillManager:
                                       worker_node_name,
                                       args)
                 self._p_workers[p] = (worker_type, worker_node_executable)
+            for p in self._p_workers:
+                p.wait()
 
             # Now, the workers have started. We just need to wait for the
             # verifiers to all pass.
             rospy.loginfo("Waiting for verifier")
-            verifiers = set(w for w in workers if isinstance(w, Verifier))
-            self._wait_for_verifiers(verifiers)
+            vfr_node_names = set(w[2] for w in workers if w[0] == "verifier")
+            self._wait_for_verifiers(vfr_node_names)
 
             # stop the workers
             for p in self._p_workers:
@@ -314,11 +318,20 @@ class SkillManager:
 
         rate = rospy.Rate(self._rate_verification_check)
         while not self._checkpoint_passed():
+            for p in self._p_workers:
+                if p.poll() is not None:
+                    # p has terminated. This is unexpected.
+                    self.stop_all_workers()
+                    exit()
             rate.sleep()
 
     def _checkpoint_passed(self):
         return all(self._current_checkpoint_status[v] == Verifier.DONE
                    for v in self._current_checkpoint_status)
+
+    def stop_all_workers(self):
+        for p in self._p_workers:
+            SkillWorker.stop(p)
 
 
 class Checkpoint:
