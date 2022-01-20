@@ -75,14 +75,8 @@ will interact with other nodes (e.g. launch them).
 
 /author: Kaiyu Zheng
 """
-
-class Cue:
-    def __init__(self, name):
-        self._name = name
-
-class Goal:
-    def __init__(self, cue):
-        self._cue = cue
+# Implementation details:
+# - a 'cue' is a dictionary with required fields 'type' and 'args'
 
 class SkillWorker:
     """A Skill Worker is a class that can start and stop
@@ -96,19 +90,39 @@ class SkillWorker:
 class Verifier(SkillWorker):
     """A verifier's job is to verify if a cue is observed."""
     def __init__(self, cue):
+        """
+        Args:
+            cue (dict): cue a dictionary with required fields 'type' and 'args'
+        """
+        if type(cue) != dict\
+           or "type" not in cue\
+           or "args" not in cue:
+            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self._cue = cue
+
 
 class Executor(SkillWorker):
     """An executor's job is to execute to achieve a goal,
     which is derived from a cue."""
-    def __init__(self, goal):
-        self._goal = goal
+    def __init__(self, cue):
+        self.goal = self.make_goal(cue)
+
+    @staticmethod
+    def make_goal(cue):
+        raise NotImplementedError
+
 
 class Checkpoint:
     """Describes a checkpoint in a skill where we expect the
     robot to observe certain perception cues and actuation cues.
     Note that there is no ordering among the cues within a checkpoint."""
     def __init__(self, name, perception_cues, actuation_cues):
+        """
+        Args:
+            name (str): name of the checkpoint
+            perception_cues (list): list of cues
+            actuation_cues (list): list of cues
+        """
         self._name = name
         self._perception_cues = perception_cues
         self._actuation_cues = actuation_cues
@@ -118,6 +132,7 @@ class Skill:
     def __init__(self, checkpoints):
         self._checkpoints = checkpoints
 
+import yaml
 class SkillManager:
     """See documentation above."""
     def __init__(self):
@@ -126,12 +141,51 @@ class SkillManager:
         self._workers = set()    # the set of skill workers currently running
         self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
 
-    def load(self, skill_file_path):
-        pass
-
-    def init(self):
-        pass
-
     @property
     def is_initialized(self):
         return self._current_checkpoint_index >= 0
+
+    def load(self, skill_file_path):
+        """Loads the skill from the path"""
+        # loads the skill file
+        with open(skill_file_path) as f:
+            spec = yaml.safe_load(f)
+            SkillManager._validate_skill_spec(spec)
+
+        # load config
+        for cue_type in spec["config"]:
+            cs = spec["config"][cue_type]
+            self._config[cue_type] = (cs["verifier"], cs["executor"])
+
+        # load skills (checkpoint specs)
+        skill = []
+        for ckspec in spec["skill"]:
+            skill.append(Checkpoint(ckspec['name'],
+                                    ckspec.get('perception_cues', []),
+                                    ckspec.get('actuation_cues', [])))
+        self._skill = skill
+
+    @staticmethod
+    def _validate_skill_spec(spec):
+        assert "config" in spec, "spec must have 'config'"
+        assert "skill" in spec, "spec must have 'skill'"
+        for cue_type in spec["config"]:
+            assert "verifier" in spec["config"][cue_type],\
+                "cue type {} lacks verifier. If one is not needed, do 'verifier: \"NA\"'".format(cue_type)
+            assert "executor" in spec["config"][cue_type],\
+                "cue type {} lacks executor. If one is not needed, do 'executor: \"NA\"'".format(cue_type)
+        for i, ckspec in enumerate(spec["skill"]):
+            assert "name" in ckspec, "checkpoint {} has no name".format(i)
+            assert "perception_cues" in ckspec\
+                or "actuation_cues" in ckspec,\
+                "checkpoint {} has neither perception cue nor actuation cue".format(i)
+            if "perception_cues" in ckspec:
+                assert type(ckspec["perception_cues"]) == list, "perception cues should be a list."
+            if "actuation_cues" in ckspec:
+                assert type(ckspec["actuation_cues"]) == list, "actuation cues should be a list."
+
+    def init(self):
+        """Initializes the skill manager. Will create a roslaunch file,
+        and save that at a particular path."""
+
+        pass
