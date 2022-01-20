@@ -12,7 +12,7 @@ class ARTagPoseVerifier(Verifier):
         super().__init__(name, cue, rate)
 
     def _verify(self):
-        pass
+        return Verifier.NOT_DONE
 
 if __name__ == "__main__":
     ARTagPoseVerifier()

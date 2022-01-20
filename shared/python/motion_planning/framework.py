@@ -110,6 +110,21 @@ class SkillManager:
                 The skills should be stored under <pkg_base_dir>/cfg/skills
                 The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
         """
+        ## `pkg_name` is the name of the package that contains verifier, executor implementations.
+        ## `pkg_base_dir` is the path to the root diretory of this package. Both set
+        ## from ROS parameter server
+        self.pkg_name = None
+        self.pkg_base_dir = None
+        self._get_params()
+
+        # publishers
+        self._pub_skillname = rospy.Publisher("skill/name", String, queue_size=10)
+        self._pub_checkpoint = rospy.Publisher("skill/checkpoint", String, queue_size=10)
+        # parameters
+        self._rate_info = kwargs.get("rate_info", 5)  # default 5hz
+        self._rate_verification_check = kwargs.get("rate_verification_check", 10)  # default 10hz
+
+        # Load Skill
         # 'self._config' is the configuration; maps from cue type to (verifier_class, executor_class)
         self._config, self._skill = self.load(skill_file_relpath)
         self._p_workers = {}    # Maps from worker process id (currently running) to work node name
@@ -120,18 +135,6 @@ class SkillManager:
         # Indicates which index in the checkpoints are we at now
         self._current_checkpoint_index = -1
 
-        # publishers
-        self._pub_skillname = rospy.Publisher("skill/name", String, queue_size=10)
-        self._pub_checkpoint = rospy.Publisher("skill/checkpoint", String, queue_size=10)
-        # parameters
-        self._rate_info = kwargs.get("rate_info", 5)  # default 5hz
-        self._rate_verification_check = kwargs.get("rate_verification_check", 10)  # default 10hz
-        ## `pkg_name` is the name of the package that contains verifier, executor implementations.
-        ## `pkg_base_dir` is the path to the root diretory of this package. Both set
-        ## from ROS parameter server
-        self.pkg_name = None
-        self.pkg_base_dir = None
-        self._get_params()
 
     @property
     def initialized(self):
@@ -151,10 +154,8 @@ class SkillManager:
 
     def load(self, skill_file_relpath):
         """Loads the skill from the path;
+        Returns (config, skill) tuple. Does not alter manager's state.
         Note that it is relative to <pkg_base_dir>/cfg/skills"""
-        if self._skill is not None:
-            raise ValueError("This manager already has a skill loaded.")
-
         # loads the skill file
         with open(self._path_to_skill(skill_file_relpath)) as f:
             spec = yaml.safe_load(f)
