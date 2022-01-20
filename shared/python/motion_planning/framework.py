@@ -75,8 +75,12 @@ will interact with other nodes (e.g. launch them).
 
 /author: Kaiyu Zheng
 """
-# Implementation details:
-# - a 'cue' is a dictionary with required fields 'type' and 'args'
+# Implementation details / assumptions:
+# - a 'cue' is a dictionary with required fields 'type' and 'args'.
+#   Optionally, 'name'
+#
+# - there could be multiple cues with the same type, but different
+#   verifier for each. So each verifier has a name. Same for executor
 
 import yaml
 import os
@@ -88,6 +92,9 @@ from std_msgs.msg import String
 class SkillWorker:
     """A Skill Worker is a class that can start and stop
     a ROS node."""
+    def __init__(self):
+        self.running = False
+
     def start(self):
         raise NotImplementedError
 
@@ -95,24 +102,51 @@ class SkillWorker:
         raise NotImplementedError
 
 class Verifier(SkillWorker):
-    """A verifier's job is to verify if a cue is observed."""
-    def __init__(self, cue):
+    """A verifier's job is to verify if a cue is observed.
+    The verifier will publish whether a cue is reached to
+    a designated topic specific to this verifier."""
+    DONE = True
+    NOT_DONE = False
+    def __init__(self, name, cue):
         """
         Args:
             cue (dict): cue a dictionary with required fields 'type' and 'args'
         """
+        super().__init__()
         if type(cue) != dict\
            or "type" not in cue\
            or "args" not in cue:
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
-        self._cue = cue
+        self.cue = cue
+        self.name = name
+
+    @property
+    def topic(self):
+        raise NotImplementedError()
+
+    @property
+    def always_check(self):
+        """If True, then the verifier will always be checking
+        during the execution of the skill. Otherwise, the verifier
+        will stop checking once it has successfully verified once.
+
+        Default False; Override this function by your child class
+        if necessary."""
+        return False
+
 
 
 class Executor(SkillWorker):
     """An executor's job is to execute to achieve a goal,
     which is derived from a cue."""
-    def __init__(self, cue):
+    def __init__(self, name, cue):
+        super().__init__()
+        if type(cue) != dict\
+           or "type" not in cue\
+           or "args" not in cue:
+            raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.goal = self.make_goal(cue)
+        self.name = name
 
     @staticmethod
     def make_goal(cue):
@@ -129,10 +163,31 @@ class Checkpoint:
             name (str): name of the checkpoint
             perception_cues (list): list of cues
             actuation_cues (list): list of cues
+
+        Note that a cue is a dictionary with required fields 'type' and 'args'
         """
         self._name = name
         self._perception_cues = perception_cues
         self._actuation_cues = actuation_cues
+
+    def setup(self, config):
+        """Setup the verifier and executor objects using given config.
+        These objects should be set up so that their nodes ready to be run.
+
+        Args:
+            config: maps from cue_type to (Verifier, Executor)
+        Returns:
+            List of SkillWorker objects """
+        workers = []
+        for cue in self._perception_cues:
+            verifier_class, executor_class = config[cue['type']]
+            name_prefix = self._name.replace(" ", "_").lower()
+            if verifier_class != "NA":
+                workers.append(verifier_class(name_prefix + "_Vrf", cue))
+            if executor_class != "NA":
+                workers.append(executor_class(name_prefix + "_Exe", cue))
+        return workers
+
 
 class Skill:
     """A skill is a list of checkpoints"""
@@ -142,6 +197,7 @@ class Skill:
     @property
     def name(self):
         return self._name
+
 
 class SkillManager:
     """See documentation above."""
@@ -159,15 +215,26 @@ class SkillManager:
                 The skills should be stored under <pkg_base_dir>/cfg/skills
                 The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
         """
-        self._current_checkpoint_index = -1
-        self._skill = None
-        self._workers = set()    # the set of skill workers currently running
-        self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
         self.pkg_base_dir = pkg_base_dir
+        self._skill = None
+        self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
+        self._workers = set()    # the set of skill workers currently running
+
+        # A dictionary maps from cue type to True or False, indicating whether a cue is
+        # reached; By default, when a checkpoint is completed, this dictionary is empty.
+        self._current_checkpoint_status = {}
+        # Indicates which index in the checkpoints are we at now
+        self._current_checkpoint_index = -1
 
         # publishers
         self._pub_skillname = rospy.Publisher("skill/name", String, queue_size=10)
-        self._rate_skillname = kwargs.get("rate_skillname", 0.5)  # default 2hz
+        # parameters
+        self._rate_skillname = kwargs.get("rate_skillname", 2)  # default 2hz
+        self._rate_verification_check = kwargs.get("rate_verification_check", 10)  # default 10hz
+
+    @property
+    def skill(self):
+        return self._skill
 
     @property
     def dir_skills(self):
@@ -182,7 +249,7 @@ class SkillManager:
 
     @property
     def initialized(self):
-        return self._initialized
+        return self._current_checkpoint_index >= 0
 
     def load(self, skill_file_relpath):
         """Loads the skill from the path;
@@ -201,8 +268,8 @@ class SkillManager:
         checkpoints = []
         for ckspec in spec["skill"]:
             checkpoints.append(Checkpoint(ckspec['name'],
-                                    ckspec.get('perception_cues', []),
-                                    ckspec.get('actuation_cues', [])))
+                                          ckspec.get('perception_cues', []),
+                                          ckspec.get('actuation_cues', [])))
         self._skill = Skill(os.path.basename(skill_file_relpath),
                             checkpoints)
 
@@ -210,11 +277,13 @@ class SkillManager:
     def _validate_skill_spec(spec):
         assert "config" in spec, "spec must have 'config'"
         assert "skill" in spec, "spec must have 'skill'"
+        cue_types = set()
         for cue_type in spec["config"]:
             assert "verifier" in spec["config"][cue_type],\
                 "cue type {} lacks verifier. If one is not needed, do 'verifier: \"NA\"'".format(cue_type)
             assert "executor" in spec["config"][cue_type],\
                 "cue type {} lacks executor. If one is not needed, do 'executor: \"NA\"'".format(cue_type)
+            cue_types.add(cue_type)
         for i, ckspec in enumerate(spec["skill"]):
             assert "name" in ckspec, "checkpoint {} has no name".format(i)
             assert "perception_cues" in ckspec\
@@ -222,18 +291,85 @@ class SkillManager:
                 "checkpoint {} has neither perception cue nor actuation cue".format(i)
             if "perception_cues" in ckspec:
                 assert type(ckspec["perception_cues"]) == list, "perception cues should be a list."
+                for c in ckcspec['perception_cues']:
+                    assert c in cue_types, "cue type {} not in config".format(c)
+
             if "actuation_cues" in ckspec:
                 assert type(ckspec["actuation_cues"]) == list, "actuation cues should be a list."
+                for c in ckcspec['actuation_cues']:
+                    assert c in cue_types, "cue type {} not in config".format(c)
+
 
     def start(self):
         """Starts the SkillManager node -> This means
         you want to execute the skill.
         """
-        print("Starting skill manager for {}".format(self._skill.name))
+        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
         rospy.init_node("skill_manager")
 
         # publish skill name
-        rospy.Timer(rospy.Duration(self._rate_skillname),
+        rospy.Timer(rospy.Duration(1./self._rate_skillname),
                     lambda event: self._pub_skillname.publish(String(self._skill.name)))
 
-        rospy.spin()
+        self._current_checkpoint_index = 0
+        while self._current_checkpoint_index < len(self._skill.checkpoints):
+            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
+            # Build workers and run them
+            checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
+            workers = checkpoint.setup(self._config)
+            for w in workers:
+                w.start()
+                self._workers.add(w)
+
+            # Now, the workers have started. We just need to wait for the
+            # verifiers to all pass.
+            rospy.loginfo("Waiting for verifier")
+            verifiers = set(w for w in workers if isinstance(w, Verifier))
+            self._wait_for_verifiers(verifiers)
+
+            # stop the workers
+            for w in workers:
+                w.stop()
+
+            # reset state for the next checkpoint
+            self._current_checkpoint_index += 1
+            self._current_checkpoint_status = {}
+
+
+    def _checkpoint_passed(self):
+        return all(self._current_checkpoint_status[v] == Verifier.DONE
+                   for v in self._current_checkpoint_status)
+
+    def _verify_callback(self, m, args):
+        """
+        called when receiving a message from verifier
+        Args:
+            m (std_msgs.Bool or String)
+            args: the first element is the verifier this callback corresponds to
+        """
+        verifier = args[0]
+        assert verifier.name in self._current_checkpoint_status,\
+            "error: Expecting verifier {}'s status to be tracked.".format(verifier.name)
+        assert m.data == Verifier.DONE or m.data == Verifier.NOT_DONE,\
+            "Unexpected verification messge {} from Verifier {}. Expected {} or {}"\
+            .format(m.data, verifier.name, Verifier.DONE, Verifier.NOT_DONE)
+        if verifier.always_check:
+            self._current_checkpoint_status[verifier.name] = m.data
+        else:
+            if m.data == Verifier.DONE:
+                self._current_checkpoint_status[verifier.name] = Verifier.DONE
+
+    def _wait_for_verifiers(self, verifiers):
+        assert len(self._current_checkpoint_status) == 0,\
+            "Bad manager state: status of previous checkpoint is not cleared."
+        self._current_checkpoint_status = {
+            v.name: Verifier.NOT_DONE
+            for v in verifiers
+        }
+        # Set up a subscriber to each verifier topic
+        for v in verifiers:
+            rospy.Subscriber(v.topic, String, self._verify_callback, (v,))
+
+        rate = rospy.Rate(self._rate_verification_check)
+        while not self._verification_passed():
+            rate.sleep()
