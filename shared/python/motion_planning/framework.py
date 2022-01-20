@@ -96,7 +96,7 @@ from std_msgs.msg import String
 
 class SkillManager:
     """See documentation above."""
-    def __init__(self, **kwargs):
+    def __init__(self, skill_file_relpath, **kwargs):
         """
         When you call the 'run' method, a node named 'skill_manager' will be run.
 
@@ -110,8 +110,8 @@ class SkillManager:
                 The skills should be stored under <pkg_base_dir>/cfg/skills
                 The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
         """
-        self._skill = None
-        self._config = {}       # the configuration; maps from cue type to (verifier_class, executor_class)
+        # 'self._config' is the configuration; maps from cue type to (verifier_class, executor_class)
+        self._config, self._skill = self.load(skill_file_relpath)
         self._p_workers = {}    # Maps from worker process id (currently running) to work node name
 
         # A dictionary maps from cue type to True or False, indicating whether a cue is
@@ -152,15 +152,19 @@ class SkillManager:
     def load(self, skill_file_relpath):
         """Loads the skill from the path;
         Note that it is relative to <pkg_base_dir>/cfg/skills"""
+        if self._skill is not None:
+            raise ValueError("This manager already has a skill loaded.")
+
         # loads the skill file
         with open(self._path_to_skill(skill_file_relpath)) as f:
             spec = yaml.safe_load(f)
             SkillManager._validate_skill_spec(spec)
 
         # load config
+        config = {}
         for cue_type in spec["config"]:
             cs = spec["config"][cue_type]
-            self._config[cue_type] = (cs["verifier"], cs["executor"])
+            config[cue_type] = (cs["verifier"], cs["executor"])
 
         # load skills (checkpoint specs)
         checkpoints = []
@@ -168,13 +172,16 @@ class SkillManager:
             checkpoints.append(Checkpoint(ckspec['name'],
                                           ckspec.get('perception_cues', []),
                                           ckspec.get('actuation_cues', [])))
-        self._skill = Skill(os.path.basename(skill_file_relpath),
-                            checkpoints)
+        return config, Skill(os.path.basename(skill_file_relpath), checkpoints)
+
 
     def run(self):
         """Starts the SkillManager node -> This means
         you want to execute the skill.
         """
+        if self._skill is None:
+            raise ValueError("No skill. Cannot start manager.")
+
         rospy.init_node("skill_manager")
         rospy.loginfo("Initialized skill manager for {}".format(self._skill.name))
 
