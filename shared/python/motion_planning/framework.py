@@ -54,11 +54,8 @@ When the SkillManager is "managing" a checkpoint, i.e. it is
 supervising the progress towards a checkpoint, SkillWorkers,
 either verifier or executor nodes will be spawned. After the
 checkpoint is completed, these nodes will be killed, if they
-are not used by the next checkpoint. For one cue type, only
-one node for the corresponding verifier and executor will be
-created. This node will communicate with the manager who will
-provide the correct cue to watch out for or the correct goal
-to execute towards.
+are not used by the next checkpoint. These node will communicate
+with the manager to report progress.
 
 Terminology
 
@@ -85,10 +82,15 @@ will interact with other nodes (e.g. launch them).
 # - The skill manager will publish the name of its skill and the
 #   current checkpoint index under skill/name and skill/checkpoint.
 #   Basically 'skill/' is the namespace for this framework.
+#
+# - Note that for each verifier node, we expect it to
+#   publish String messages to topic '<vfr_node_name>/pass'
 
 import yaml
 import os
+import signal
 import rospy
+import subprocess
 
 from std_msgs.msg import String
 
@@ -98,13 +100,36 @@ class SkillWorker:
     a ROS node."""
     def __init__(self, name):
         self.name = name
-        self.running = False
 
-    def start(self):
-        raise NotImplementedError
+    @staticmethod
+    def start(self, pkg, node_executable, node_name, args):
+        """
+        Args:
+            pkg (str): package with the worker's executable
+            node_executable (str): the name of the executable node
+            node_name (str): the unqiue name of this node. Note that
+                multiple nodes of the same executable may run together,
+                but they should have different names
+            args (dict): dictionary. Will be converted into a yaml string
+                to pass into the node.
+        """
+        return subprocess.Popen(["rosrun",
+                                 pkg,
+                                 node_executable,
+                                 node_name,
+                                 yaml.dump(args)])
 
-    def stop(self):
-        raise NotImplementedError
+    @staticmethod
+    def stop(self, p):
+        try:
+            if p.poll() is None:  # process hasn't terminated yet
+                os.kill(p.pid, signal.SIGINT)
+        except OSError as e:
+            if errno == 3:
+                # No such process error. We ignore this.
+                pass
+            else:
+                raise e
 
 
 class Verifier(SkillWorker):
@@ -180,15 +205,26 @@ class Checkpoint:
         Args:
             config: maps from cue_type to (Verifier, Executor)
         Returns:
-            List of SkillWorker objects """
+            List of (worker_node_executable, args) tuples. Note: We do not
+            directly setup the SkillWorker objects here, because
+            those objects are intended to be individual nodes, which
+            will be created by separate processes (see SkillWorker.start)"""
         workers = []
+        node_name_prefixes = set()
         for cue in self._perception_cues:
-            verifier_class, executor_class = config[cue['type']]
-            name_prefix = self._name.replace(" ", "_").lower()
+            verifier_node_executable, executor_node_executable = config[cue['type']]
+            name_prefix = "{}_{}".format(cue['type'], self._name.replace(" ", "_").lower())
+            if name_prefix in node_name_prefixes:
+                raise ValueError("Node prefix {} already exists."\
+                                 "Cannot start nodes of the same name."\
+                                 .format(name_prefix))
+            node_name_prefixes.add(name_prefix)
             if verifier_class != "NA":
-                workers.append(eval(verifier_class)(name_prefix + "_Vrf", cue))
+                args = dict(cue['args']) + {"name": name_prefix + "_Vfr"}
+                workers.append("verifier", verifier_node_executable, args)
             if executor_class != "NA":
-                workers.append(eval(executor_class)(name_prefix + "_Exe", cue))
+                args = dict(cue['args']) + {"name": name_prefix + "_Exe"}
+                workers.append("executor", executor_node_executable, args)
         return workers
 
 
@@ -219,8 +255,8 @@ class SkillManager:
                 The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
         """
         self._skill = None
-        self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
-        self._workers = set()    # the set of skill workers currently running
+        self._config = {}       # the configuration; maps from cue type to (verifier_class, executor_class)
+        self._p_workers = {}    # Maps from worker process id (currently running) to work node name
 
         # A dictionary maps from cue type to True or False, indicating whether a cue is
         # reached; By default, when a checkpoint is completed, this dictionary is empty.
@@ -241,21 +277,9 @@ class SkillManager:
         self.pkg_base_dir = None
         self._get_params()
 
-    def _get_params(self):
-        def _g(p):
-            import socket
-            try:
-                if rospy.has_param(p):
-                    return rospy.get_param(p)
-                else:
-                    rospy.logerr("Required prarameter '{}' is not provided".format(p))
-                    raise ValueError("Required prarameter '{}' is not provided".format(p))
-            except socket.error:
-                print("Unable to communicate with ROS master. Do you have 'roscore' running?")
-                exit()
-
-        self.pkg_base_dir = _g("skill/pkg_base_dir")
-        self.pkg_name = _g("skill/pkg_name")
+    @property
+    def initialized(self):
+        return self._current_checkpoint_index >= 0
 
     @property
     def skill(self):
@@ -268,17 +292,6 @@ class SkillManager:
     @property
     def dir_skills(self):
         return os.path.join(self.pkg_base_dir, "cfg", "skills")
-
-    def _path_to_skill(self, skill_file_relpath):
-        return os.path.join(self.dir_skills, skill_file_relpath)
-
-    def _init_dirs(self):
-        if not os.path.exists(self.dir_launch):
-            os.makedirs(self.dir_launch)
-
-    @property
-    def initialized(self):
-        return self._current_checkpoint_index >= 0
 
     def load(self, skill_file_relpath):
         """Loads the skill from the path;
@@ -301,6 +314,75 @@ class SkillManager:
                                           ckspec.get('actuation_cues', [])))
         self._skill = Skill(os.path.basename(skill_file_relpath),
                             checkpoints)
+
+    def run(self):
+        """Starts the SkillManager node -> This means
+        you want to execute the skill.
+        """
+        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
+        rospy.init_node("skill_manager")
+
+        # publish skill name
+        rospy.Timer(rospy.Duration(1./self._rate_info),
+                    lambda event: self._pub_skillname.publish(String(self._skill.name)))
+        # publish current checkpoint
+        rospy.Timer(rospy.Duration(1./self._rate_info),
+                    lambda event: self._pub_checkpoint.publish(
+                        String("Working on [{}/{}] {}".format(self._current_checkpoint_index,
+                                                              len(self._skill.checkpoints),
+                                                              self.current_checkpoint.name))))
+
+        # Starts running the skill - run the verifier and executor
+        # for each checkpoint and monitors the progress.
+        self._current_checkpoint_index = 0
+        while self._current_checkpoint_index < len(self._skill.checkpoints):
+            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
+            # Build workers and run them
+            checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
+            workers = checkpoint.setup(self._config)
+            for worker_type, worker_node_executable, args in workers:
+                p = SkillWorker.start(self.pkg_name, worker_node_executable, args)
+                self._p_workers[p] = (worker_type, worker_node_executable)
+
+            # Now, the workers have started. We just need to wait for the
+            # verifiers to all pass.
+            rospy.loginfo("Waiting for verifier")
+            verifiers = set(w for w in workers if isinstance(w, Verifier))
+            self._wait_for_verifiers(verifiers)
+
+            # stop the workers
+            for p in self._p_workers:
+                worker_type, worker_node_executable = self._p_workers[p]
+                rospy.loginfo("Stopping {} {}".format(worker_type, worker_node_executable))
+                SkillWorker.stop(p)
+                self._p_workers.remove(p)
+
+            # reset state for the next checkpoint
+            self._current_checkpoint_index += 1
+            self._current_checkpoint_status = {}
+
+    def _get_params(self):
+        def _g(p):
+            import socket
+            try:
+                if rospy.has_param(p):
+                    return rospy.get_param(p)
+                else:
+                    rospy.logerr("Required prarameter '{}' is not provided".format(p))
+                    raise ValueError("Required prarameter '{}' is not provided".format(p))
+            except socket.error:
+                print("Unable to communicate with ROS master. Do you have 'roscore' running?")
+                exit()
+
+        self.pkg_base_dir = _g("skill/pkg_base_dir")
+        self.pkg_name = _g("skill/pkg_name")
+
+    def _path_to_skill(self, skill_file_relpath):
+        return os.path.join(self.dir_skills, skill_file_relpath)
+
+    def _init_dirs(self):
+        if not os.path.exists(self.dir_launch):
+            os.makedirs(self.dir_launch)
 
     @staticmethod
     def _validate_skill_spec(spec):
@@ -330,79 +412,43 @@ class SkillManager:
 
     def _verify_callback(self, m, args):
         """
-        called when receiving a message from verifier
+        called when receiving a message from verifier. This will update the
+        tracking of the status of the verifier that sent this message `m`.
+
         Args:
             m (std_msgs.Bool or String)
-            args: the first element is the verifier this callback corresponds to
+            args: the first element is the verifier's node name this callback corresponds to
         """
-        verifier = args[0]
-        assert verifier.name in self._current_checkpoint_status,\
-            "error: Expecting verifier {}'s status to be tracked.".format(verifier.name)
+        vfr_node_name = args[0]
+        assert vfr_node_name in self._current_checkpoint_status,\
+            "error: Expecting verifier {}'s status to be tracked.".format(vfr_node_name)
         assert m.data == Verifier.DONE or m.data == Verifier.NOT_DONE,\
             "Unexpected verification messge {} from Verifier {}. Expected {} or {}"\
-            .format(m.data, verifier.name, Verifier.DONE, Verifier.NOT_DONE)
-        if verifier.always_check:
-            self._current_checkpoint_status[verifier.name] = m.data
-        else:
-            if m.data == Verifier.DONE:
-                self._current_checkpoint_status[verifier.name] = Verifier.DONE
+            .format(m.data, vfr_node_name, Verifier.DONE, Verifier.NOT_DONE)
+        self._current_checkpoint_status[verifier.name] = m.data
 
-    def _wait_for_verifiers(self, verifiers):
+    def _wait_for_verifiers(self, vfr_node_names):
+        """
+        Args:
+            vfr_node_names (list): list of verifier node names.
+                Note that for each verifier node, we expect it to
+                publish String messages to topic 'vfr_node_name/pass'
+        """
         assert len(self._current_checkpoint_status) == 0,\
             "Bad manager state: status of previous checkpoint is not cleared."
         self._current_checkpoint_status = {
-            v.name: Verifier.NOT_DONE
-            for v in verifiers
+            v: Verifier.NOT_DONE
+            for v in vfr_node_names
         }
         # Set up a subscriber to each verifier topic
-        for v in verifiers:
-            rospy.Subscriber(v.topic, String, self._verify_callback, (v,))
+        for v in vfr_node_names:
+            topic = "{}/pass".format(v)
+            rospy.Subscriber(topic, String, self._verify_callback, (v,))
 
         rate = rospy.Rate(self._rate_verification_check)
-        while not self._verification_passed():
+        while not self._checkpoint_passed():
             rate.sleep()
 
     def _checkpoint_passed(self):
         return all(self._current_checkpoint_status[v] == Verifier.DONE
                    for v in self._current_checkpoint_status)
-
-    def run(self):
-        """Starts the SkillManager node -> This means
-        you want to execute the skill.
-        """
-        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
-        rospy.init_node("skill_manager")
-
-        # publish skill name
-        rospy.Timer(rospy.Duration(1./self._rate_info),
-                    lambda event: self._pub_skillname.publish(String(self._skill.name)))
-        # publish current checkpoint
-        rospy.Timer(rospy.Duration(1./self._rate_info),
-                    lambda event: self._pub_checkpoint.publish(
-                        String("Working on [{}/{}] {}".format(self._current_checkpoint_index,
-                                                              len(self._skill.checkpoints),
-                                                              self.current_checkpoint.name))))
-
-        self._current_checkpoint_index = 0
-        while self._current_checkpoint_index < len(self._skill.checkpoints):
-            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
-            # Build workers and run them
-            checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
-            workers = checkpoint.setup(self._config)
-            for w in workers:
-                w.start()
-                self._workers.add(w)
-
-            # Now, the workers have started. We just need to wait for the
-            # verifiers to all pass.
-            rospy.loginfo("Waiting for verifier")
-            verifiers = set(w for w in workers if isinstance(w, Verifier))
-            self._wait_for_verifiers(verifiers)
-
-            # stop the workers
-            for w in workers:
-                w.stop()
-
-            # reset state for the next checkpoint
-            self._current_checkpoint_index += 1
-            self._current_checkpoint_status = {}

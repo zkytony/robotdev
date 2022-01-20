@@ -7,11 +7,11 @@
 # Two checkpoints
 config:
   ARTagRelativePose:
-    verifier: ARTagPoseVerifier
+    verifier: ar_tag_pose_verifier
     executor: "NA"   # not-applicable
   JointConfig:
-    verifier: JointConfigVerifier
-    executor: JointConfigMotionPlanner
+    verifier: joint_config_verifier
+    executor: joint_config_motion_planner
 
 skill:
   - name: "See AR Tag"

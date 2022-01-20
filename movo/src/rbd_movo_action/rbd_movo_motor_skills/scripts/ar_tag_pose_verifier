@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+from rbd_movo_motor_skills.motion_planning.framework import Verifier
+
+class ARTagPoseVerifier(Verifier):
+    """
+    Assumes the AR Tag detector node is running.
+    You may want to start the relevant system launch
+    file first.
+    """
+    def __init__(self):
+        pass
+
+    @property
+    def topic(self):
+        pass
