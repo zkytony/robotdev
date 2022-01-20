@@ -81,6 +81,10 @@ will interact with other nodes (e.g. launch them).
 #
 # - there could be multiple cues with the same type, but different
 #   verifier for each. So each verifier has a name. Same for executor
+#
+# - The skill manager will publish the name of its skill and the
+#   current checkpoint index under skill/name and skill/checkpoint.
+#   Basically 'skill/' is the namespace for this framework.
 
 import yaml
 import os
@@ -200,7 +204,7 @@ class Skill:
 
 class SkillManager:
     """See documentation above."""
-    def __init__(self, pkg_base_dir, **kwargs):
+    def __init__(self, **kwargs):
         """
         When you call the 'run' method, a node named 'skill_manager' will be run.
 
@@ -214,7 +218,6 @@ class SkillManager:
                 The skills should be stored under <pkg_base_dir>/cfg/skills
                 The launch files for each skill will be saved under <pkg_base_dir>/launch/skills
         """
-        self.pkg_base_dir = pkg_base_dir
         self._skill = None
         self._config = {}        # the configuration; maps from cue type to (verifier_class, executor_class)
         self._workers = set()    # the set of skill workers currently running
@@ -231,6 +234,28 @@ class SkillManager:
         # parameters
         self._rate_info = kwargs.get("rate_info", 5)  # default 5hz
         self._rate_verification_check = kwargs.get("rate_verification_check", 10)  # default 10hz
+        ## `pkg_name` is the name of the package that contains verifier, executor implementations.
+        ## `pkg_base_dir` is the path to the root diretory of this package. Both set
+        ## from ROS parameter server
+        self.pkg_name = None
+        self.pkg_base_dir = None
+        self._get_params()
+
+    def _get_params(self):
+        def _g(p):
+            import socket
+            try:
+                if rospy.has_param(p):
+                    return rospy.get_param(p)
+                else:
+                    rospy.logerr("Required prarameter '{}' is not provided".format(p))
+                    raise ValueError("Required prarameter '{}' is not provided".format(p))
+            except socket.error:
+                print("Unable to communicate with ROS master. Do you have 'roscore' running?")
+                exit()
+
+        self.pkg_base_dir = _g("skill/pkg_base_dir")
+        self.pkg_name = _g("skill/pkg_name")
 
     @property
     def skill(self):
