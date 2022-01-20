@@ -175,8 +175,8 @@ class SkillManager:
         """Starts the SkillManager node -> This means
         you want to execute the skill.
         """
-        rospy.loginfo("Starting skill manager for {}".format(self._skill.name))
         rospy.init_node("skill_manager")
+        rospy.loginfo("Initialized skill manager for {}".format(self._skill.name))
 
         # publish skill name
         rospy.Timer(rospy.Duration(1./self._rate_info),
@@ -407,12 +407,15 @@ class SkillWorker:
 class Verifier(SkillWorker):
     """A verifier's job is to verify if a cue is observed.
     The verifier will publish whether a cue is reached to
-    a designated topic specific to this verifier."""
+    a designated topic specific to this verifier.
+
+    The verifier will publish to <name>/pass topic."""
     DONE = True
     NOT_DONE = False
-    def __init__(self, name, cue):
+    def __init__(self, name, cue, rate=10):
         """
         Args:
+            name (str): Name of the node for this verifier.
             cue (dict): cue a dictionary with required fields 'type' and 'args'
         """
         super().__init__(name)
@@ -421,20 +424,26 @@ class Verifier(SkillWorker):
            or "args" not in cue:
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.cue = cue
+        self.status = Verifier.NOT_DONE
+
+        # Initialize the verifier node
+        rospy.init_node(self.name)
+        rospy.loginfo("Initialized verifier node", self.name)
+        self.pub = rospy.Publisher(self.topic, String, queue_size=10)
+        rospy.loginfo("Publishing to {}/pass...".format(self.name))
+        rate = rospy.Rate(rate)
+        while not rospy.is_shutdown():
+            self.status = self._verify()
+            self.pub.publish(String(self.status))
+            rate.sleep()
 
     @property
     def topic(self):
-        raise NotImplementedError()
+        return "{}/pass".format(self.name)
 
-    @property
-    def always_check(self):
-        """If True, then the verifier will always be checking
-        during the execution of the skill. Otherwise, the verifier
-        will stop checking once it has successfully verified once.
-
-        Default False; Override this function by your child class
-        if necessary."""
-        return False
+    def _verify(self):
+        """TO BE OVERRIDDEN"""
+        return Verifier.NOT_DONE
 
 
 class Executor(SkillWorker):
