@@ -183,9 +183,9 @@ class Checkpoint:
             verifier_class, executor_class = config[cue['type']]
             name_prefix = self._name.replace(" ", "_").lower()
             if verifier_class != "NA":
-                workers.append(verifier_class(name_prefix + "_Vrf", cue))
+                workers.append(eval(verifier_class)(name_prefix + "_Vrf", cue))
             if executor_class != "NA":
-                workers.append(executor_class(name_prefix + "_Exe", cue))
+                workers.append(eval(executor_class)(name_prefix + "_Exe", cue))
         return workers
 
 
