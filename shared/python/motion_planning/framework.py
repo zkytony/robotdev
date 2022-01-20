@@ -92,7 +92,8 @@ from std_msgs.msg import String
 class SkillWorker:
     """A Skill Worker is a class that can start and stop
     a ROS node."""
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.running = False
 
     def start(self):
@@ -113,13 +114,12 @@ class Verifier(SkillWorker):
         Args:
             cue (dict): cue a dictionary with required fields 'type' and 'args'
         """
-        super().__init__()
+        super().__init__(name)
         if type(cue) != dict\
            or "type" not in cue\
            or "args" not in cue:
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.cue = cue
-        self.name = name
 
     @property
     def topic(self):
@@ -140,13 +140,12 @@ class Executor(SkillWorker):
     """An executor's job is to execute to achieve a goal,
     which is derived from a cue."""
     def __init__(self, name, cue):
-        super().__init__()
+        super().__init__(name)
         if type(cue) != dict\
            or "type" not in cue\
            or "args" not in cue:
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.goal = self.make_goal(cue)
-        self.name = name
 
     @staticmethod
     def make_goal(cue):
@@ -338,11 +337,9 @@ class SkillManager:
         while not self._verification_passed():
             rate.sleep()
 
-
     def _checkpoint_passed(self):
         return all(self._current_checkpoint_status[v] == Verifier.DONE
                    for v in self._current_checkpoint_status)
-
 
     def run(self):
         """Starts the SkillManager node -> This means
