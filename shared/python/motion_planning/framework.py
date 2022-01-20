@@ -209,8 +209,6 @@ class SkillManager(object):
                                       worker_node_name,
                                       args)
                 self._p_workers[p] = (worker_type, worker_node_executable)
-            for p in self._p_workers:
-                p.wait()
 
             # Now, the workers have started. We just need to wait for the
             # verifiers to all pass.
@@ -284,7 +282,7 @@ class SkillManager(object):
         tracking of the status of the verifier that sent this message `m`.
 
         Args:
-            m (std_msgs.Bool or String)
+            m (std_msgs.String)
             args: the first element is the verifier's node name this callback corresponds to
         """
         vfr_node_name = args[0]
@@ -293,7 +291,7 @@ class SkillManager(object):
         assert m.data == Verifier.DONE or m.data == Verifier.NOT_DONE,\
             "Unexpected verification messge {} from Verifier {}. Expected {} or {}"\
             .format(m.data, vfr_node_name, Verifier.DONE, Verifier.NOT_DONE)
-        self._current_checkpoint_status[verifier.name] = m.data
+        self._current_checkpoint_status[vfr_node_name] = m.data
 
     def _wait_for_verifiers(self, vfr_node_names):
         """
@@ -431,8 +429,8 @@ class Verifier(SkillWorker):
     a designated topic specific to this verifier.
 
     The verifier will publish to <name>/pass topic."""
-    DONE = True
-    NOT_DONE = False
+    DONE = "DONE"
+    NOT_DONE = "NOT_DONE"
     def __init__(self, name, cue, rate=10):
         """
         Args:
@@ -456,6 +454,7 @@ class Verifier(SkillWorker):
         while not rospy.is_shutdown():
             self.status = self._verify()
             self.pub.publish(String(self.status))
+            print(self.status)
             rate.sleep()
 
     @property
