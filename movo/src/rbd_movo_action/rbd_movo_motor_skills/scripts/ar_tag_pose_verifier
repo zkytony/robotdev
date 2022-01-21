@@ -6,8 +6,10 @@ import yaml
 import tf2_ros
 import rospy
 
-from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from ar_track_alvar_msgs.msg import AlvarMarkers
+from rbd_movo_motor_skills.motion_planning.framework import Verifier
+from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
+                                                   euclidean_dist)
 
 
 class ARTagPoseVerifier(Verifier):
@@ -21,11 +23,11 @@ class ARTagPoseVerifier(Verifier):
        to /ar_pose_marker and each message's header's frame is
        kinect2_color_optical_frame
 
-    Arguments:
+    Arguments (cue['args']):
       Either:
       - pose: expected [x y z (qx qy qz qw)] pose for the AR tag
-      - tolerance_pos: tolerance in position (float)
-      - tolerance_rot: tolerance in rotation (float)
+      - tolerance_posit: tolerance in position (float)
+      - tolerance_orien: tolerance in rotation (float)
       Or (less useful, more for basic testing):
       - dist: Euclidean distance to the origin of the base frame
       - tolerance: acceptable offset in distance
@@ -38,13 +40,37 @@ class ARTagPoseVerifier(Verifier):
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
 
         args = cue["args"]
-        self._base_frame = args["base_frame"]
+        self._base_frame = args.get("base_frame", kinect2_color_optical_frame)
+        self._id = args.get("id", None)
 
         # subscribes to relevant topics
         rospy.Subscriber("/ar_pose_marker", AlvarMarkers, self._callback)
         # tf listener
         self._tfbuffer = tf2_ros.Buffer()
         self._tflistener = tf2_ros.TransformListener(self._tfBuffer)
+
+    def _check_pose(self, artag_pose_stamped):
+        """
+        Args:
+            artag_pose_stamped (geometry_msgs/PoseStamped): this pose
+                is assumed to already be in the base frame in the spec.
+        """
+        args = self.cue["args"]
+        actual_pose = pose_to_tuple(artag_pose_stampled.pose)
+        if "pose" in args:
+            tolerance_posit = args.get("tolerance_posit", 0.1)
+            tolerance_orien = args.get("tolerance_orien", 0.1)
+            expected_pose = args["pose"]
+            if euclidean_dist(expected_pose[:3], actual_pose[:3]) > tolerance_posit:
+                return False
+            # TODO: tolerance_orient is not implemented yet
+        elif "dist" in args:
+            tolerance = args.get("tolerance", 0.1)
+            expected_dist = args["dist"]
+            actual_dist = euclidean_dist(actual_pose[:3], (0, 0, 0))
+            if abs(actual_dist - expected_dist) > args["tolerance"]:
+                return False
+        return True
 
     def _callback(self, m):
         """Check whether the pose of the ar tag detection
@@ -53,14 +79,31 @@ class ARTagPoseVerifier(Verifier):
            m (AlvarMarekrs): The AR tag detections
         """
         for d in m.markers:
+            artag_id = d.id
+            if self._id is not None and artag_id != self._id:
+                continue
+            artag_pose_stamped = d.pose
             header = d.header
+            # If header's frame is the same as specification's frame,
+            # then we directly jump into comparison. Otherwise, we
+            # need to obtain the ar tag's pose in the specification's frame
+            # through tf transform
+            if header.frame_id != self._base_frame:
+                try:
+                    artag_pose_stamped = self._tfbuffer.transform(artag_pose_stamped, self._base_frame)
+                except:
+                    e = sys.exc_info()[0]
+                    rospy.logerr(e)
+                    # no need to proceed because we cannot get transform.
+                    return
+            # now, we check if the artag pose is what we'd like
+            ok = self._check_pose(artag_pose_stamped)
+            if not ok:
+                self.status = Verifier.NOT_DONE
+                return
+        # all passed
+        self.status = Verifier.DONE
 
-
-
-        pass
-
-    def _verify(self):
-        return Verifier.NOT_DONE
 
 if __name__ == "__main__":
     node_name = sys.argv[1]
