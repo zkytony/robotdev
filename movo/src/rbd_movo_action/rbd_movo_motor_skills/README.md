@@ -79,4 +79,6 @@ https://answers.ros.org/question/275598/ar_track_alvar-running-too-slow1hz/
 Solution:
 Adding `<param name="max_frequency" type="double" value="10" />` to the node
 tag in the launch file allowed me to control the publication frequency of
-ar_track_alvar.
+ar_track_alvar. **NO THIS IS NOT USEFUL**
+
+Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET 2HZ**
