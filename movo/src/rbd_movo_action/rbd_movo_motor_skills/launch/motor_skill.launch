@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Assumes the movo_bringup movo_system.launch has already started-->
+  <!-- Assumes the manipulation_stack.launch has already started-->
+  <!-- Responsible for starting the skill manager and executing a
+       given skill. The skill may involve navigation, in which case
+       we assume the ROS navigation stack is running already.-->
+
+</launch>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Assumes the movo_bringup movo_system.launch has already started-->
+  <!-- Handles ONLY the manipulation stack. That means, it deals with
+       starting nodes that take care of AR tag detection (perception
+       necessary for manipulation) and motion planning. Does not care
+       about navigation. Although, it is possible to combine navigation
+       with the motor skill specification-->
+
+</launch>
