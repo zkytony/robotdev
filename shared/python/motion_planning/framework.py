@@ -448,7 +448,7 @@ class Verifier(SkillWorker):
         # Initialize the verifier node
         rospy.init_node(self.name)
         rospy.loginfo("Initialized verifier node {}".format(self.name))
-        self.pub = rospy.Publisher(self.topic, String, queue_size=10)
+        self.pub = rospy.Publisher(self.topic, String, queue_size=10, latch=True)
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(rate)
         while not rospy.is_shutdown():
