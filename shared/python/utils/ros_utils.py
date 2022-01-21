@@ -1,4 +1,6 @@
 # ROS Utilities
+import tf
+import math
 
 def IS_TAG(t):
     return len(t) == 2 or len(t[2]) == 0
@@ -108,3 +110,26 @@ def pose_to_tuple(pose):
 
 def euclidean_dist(p1, p2):
     return math.sqrt(sum([(a - b)** 2 for a, b in zip(p1, p2)]))
+
+def vec_norm(v):
+    return math.sqrt(sum(a**2 for a in v))
+
+
+def quat_diff(q1, q2):
+    """returns the quaternion space difference between two
+    quaternion q1 and q2"""
+    # reference: https://stackoverflow.com/a/22167097/2893053
+    # reference: http://wiki.ros.org/tf2/Tutorials/Quaternions#Relative_rotations
+    x1, y1, z1, w1 = q1
+    q1_inv = (x1, y1, z1, -w1)
+    qr = tf.transformations.quaternion_multiply(q2, q1_inv)
+    return qr
+
+def quat_diff_angle(q1, q2):
+    """returns the angle (radians) between q1 and q2; signed"""
+    # reference: https://stackoverflow.com/a/23263233/2893053
+    qr = quat_diff(q1, q2)
+    return 2*math.atan2(vec_norm(qd[:3]), qr[3])
+
+def to_degrees(th):
+    return th*180 / np.pi

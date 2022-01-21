@@ -5,11 +5,14 @@ import yaml
 
 import tf2_ros
 import rospy
+import numpy as np
 
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
-                                                   euclidean_dist)
+                                                   euclidean_dist,
+                                                   quat_diff_angle,
+                                                   to_degrees)
 
 
 class ARTagPoseVerifier(Verifier):
@@ -63,7 +66,10 @@ class ARTagPoseVerifier(Verifier):
             expected_pose = args["pose"]
             if euclidean_dist(expected_pose[:3], actual_pose[:3]) > tolerance_posit:
                 return False
-            # TODO: tolerance_orient is not implemented yet
+            expected_q = expected_pose[3:]
+            actual_q = actual_pose[3:]
+            if to_degrees(abs(quat_diff_angle(expected_q, actual_q))) > tolerance_orien:
+                return False
         elif "dist" in args:
             tolerance = args.get("tolerance", 0.1)
             expected_dist = args["dist"]
