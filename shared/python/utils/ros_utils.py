@@ -122,14 +122,23 @@ def quat_diff(q1, q2):
     # reference: http://wiki.ros.org/tf2/Tutorials/Quaternions#Relative_rotations
     x1, y1, z1, w1 = q1
     q1_inv = (x1, y1, z1, -w1)
-    qr = tf.transformations.quaternion_multiply(q2, q1_inv)
-    return qr
+    qd = tf.transformations.quaternion_multiply(q2, q1_inv)
+    return qd
 
 def quat_diff_angle(q1, q2):
     """returns the angle (radians) between q1 and q2; signed"""
     # reference: https://stackoverflow.com/a/23263233/2893053
-    qr = quat_diff(q1, q2)
-    return 2*math.atan2(vec_norm(qd[:3]), qr[3])
+    qd = quat_diff(q1, q2)
+    return 2*math.atan2(vec_norm(qd[:3]), qd[3])
+
+def quat_diff_angle_relative(q1, q2):
+    """returns the angle (radians) between q1 and q2;
+    The angle will be the smallest one between the two
+    vectors. It is the "intuitive" angular difference.
+    Unsigned."""
+    # reference: https://stackoverflow.com/a/23263233/2893053
+    ad = quat_diff_angle(q1, q2)
+    return min(2*math.pi - ad, ad)
 
 def to_degrees(th):
-    return th*180 / np.pi
+    return th*180 / math.pi
