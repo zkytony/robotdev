@@ -16,6 +16,7 @@
       <arg name="cam_image_topic" default="$(arg cam_image_topic)" />
       <arg name="cam_info_topic" default="$(arg cam_info_topic)" />
       <arg name="output_frame" default="$(arg ar_frame)" />
+      <!-- In reality we will get only 2Hz -->
       <param name="max_frequency" type="double" value="10" />
     </include>
   </group>
