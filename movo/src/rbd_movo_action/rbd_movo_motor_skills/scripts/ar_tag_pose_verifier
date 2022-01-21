@@ -9,10 +9,21 @@ class ARTagPoseVerifier(Verifier):
     Assumes the AR Tag detector node is running.
     You may want to start the relevant system launch
     file first.
+
+    Arguments:
+
+    - base_frame: frame the ar tag pose is relative to (default kinect2_color_optical_frame)
+    Either:
+    - pose: expected [x y z (qx qy qz qw)] pose for the AR tag
+    - tolerance_pos: tolerance in position (float)
+    - tolerance_rot: tolerance in rotation (float)
+    Or (less useful, more for basic testing):
+    - dist: Euclidean distance to the origin of the base frame
+    - tolerance: acceptable offset in distance
     """
     def __init__(self, name, cue, rate=10):
-        print(cue)
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
+        # subscribes to relevant topics
 
     def _verify(self):
         return Verifier.NOT_DONE

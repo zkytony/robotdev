@@ -6,7 +6,7 @@
 
 # Two checkpoints
 config:
-  ARTagRelativePose:
+  ARTagPose:
     verifier: ar_tag_pose_verifier
     executor: "NA"   # not-applicable
   JointConfig:
@@ -16,8 +16,9 @@ config:
 skill:
   - name: "See AR Tag"
     perception_cues:
-      - type: ARTagRelativePose
+      - type: ARTagPose
         args:
+          type: distance
           dist: 0.75
           base_frame: kinect2_color_optical_frame
 
