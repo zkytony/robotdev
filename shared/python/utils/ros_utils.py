@@ -90,3 +90,21 @@ class ROSLaunchWriter:
             f.writelines(lines)
         else:
             return "".join(lines)
+
+
+def pose_to_tuple(pose):
+    """
+    Given a geometry_msgs/Pose message,
+    returns a tuple (x, y, z, qx, qy, qz, qw)
+    """
+    x = pose.position.x
+    y = pose.position.y
+    z = pose.position.z
+    qx = pose.orientation.x
+    qy = pose.orientation.y
+    qz = pose.orientation.z
+    qw = pose.orientation.w
+    return (x, y, z, qx, qy, qz, qw)
+
+def euclidean_dist(p1, p2):
+    return math.sqrt(sum([(a - b)** 2 for a, b in zip(p1, p2)]))
