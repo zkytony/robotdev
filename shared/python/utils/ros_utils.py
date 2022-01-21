@@ -111,7 +111,7 @@ def pose_to_tuple(pose):
 
 
 def topic_exists(topic):
-    all_topics = rospy.get_published_topics()
+    all_topics = [t[0] for t in rospy.get_published_topics()]
     return topic in all_topics
 
 

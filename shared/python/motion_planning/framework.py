@@ -444,18 +444,27 @@ class Verifier(SkillWorker):
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.cue = cue
         self.status = Verifier.NOT_DONE
+        self.message = ""  # the message for explaining the status
+        self._rate = rate
+
+        # Initialize the verifier node
+        rospy.init_node(self.name)
+        rospy.loginfo("Initialized verifier node {}".format(self.name))
+        self.pub = rospy.Publisher(self.topic, String, queue_size=10, latch=True)
+
 
     @property
     def topic(self):
         return "{}/pass".format(self.name)
 
     def run(self):
-        # Initialize the verifier node
-        rospy.init_node(self.name)
-        rospy.loginfo("Initialized verifier node {}".format(self.name))
-        self.pub = rospy.Publisher(self.topic, String, queue_size=10, latch=True)
+        # run a timer to print out status
+        rospy.Timer(rospy.Duration(2),
+                    lambda event: rospy.loginfo(self.status + ": " + self.message))
+
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
-        rate = rospy.Rate(rate)
+        rate = rospy.Rate(self._rate)
+        now = rospy.Time.now()
         while not rospy.is_shutdown():
             # Note: self.status should be modified if
             # the verification status has changed.

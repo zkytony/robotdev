@@ -36,14 +36,14 @@ class ARTagPoseVerifier(Verifier):
       - dist: Euclidean distance to the origin of the base frame
       - tolerance: acceptable offset in distance
       Optionally:
-      - base_frame: frame the ar tag pose is relative to (default kinect2_color_optical_frame)
+      - base_frame: frame the ar tag pose is relative to (default /kinect2_color_optical_frame)
       - id: ar tag id to track. If not provided, then will check for
             all detected AR tags.
       """
     def __init__(self, name, cue, rate=10):
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
         args = cue["args"]
-        self._base_frame = args.get("base_frame", "kinect2_color_optical_frame")
+        self._base_frame = args.get("base_frame", "/kinect2_color_optical_frame")
         self._id = args.get("id", None)
 
         # subscribes to relevant topics
@@ -53,16 +53,16 @@ class ARTagPoseVerifier(Verifier):
         rospy.Subscriber(ar_topic, AlvarMarkers, self._callback)
         # tf listener
         self._tfbuffer = tf2_ros.Buffer()
-        self._tflistener = tf2_ros.TransformListener(self._tfBuffer)
+        self._tflistener = tf2_ros.TransformListener(self._tfbuffer)
 
-    def _check_pose(self, artag_pose_stamped):
+    def _check_pose(self, artag_id, artag_pose_stamped):
         """
         Args:
             artag_pose_stamped (geometry_msgs/PoseStamped): this pose
                 is assumed to already be in the base frame in the spec.
         """
         args = self.cue["args"]
-        actual_pose = pose_to_tuple(artag_pose_stampled.pose)
+        actual_pose = pose_to_tuple(artag_pose_stamped.pose)
         if "pose" in args:
             tolerance_posit = args.get("tolerance_posit", 0.1)
             tolerance_orien = args.get("tolerance_orien", 0.1)
@@ -77,8 +77,12 @@ class ARTagPoseVerifier(Verifier):
             tolerance = args.get("tolerance", 0.1)
             expected_dist = args["dist"]
             actual_dist = euclidean_dist(actual_pose[:3], (0, 0, 0))
-            if abs(actual_dist - expected_dist) > args["tolerance"]:
+            if abs(actual_dist - expected_dist) > tolerance:
+                self.message = "Detected marker {}. "\
+                    "But actual distance {} is not within tolerance ({}) from expected distance {} "\
+                    .format(artag_id, actual_dist, tolerance, expected_dist)
                 return False
+        self.message = "Detected marker {} and it is good.".format(artag_id)
         return True
 
     def _callback(self, m):
@@ -87,6 +91,7 @@ class ARTagPoseVerifier(Verifier):
         Arg:
            m (AlvarMarekrs): The AR tag detections
         """
+        print(len(m.markers))
         for d in m.markers:
             artag_id = d.id
             if self._id is not None and artag_id != self._id:
@@ -101,13 +106,13 @@ class ARTagPoseVerifier(Verifier):
                 try:
                     artag_pose_stamped = self._tfbuffer.transform(artag_pose_stamped, self._base_frame)
                 except:
-                    e = sys.exc_info()[0]
+                    e = sys.exc_info()[1]
                     rospy.logerr(e)
+                    self.message = "tf transform listener exception occurred"
                     # no need to proceed because we cannot get transform.
                     return
             # now, we check if the artag pose is what we'd like
-            ok = self._check_pose(artag_pose_stamped)
-            rospy.loginfo("Detected marker {}. Is it where we expect? {}".format(artag_id, ok))
+            ok = self._check_pose(artag_id, artag_pose_stamped)
             if not ok:
                 self.status = Verifier.NOT_DONE
                 return
@@ -118,5 +123,5 @@ class ARTagPoseVerifier(Verifier):
 if __name__ == "__main__":
     node_name = sys.argv[1]
     cue = yaml.load(sys.argv[2])
-    verifier = ARTagPoseVerifier(node_name, cue)
+    verifier = ARTagPoseVerifier(node_name, cue, rate=10)
     verifier.run()

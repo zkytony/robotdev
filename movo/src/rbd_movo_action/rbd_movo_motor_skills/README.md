@@ -68,3 +68,15 @@ Caveats:
    clear the previous goal by running `./moveit_client left_arm -k`
 2. If you want to **execute** a motion plan, you need to do
    `./moveit_client left_arm -e`. **NOTE: NOT WORKING. (Works but there is a weird delay?)**
+
+
+## Troubleshooting
+
+### AR detector frequency too low (<1hz)
+Found a related question:
+https://answers.ros.org/question/275598/ar_track_alvar-running-too-slow1hz/
+
+Solution:
+Adding `<param name="max_frequency" type="double" value="10" />` to the node
+tag in the launch file allowed me to control the publication frequency of
+ar_track_alvar.
