@@ -2,7 +2,13 @@
 
 import sys
 import yaml
+
+import tf2_ros
+import rospy
+
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
+from ar_track_alvar_msgs.msg import AlvarMarkers
+
 
 class ARTagPoseVerifier(Verifier):
     """
@@ -10,20 +16,48 @@ class ARTagPoseVerifier(Verifier):
     You may want to start the relevant system launch
     file first.
 
-    Arguments:
+    Notes:
+     - By default, ar_track_alvar publishes messages of detections
+       to /ar_pose_marker and each message's header's frame is
+       kinect2_color_optical_frame
 
-    - base_frame: frame the ar tag pose is relative to (default kinect2_color_optical_frame)
-    Either:
-    - pose: expected [x y z (qx qy qz qw)] pose for the AR tag
-    - tolerance_pos: tolerance in position (float)
-    - tolerance_rot: tolerance in rotation (float)
-    Or (less useful, more for basic testing):
-    - dist: Euclidean distance to the origin of the base frame
-    - tolerance: acceptable offset in distance
-    """
+    Arguments:
+      Either:
+      - pose: expected [x y z (qx qy qz qw)] pose for the AR tag
+      - tolerance_pos: tolerance in position (float)
+      - tolerance_rot: tolerance in rotation (float)
+      Or (less useful, more for basic testing):
+      - dist: Euclidean distance to the origin of the base frame
+      - tolerance: acceptable offset in distance
+      Optionally:
+      - base_frame: frame the ar tag pose is relative to (default kinect2_color_optical_frame)
+      - id: ar tag id to track. If not provided, then will check for
+            all detected AR tags.
+      """
     def __init__(self, name, cue, rate=10):
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
+
+        args = cue["args"]
+        self._base_frame = args["base_frame"]
+
         # subscribes to relevant topics
+        rospy.Subscriber("/ar_pose_marker", AlvarMarkers, self._callback)
+        # tf listener
+        self._tfbuffer = tf2_ros.Buffer()
+        self._tflistener = tf2_ros.TransformListener(self._tfBuffer)
+
+    def _callback(self, m):
+        """Check whether the pose of the ar tag detection
+        satisfies the specification.
+        Arg:
+           m (AlvarMarekrs): The AR tag detections
+        """
+        for d in m.markers:
+            header = d.header
+
+
+
+        pass
 
     def _verify(self):
         return Verifier.NOT_DONE
