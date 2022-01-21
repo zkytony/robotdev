@@ -452,7 +452,8 @@ class Verifier(SkillWorker):
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(rate)
         while not rospy.is_shutdown():
-            self.status = self._verify()
+            # Note: self.status should be modified if
+            # the verification status has changed.
             self.pub.publish(String(self.status))
             print(self.status)
             rate.sleep()
@@ -460,10 +461,6 @@ class Verifier(SkillWorker):
     @property
     def topic(self):
         return "{}/pass".format(self.name)
-
-    def _verify(self):
-        """TO BE OVERRIDDEN"""
-        return Verifier.NOT_DONE
 
 
 class Executor(SkillWorker):
