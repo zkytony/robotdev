@@ -13,7 +13,9 @@ from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
                                                    euclidean_dist,
                                                    quat_diff_angle,
                                                    to_degrees,
-                                                   topic_exists)
+                                                   topic_exists,
+                                                   tf2_frame_eq,
+                                                   tf2_frame)
 
 
 class ARTagPoseVerifier(Verifier):
@@ -44,7 +46,9 @@ class ARTagPoseVerifier(Verifier):
     def __init__(self, name, cue, rate=10):
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
         args = cue["args"]
-        self._base_frame = args.get("base_frame", "/kinect2_color_optical_frame")
+        # tf2_frame removes leading slash in tf base frame
+        # (you can't have leading slashes on TF2 frame names).
+        self._base_frame = tf2_frame(args.get("base_frame", "kinect2_color_optical_frame"))
         self._id = args.get("id", "any")
 
         # subscribes to relevant topics
@@ -104,11 +108,13 @@ class ARTagPoseVerifier(Verifier):
             # then we directly jump into comparison. Otherwise, we
             # need to obtain the ar tag's pose in the specification's frame
             # through tf transform
-            if header.frame_id != self._base_frame:
+            import pdb; pdb.set_trace()
+            if not tf2_frame_eq(header.frame_id, self._base_frame):
                 try:
                     artag_pose_stamped = self._tfbuffer.transform(artag_pose_stamped, self._base_frame)
                 except:
-                    e = sys.exc_info()[1]
+                    print(header.frame_id, self._base_frame)
+                    e = sys.exc_info()
                     rospy.logerr(e)
                     self.message = "tf transform listener exception occurred"
                     # no need to proceed because we cannot get transform.

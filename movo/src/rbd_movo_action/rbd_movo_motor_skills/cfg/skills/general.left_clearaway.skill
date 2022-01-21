@@ -20,7 +20,7 @@ skill:
         args:
           type: distance
           dist: 0.75
-          base_frame: /kinect2_color_optical_frame
+          base_frame: base_link #kinect2_color_optical_frame
           tolerance: 0.5
 
   - name: "Move left arm away"

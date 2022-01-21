@@ -115,6 +115,21 @@ def topic_exists(topic):
     return topic in all_topics
 
 
+def tf2_frame_eq(f1, f2):
+    if f1[0] == "/":
+        f1 = f1[1:]
+    if f2[0] == "/":
+        f2 = f2[1:]
+    return f1 == f2
+
+def tf2_frame(f):
+    # Remove leading slash in tf base frame (you can't have leading slashes on TF2 frame names);
+    # reference: https://github.com/ros-planning/navigation/issues/794#issuecomment-433465562
+    if f[0] == "/":
+        f = f[1:]
+    return f
+
+
 ### Mathematics ###
 def euclidean_dist(p1, p2):
     return math.sqrt(sum([(a - b)** 2 for a, b in zip(p1, p2)]))
