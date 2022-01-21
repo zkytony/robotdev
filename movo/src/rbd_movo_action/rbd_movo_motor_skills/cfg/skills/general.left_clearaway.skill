@@ -21,6 +21,7 @@ skill:
           type: distance
           dist: 0.75
           base_frame: /kinect2_color_optical_frame
+          tolerance: 0.5
 
   - name: "Move left arm away"
     actuation_cues:

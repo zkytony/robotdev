@@ -459,8 +459,9 @@ class Verifier(SkillWorker):
 
     def run(self):
         # run a timer to print out status
-        rospy.Timer(rospy.Duration(2),
-                    lambda event: rospy.loginfo(self.status + ": " + self.message))
+        rospy.Timer(rospy.Duration(1.5),
+                    lambda event: rospy.loginfo(
+                        "[{}] {}: {}".format(self.name, self.status, self.message)))
 
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(self._rate)

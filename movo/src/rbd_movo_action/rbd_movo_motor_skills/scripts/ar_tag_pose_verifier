@@ -26,6 +26,7 @@ class ARTagPoseVerifier(Verifier):
      - By default, ar_track_alvar publishes messages of detections
        to /ar_pose_marker and each message's header's frame is
        kinect2_color_optical_frame
+     - For now, this verifier verifies only one ar tag.
 
     Arguments (cue['args']):
       Either:
@@ -96,6 +97,7 @@ class ARTagPoseVerifier(Verifier):
             if self._id != "any" and artag_id != self._id:
                 continue
 
+            # This ar tag detection has acceptable id.
             artag_pose_stamped = d.pose
             header = d.header
             # If header's frame is the same as specification's frame,
@@ -114,19 +116,11 @@ class ARTagPoseVerifier(Verifier):
             # now, we check if the artag pose is what we'd like
             ok = self._check_pose(artag_id, artag_pose_stamped)
 
-            # Update status. If we don't care about which AR tag id, then
-            # any thing that is 'ok' satisfies this verifier. If we do care,
-            # then anything that is 'not ok' dissatisfies this verifier.
-            if self._id == "any":
-                if ok:
-                    self.status = Verifier.DONE
-                    return
-            else:
-                if not ok:
-                    self.status = Verifier.NOT_DONE
-                    return
-        # all passed
-        self.status = Verifier.DONE
+            # Update status.
+            if ok:
+                self.status = Verifier.DONE
+                return
+        self.status = Verifier.NOT_DONE
 
 
 if __name__ == "__main__":
