@@ -12,7 +12,8 @@ from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
                                                    euclidean_dist,
                                                    quat_diff_angle,
-                                                   to_degrees)
+                                                   to_degrees,
+                                                   topic_exists)
 
 
 class ARTagPoseVerifier(Verifier):
@@ -41,13 +42,15 @@ class ARTagPoseVerifier(Verifier):
       """
     def __init__(self, name, cue, rate=10):
         super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
-
         args = cue["args"]
-        self._base_frame = args.get("base_frame", kinect2_color_optical_frame)
+        self._base_frame = args.get("base_frame", "kinect2_color_optical_frame")
         self._id = args.get("id", None)
 
         # subscribes to relevant topics
-        rospy.Subscriber("/ar_pose_marker", AlvarMarkers, self._callback)
+        ar_topic = "/ar_pose_marker"
+        if not topic_exists(ar_topic):
+            raise ValueError("AR detection topic {} does not exist!".format(ar_topic))
+        rospy.Subscriber(ar_topic, AlvarMarkers, self._callback)
         # tf listener
         self._tfbuffer = tf2_ros.Buffer()
         self._tflistener = tf2_ros.TransformListener(self._tfBuffer)
@@ -104,6 +107,7 @@ class ARTagPoseVerifier(Verifier):
                     return
             # now, we check if the artag pose is what we'd like
             ok = self._check_pose(artag_pose_stamped)
+            rospy.loginfo("Detected marker {}. Is it where we expect? {}".format(artag_id, ok))
             if not ok:
                 self.status = Verifier.NOT_DONE
                 return
@@ -114,4 +118,5 @@ class ARTagPoseVerifier(Verifier):
 if __name__ == "__main__":
     node_name = sys.argv[1]
     cue = yaml.load(sys.argv[2])
-    ARTagPoseVerifier(node_name, cue)
+    verifier = ARTagPoseVerifier(node_name, cue)
+    verifier.run()

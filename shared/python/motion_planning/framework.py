@@ -445,6 +445,11 @@ class Verifier(SkillWorker):
         self.cue = cue
         self.status = Verifier.NOT_DONE
 
+    @property
+    def topic(self):
+        return "{}/pass".format(self.name)
+
+    def run(self):
         # Initialize the verifier node
         rospy.init_node(self.name)
         rospy.loginfo("Initialized verifier node {}".format(self.name))
@@ -455,12 +460,8 @@ class Verifier(SkillWorker):
             # Note: self.status should be modified if
             # the verification status has changed.
             self.pub.publish(String(self.status))
-            print(self.status)
             rate.sleep()
 
-    @property
-    def topic(self):
-        return "{}/pass".format(self.name)
 
 
 class Executor(SkillWorker):

@@ -1,6 +1,7 @@
 # ROS Utilities
-import tf
 import math
+import tf
+import rospy
 
 def IS_TAG(t):
     return len(t) == 2 or len(t[2]) == 0
@@ -108,12 +109,18 @@ def pose_to_tuple(pose):
     qw = pose.orientation.w
     return (x, y, z, qx, qy, qz, qw)
 
+
+def topic_exists(topic):
+    all_topics = rospy.get_published_topics()
+    return topic in all_topics
+
+
+### Mathematics ###
 def euclidean_dist(p1, p2):
     return math.sqrt(sum([(a - b)** 2 for a, b in zip(p1, p2)]))
 
 def vec_norm(v):
     return math.sqrt(sum(a**2 for a in v))
-
 
 def quat_diff(q1, q2):
     """returns the quaternion space difference between two
