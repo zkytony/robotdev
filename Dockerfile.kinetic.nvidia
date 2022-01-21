@@ -16,6 +16,12 @@ RUN apt-get update && apt-get install -y \
     ros-kinetic-desktop-full \
  && rm -rf /var/lib/apt/lists/*
 
+# initialize rosdep
+RUN apt-get install -y python-rosdep python-rosinstall\
+    python-rosinstall-generator python-wstool build-essential
+RUN rosdep init
+RUN rosdep update
+
 # Install software
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
