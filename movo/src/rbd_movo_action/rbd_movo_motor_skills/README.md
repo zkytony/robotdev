@@ -70,7 +70,6 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES="rbd_movo_motor_skills"
       will run the velocity command for 1 second, and
       ```
       ./movo_pose_publisher.py left -i 6 -v 10 -d 0.5
-
       ```
       will do it for half a second.
 
@@ -185,8 +184,8 @@ What you want to do is to move the arm to a desired position, and then record th
 Then, save it in a `yaml`  file under the `cfg` directory.
 
 Previously when I was working on robot writing, I was using the `movo_pose_publisher` script
-to control the arm to a desired starting pose. I slowly rotate the joints. See notes below
-for how to do that. Then I get the joint state through `rostopic echo` and then save that into a file.
+to control the arm to a desired starting pose. I slowly rotate the joints. See notes above
+about movo_pose_publisher for how to do that. Then I get the joint state through `rostopic echo` and then save that into a file.
 
 
 
