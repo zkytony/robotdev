@@ -7,6 +7,7 @@ import tf2_ros
 import rospy
 import numpy as np
 
+from geometry_msgs.msg import PoseStamped
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
@@ -15,7 +16,9 @@ from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
                                                    to_degrees,
                                                    topic_exists,
                                                    tf2_frame_eq,
-                                                   tf2_frame)
+                                                   tf2_frame,
+                                                   tf2_header,
+                                                   tf2_transform)
 
 
 class ARTagPoseVerifier(Verifier):
@@ -102,23 +105,17 @@ class ARTagPoseVerifier(Verifier):
                 continue
 
             # This ar tag detection has acceptable id.
-            artag_pose_stamped = d.pose
-            header = d.header
-            # If header's frame is the same as specification's frame,
-            # then we directly jump into comparison. Otherwise, we
-            # need to obtain the ar tag's pose in the specification's frame
-            # through tf transform
-            import pdb; pdb.set_trace()
-            if not tf2_frame_eq(header.frame_id, self._base_frame):
-                try:
-                    artag_pose_stamped = self._tfbuffer.transform(artag_pose_stamped, self._base_frame)
-                except:
-                    print(header.frame_id, self._base_frame)
-                    e = sys.exc_info()
-                    rospy.logerr(e)
+            ## Note: the header in d.pose (PoseStamped) is not usable.
+            ## Must construct our own using the good header in d (AlvarMarker)
+            artag_pose_stamped = PoseStamped(tf2_header(d.header), d.pose.pose)
+            if not tf2_frame_eq(artag_pose_stamped.header.frame_id, self._base_frame):
+                artag_pose_stamped_new = tf2_transform(
+                    self._tfbuffer, artag_pose_stamped, self._base_frame)
+                if artag_pose_stamped_new is None:
+                    # something happened to tf. Perhaps we need to wait longer.
                     self.message = "tf transform listener exception occurred"
-                    # no need to proceed because we cannot get transform.
                     return
+
             # now, we check if the artag pose is what we'd like
             ok = self._check_pose(artag_id, artag_pose_stamped)
 

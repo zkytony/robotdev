@@ -1,7 +1,15 @@
 # ROS Utilities
 import math
-import tf
+
+import sys
 import rospy
+
+import tf
+import tf2_ros
+#!!! NEED THIS:
+# https://answers.ros.org/question/95791/tf-transformpoint-equivalent-on-tf2/?answer=394789#post-id-394789
+# STUPID ROS PROBLEM.
+import tf2_geometry_msgs.tf2_geometry_msgs
 
 def IS_TAG(t):
     return len(t) == 2 or len(t[2]) == 0
@@ -129,6 +137,25 @@ def tf2_frame(f):
         f = f[1:]
     return f
 
+def tf2_header(h):
+    h.frame_id = tf2_frame(h.frame_id)
+    return h
+
+def tf2_transform(tf2buf, object_stamped, target_frame):
+    """
+    transforms the stamped object into the target frame.
+    """
+    # remove leading slash in frame if it exists (tf2's requirement)
+    object_stamped.header = tf2_header(object_stamped.header)
+    result_stamped = None
+    try:
+        result_stamped = tf2buf.transform(object_stamped, target_frame)
+    except:
+        einfo = sys.exc_info()
+        msg = "{}: {}".format(einfo[0], einfo[1])
+        rospy.logerr(msg)
+    finally:
+        return result_stamped
 
 ### Mathematics ###
 def euclidean_dist(p1, p2):

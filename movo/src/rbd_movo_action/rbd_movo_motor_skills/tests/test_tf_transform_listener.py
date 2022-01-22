@@ -34,9 +34,10 @@ class TEST:
             header = d.header
             artag_pose_stamped.header = header
             artag_pose_stamped.header.frame_id = tf2_frame(artag_pose_stamped.header.frame_id)
-            print(self._tfbuffer.lookup_transform(tf2_frame(header.frame_id), self._base_frame, rospy.Time()))
-            print("MY FRAME", artag_pose_stamped.header.frame_id)
-            artag_pose_stamped = self._tfbuffer.transform(artag_pose_stamped, self._base_frame)
+            # self._tfbuffer.lookup_transform(tf2_frame(header.frame_id), self._base_frame, artag_pose_stamped.header.stamp)
+            artag_pose_stamped = self._tfbuffer.transform(
+                artag_pose_stamped, self._base_frame)
+            print(artag_pose_stamped)
 
 
 def test():
