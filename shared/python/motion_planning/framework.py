@@ -152,8 +152,6 @@ class SkillManager(object):
         # Indicates which index in the checkpoints are we at now
         self._current_checkpoint_index = -1
 
-
-
     @property
     def initialized(self):
         return self._current_checkpoint_index >= 0
@@ -166,7 +164,6 @@ class SkillManager(object):
     def current_checkpoint(self):
         print(self._current_checkpoint_index)
         return self._skill.checkpoints[self._current_checkpoint_index]
-
 
     @property
     def dir_skills(self):
