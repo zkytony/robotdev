@@ -377,11 +377,12 @@ class SkillManager(object):
 
     def _send_command(self, p, worker_node_name, cmd):
         self._pub_command.publish(self._make_command(worker_node_name, cmd))
-        rospy.Subscriber("{}/command_reply".format(worker_node_nam),
+        rospy.Subscriber("{}/command_reply".format(worker_node_name),
                          String, self._command_reply_callback, (p,))
 
 
-    def _command_reply_callback(self, m, p):
+    def _command_reply_callback(self, m, args):
+        p = args[0]
         cmd, reply = m.data.split("::")
         if cmd == Command.STOP:
             self._handle_stop_reply(p, reply)
@@ -473,7 +474,7 @@ class SkillWorker(object):
                              self._manager_command_callback)
             self._cmd_reply_pub =\
                 rospy.Publisher("{}/command_reply".format(self.name),
-                                String, queue_size=10)
+                                String, queue_size=10, latch=True)
 
     def _manager_command_callback(self, m):
         # check if this command is about me.
@@ -483,7 +484,7 @@ class SkillWorker(object):
             cmd = m.data.split("##")[1].strip()
             reply = self._handle_command(cmd)
             # we are done handling this command. Publish ack to
-            self._cmd_reply_pub.publish(String(reply))
+            self._cmd_reply_pub.publish(self._make_reply(cmd, reply))
 
     def _handle_command(self, cmd):
         """Handles command from manager. Returns
@@ -494,6 +495,9 @@ class SkillWorker(object):
     def on_stop(self):
         """SHOULD BE OVERRIDDEN"""
         return "ok"
+
+    def _make_reply(self, cmd, reply):
+        return "{}::{}".format(cmd, reply)
 
     @staticmethod
     def start(pkg, node_executable, node_name, args):
