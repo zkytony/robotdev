@@ -111,11 +111,11 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
    ./movo_pose_publisher.py head -p 0.5 0.1 0.1 -t 0.3 0.1 0.1
    ```
 
-  The values `0.5 0.1 0.1` are the goal angle (radians),
-  velocity, and acceleration of the pan.
+   The values `0.5 0.1 0.1` are the goal angle (radians),
+   velocity, and acceleration of the pan.
 
-  The values `0.3 0.1 0.1` are the goal angle (radians),
-  velocity, and acceleration of the tilt.
+   The values `0.3 0.1 0.1` are the goal angle (radians),
+   velocity, and acceleration of the tilt.
 
 2. Move torso. Example:
 
@@ -123,14 +123,14 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
     ./movo_pose_publisher.py torso -v 0.5 0.05
     ```
 
-  The values `0.5 0.05` are the height and velocity
-  of the torso.
+     The values `0.5 0.05` are the height and velocity
+     of the torso.
 
-  `0.5` is pretty tall (up 0.5m from initial torso height).
-  The valid numbers are within `0 ~ 0.6`
+    `0.5` is pretty tall (up 0.5m from initial torso height).
+     The valid numbers are within `0 ~ 0.6`
 
-  `0.05` is pretty fast. The valid numbers are within `0 ~ 0.1`.
-  You cannot exceed 0.1.
+    `0.05` is pretty fast. The valid numbers are within `0 ~ 0.1`.
+     You cannot exceed 0.1.
 
 3. Move arm.
 
@@ -139,21 +139,21 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
       ./movo_pose_publisher.py left -i 6 -v 10
 
       ```
-     Here, `-i` specifies the index of the joint we want to control.
-     Here, 6 refers to the wrist joint.
-     The indices are drawn below.
-     `-v` specifies the angular velocity of the joint. The positive
-     direction is also shown in the drawing below. (Previously I
-     was setting this to 0.1 that's why the joint didn't move!!)
+      Here, `-i` specifies the index of the joint we want to control.
+      Here, 6 refers to the wrist joint.
+      The indices are drawn below.
+      `-v` specifies the angular velocity of the joint. The positive
+      direction is also shown in the drawing below. (Previously I
+      was setting this to 0.1 that's why the joint didn't move!!)
 
-     ![arm-indexing](https://i.imgur.com/De61JOy.jpg)
+      ![arm-indexing](https://i.imgur.com/De61JOy.jpg)
 
-     You can pass in a list of indicies, each with a
-     corresponding angular velocity of movement.
+      You can pass in a list of indicies, each with a
+      corresponding angular velocity of movement.
 
-     You can also specify a duration (seconds) for how long
-     you want to move the joint with the specified velocity.
-     For example
+      You can also specify a duration (seconds) for how long
+      you want to move the joint with the specified velocity.
+      For example
       ```
       ./movo_pose_publisher.py left -i 6 -v 10 -d 1
 
@@ -165,6 +165,7 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
       ```
       will do it for half a second.
 
+    -------------------------------
 
     **Some Investigation to figure out the above command:**
     This is slightly trickier. The way `movo_pose_publisher` deals
