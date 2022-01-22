@@ -213,11 +213,11 @@ Caveat:
     ```
     Here, `ctl` is a `SIArmController` (class in `movo_joint_interface/jaco_joint_controller.py`)
     which has a `api` field that is created by:
-    
+
     ```python
     self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
     ```
-      
+
    This `KinovaAPI` class (seems very important) under
     `movo_joint_interface/kinova_api_wrapper.py`
     has the following line:
@@ -246,15 +246,3 @@ tag in the launch file allowed me to control the publication frequency of
 ar_track_alvar. **NO THIS IS NOT USEFUL**
 
 Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET 2HZ**
-
-
-# Appendix
-
-
-
-## MOVO joint state topics
-
-
-## MOVO control topics
-
-Look at [this Github thread](https://github.com/Kinovarobotics/kinova-movo/issues/33).
