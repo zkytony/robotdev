@@ -63,7 +63,7 @@ usemovo()
 2. `roslaunch movo_remote_teleop movo_remote_teleop.launch`
 Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/movo/movo-joystick) for button mapping. Pasted the image below:
 
-![image](https://user-images.githubusercontent.com/7720184/150623986-e865e3bc-3b5b-4796-8984-1176290e8a5d.png)
+<img src="https://user-images.githubusercontent.com/7720184/150623986-e865e3bc-3b5b-4796-8984-1176290e8a5d.png" width="600px"/>
 
 
 
