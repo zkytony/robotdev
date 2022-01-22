@@ -207,29 +207,30 @@ Caveat:
      ```
   I looked into Kinova's codebase. The reason
   the gripper opens is due to the following line in
-  `MovoArmJTAS.__init__` which is under `movo_ros/src/movo_jtas`:
+  `MovoArmJTAS.__init__` under `movo_ros/src/movo_jtas` that says:
     ```python
     self._ctl.api.InitFingers()
-
     ```
     Here, `ctl` is a `SIArmController` (class in `movo_joint_interface/jaco_joint_controller.py`)
     which has a `api` field that is created by:
-      ```python
-      self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
-      ```
-      This `KinovaAPI` class (seems very important) under
-       `movo_joint_interface/kinova_api_wrapper.py`
-       has the following line:
-           ```python
-            self.InitFingers = self.kinova.Ethernet_InitFingers
-           ```
-       and `self.kinova` is **proprietory**:
-           ```python
-           self.kinova=CDLL('Kinova.API.EthCommandLayerUbuntu.so')
-           ```
-        (interesting; CDLL is a function in [ctypes](https://docs.python.org/3.8/library/ctypes.html),
-            a library that allows python to call functions in C?!)
-        There isn't anything you can do about the `InitFingers` function.
+    
+    ```python
+    self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
+    ```
+      
+   This `KinovaAPI` class (seems very important) under
+    `movo_joint_interface/kinova_api_wrapper.py`
+    has the following line:
+     ```python
+      self.InitFingers = self.kinova.Ethernet_InitFingers
+     ```
+    and `self.kinova` is **proprietory**:
+     ```python
+     self.kinova=CDLL('Kinova.API.EthCommandLayerUbuntu.so')
+     ```
+     (interesting; CDLL is a function in [ctypes](https://docs.python.org/3.8/library/ctypes.html),
+         a library that allows python to call functions in C?!)
+     There isn't anything you can do about the `InitFingers` function. **COMMENTING OUT THE InitFingers() Line breaks the movo bringup system launch.**
 
 
 
