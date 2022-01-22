@@ -61,7 +61,10 @@ usemovo()
 ## Using Joy stick:
 1. `roslaunch movo_demos robot_assisted_teleop.launch`
 2. `roslaunch movo_remote_teleop movo_remote_teleop.launch`
-Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/movo/movo-joystick) for button mapping.
+Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/movo/movo-joystick) for button mapping. Pasted the image below:
+
+![image](https://user-images.githubusercontent.com/7720184/150623986-e865e3bc-3b5b-4796-8984-1176290e8a5d.png)
+
 
 
 ### Note when using docker container
