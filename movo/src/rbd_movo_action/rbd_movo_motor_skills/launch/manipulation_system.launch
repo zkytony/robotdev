@@ -8,7 +8,6 @@
        with the motor skill specification-->
 
 
-  <!-- <include file="$(find rbd_movo_perception)/launch/perception.launch" /> -->
-  <node >
+  <include file="$(find rbd_movo_perception)/launch/perception.launch" />
 
 </launch>
