@@ -457,11 +457,15 @@ class Verifier(SkillWorker):
     def topic(self):
         return "{}/pass".format(self.name)
 
+    def loginfo(self, basic=False):
+        if basic:
+            rospy.loginfo("[{}] {}".format(self.name, self.status))
+        else:
+            rospy.loginfo("[{}] {}: {}".format(self.name, self.status, self.message))
+
     def run(self):
         # run a timer to print out status
-        rospy.Timer(rospy.Duration(1.5),
-                    lambda event: rospy.loginfo(
-                        "[{}] {}: {}".format(self.name, self.status, self.message)))
+        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
 
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(self._rate)

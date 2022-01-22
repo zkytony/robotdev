@@ -10,16 +10,7 @@ import numpy as np
 from geometry_msgs.msg import PoseStamped
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
-from rbd_movo_motor_skills.utils.ros_utils import (pose_to_tuple,
-                                                   euclidean_dist,
-                                                   quat_diff_angle,
-                                                   to_degrees,
-                                                   topic_exists,
-                                                   tf2_frame_eq,
-                                                   tf2_frame,
-                                                   tf2_header,
-                                                   tf2_transform)
-
+from rbd_movo_motor_skills.utils.ros_utils import *
 
 class ARTagPoseVerifier(Verifier):
     """
@@ -121,6 +112,7 @@ class ARTagPoseVerifier(Verifier):
 
             # Update status.
             if ok:
+                self.message = "ok"
                 self.status = Verifier.DONE
                 return
         self.status = Verifier.NOT_DONE
