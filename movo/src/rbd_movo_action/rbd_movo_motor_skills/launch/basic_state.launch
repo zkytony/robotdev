@@ -1,6 +1,18 @@
 <launch>
-      <!-- ROS Driver, Robot State Publisher, and sensors -->
-      <node pkg="si_utils" type="timed_roslaunch"
-            args="5 movo_bringup movo.launch local:=false"
-            name="platform_bringup" output="screen"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+        <param name="publish_frequency" value="100.0" />
+        <param name="tf_prefix" value=""/>
+        <param name="use_tf_static" value="false"/>
+    </node>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <rosparam param="source_list">[movo/linear_actuator/joint_states,
+                                       movo/body/joint_states,
+                                       movo/head/joint_states,
+                                       movo/right_arm/joint_states,
+                                       movo/left_arm/joint_states,
+                                       movo/right_gripper/joint_states,
+                                       movo/left_gripper/joint_states]</rosparam>
+        <param name="rate" value="100"/>
+    </node>
 </launch>
