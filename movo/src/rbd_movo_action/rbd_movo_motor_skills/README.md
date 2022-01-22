@@ -132,6 +132,7 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
   `0.05` is pretty fast. The valid numbers are within `0 ~ 0.1`.
   You cannot exceed 0.1.
 
+3. Move arm
 
 
 MOVO arm joint indexing:
