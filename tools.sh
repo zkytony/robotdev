@@ -97,6 +97,11 @@ function useros() {
     fi
 }
 
+function rosactions() {
+    # reference: https://answers.ros.org/question/222748/list-action-servers/?answer=222759#post-id-222759
+    rostopic list | grep -o -P '^.*(?=/feedback)'
+}
+
 
 function check_exists_and_update_submodule {
     if [ -d $1 ]; then
