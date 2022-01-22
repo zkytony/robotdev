@@ -44,6 +44,7 @@ RUN apt-get install -y ros-kinetic-moveit-visual-tools
 RUN apt-get install -y ros-kinetic-moveit-ros-visualization
 RUN apt-get install -y ros-kinetic-trac-ik-kinematics-plugin
 RUN apt-get install -y gdb
+RUN apt-get install -y mlocate
 
 # create a user
 ARG hostuser=kaiyu
