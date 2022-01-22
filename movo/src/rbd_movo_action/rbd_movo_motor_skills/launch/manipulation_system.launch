@@ -6,19 +6,9 @@
        necessary for manipulation) and motion planning. Does not care
        about navigation. Although, it is possible to combine navigation
        with the motor skill specification-->
-  <arg name="ar_frame" default="/kinect2_color_optical_frame" />
-  <arg name="cam_image_topic" default="/kinect2/hd/points" />
-  <arg name="cam_info_topic" default="/kinect2/hd/camera_info" />
 
-  <!-- Perception; Run this on MOVO-->
-  <group>
-    <include file="$(find rbd_movo_perception)/launch/artag_tracker.launch">
-      <arg name="cam_image_topic" default="$(arg cam_image_topic)" />
-      <arg name="cam_info_topic" default="$(arg cam_info_topic)" />
-      <arg name="output_frame" default="$(arg ar_frame)" />
-      <!-- In reality we will get only 2Hz -->
-      <param name="max_frequency" type="double" value="10" />
-    </include>
-  </group>
+
+  <!-- <include file="$(find rbd_movo_perception)/launch/perception.launch" /> -->
+  <node >
 
 </launch>

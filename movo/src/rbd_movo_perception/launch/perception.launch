@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="local" default="false"/>
+
+  <!-- Perception; Run the following on MOVO-->
+  <machine name="movo1" address="movo1" user="movo"
+           env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
+  <include file="$(find rbd_movo_perception)/launch/artag_tracker.launch" />
+</launch>
