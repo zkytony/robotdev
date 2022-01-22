@@ -607,7 +607,9 @@ class Executor(SkillWorker):
 
     def run(self):
         """Runs the executor; The current process should
-        be the executor's node"""
+        be the executor's node. This method's job is
+        to achieve the goal. Can be blocking until
+        the goal is achieved"""
         raise NotImplementedError
 
     def on_stop(self):
