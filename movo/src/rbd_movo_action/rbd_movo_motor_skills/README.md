@@ -70,6 +70,17 @@ Caveats:
    `./moveit_client left_arm -e`. **NOTE: NOT WORKING. (Works but there is a weird delay?)**
 
 
+Using movo_pose_publisher:
+
+1. Move head. Example:
+
+   ```
+   ./movo_pose_publisher.py head -p 0.5 0.1 0.1 -t 0.3 0.1 0.1
+   ```
+
+
+
+
 ## Troubleshooting
 
 ### AR detector frequency too low (<1hz)
