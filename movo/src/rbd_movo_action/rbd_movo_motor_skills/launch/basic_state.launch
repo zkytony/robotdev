@@ -1,0 +1,6 @@
+<launch>
+      <!-- ROS Driver, Robot State Publisher, and sensors -->
+      <node pkg="si_utils" type="timed_roslaunch"
+            args="5 movo_bringup movo.launch local:=false"
+            name="platform_bringup" output="screen"/>
+</launch>
