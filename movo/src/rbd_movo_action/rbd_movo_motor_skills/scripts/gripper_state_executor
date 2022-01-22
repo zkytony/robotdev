@@ -19,14 +19,6 @@ class GripperStateExecutor(Executor):
         super(GripperStateExecutor, self).__init__(name, cue)
         side = cue["args"]["side"]
 
-        self._goal_position = cue["args"]["position"]
-        if self._goal_position < 0.0 or self._goal_position < 0.165:
-            rospy.logwarn("Gripper goal position {} is out of range (0.0 ~ 0.165). Will clamp."\
-                          .format(self._goal_position))
-            self._goal_position = max(0.0, min(0.165, self._goal_position))
-
-        self._max_effort = cue["args"].get("max_effort", -1.0)
-
         # This implementation borrows
         # from movo_action_clients.gripper_action_client.GripperActionClient
         self._client = actionlib.SimpleActionClient(
@@ -44,6 +36,14 @@ class GripperStateExecutor(Executor):
 
     def make_goal(self, cue):
         """create a GripperCommandGoal"""
+        self._goal_position = cue["args"]["position"]
+        if self._goal_position < 0.0 or self._goal_position < 0.165:
+            rospy.logwarn("Gripper goal position {} is out of range (0.0 ~ 0.165). Will clamp."\
+                          .format(self._goal_position))
+            self._goal_position = max(0.0, min(0.165, self._goal_position))
+
+        self._max_effort = cue["args"].get("max_effort", -1.0)
+
         goal = GripperCommandGoal()
         goal.command.position = self._goal_position
         goal.command.max_effort = self._max_effort
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     if TEST:
         node_name = "GripperState_Exe"
-        cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.1}}
+        cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.0}}
         executor = GripperStateExecutor(node_name, cue)
         executor.run()
 

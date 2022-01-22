@@ -1,0 +1,36 @@
+# Location: General
+# Skill: open left gripper after detecting an AR tag to be
+#        close enough
+# [test skill]
+##################################################################
+
+# Two checkpoints
+config:
+  ARTagPose:
+    verifier: ar_tag_pose_verifier
+    executor: "NA"   # not-applicable
+  GripperState:
+    verifier: "NA" #gripper_state_verifier
+    executor: gripper_state_executor
+
+skill:
+  - name: "See AR Tag"
+    perception_cues:
+      - type: ARTagPose
+        args:
+          type: distance
+          dist: 0.75
+          base_frame: base_link #kinect2_color_optical_frame
+          tolerance: 0.5
+
+  - name: "Open Gripper"
+    actuation_cues:
+      - type: GripperState
+        args:
+          position: 0.165
+
+  - name: "Close Gripper"
+    actuation_cues:
+      - type: GripperState
+        args:
+          position: 0.0
