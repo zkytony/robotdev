@@ -137,7 +137,6 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
     To rotate the left wrist by 10 degrees per second
       ```
       ./movo_pose_publisher.py left -i 6 -v 10
-
       ```
       Here, `-i` specifies the index of the joint we want to control.
       Here, 6 refers to the wrist joint.
