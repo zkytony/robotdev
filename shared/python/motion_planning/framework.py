@@ -484,8 +484,12 @@ class SkillWorker(object):
 
     def _handle_command(self, cmd):
         """Handles command from manager. Returns
-        a string reply.
-        SHOULD BE OVERRIDDEN."""
+        a string reply."""
+        if cmd == Command.STOP:
+            return self.on_stop()
+
+    def on_stop(self):
+        """SHOULD BE OVERRIDDEN"""
         return "ok"
 
     @staticmethod
