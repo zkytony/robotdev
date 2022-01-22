@@ -368,8 +368,14 @@ class SkillManager(object):
             self._received_stop_acks[p] = False
             # setup a subscriber for this worker's stop ack
             self._send_command(p, worker_node_name, Command.STOP)
-        rate = rospy.Rate(2)  # rate to publish stop command
+        rate = rospy.Rate(5)  # rate to publish stop command
         while not self._stop_ack_all_received():
+            for p in self._p_workers:
+                if p.poll() is not None:
+                    # p has terminated. This is unexpected.
+                    # We tried to be soft but not working. Be tough.
+                    self.stop_all_workers(soft=False)
+                    exit()
             rate.sleep()
 
     def _send_command(self, p, worker_node_name, cmd):
@@ -606,4 +612,4 @@ class Executor(SkillWorker):
     def on_stop(self):
         """This function is called when the executor is stopped,
         either because it is preempted or it has finished."""
-        pass
+        raise NotImplementedError
