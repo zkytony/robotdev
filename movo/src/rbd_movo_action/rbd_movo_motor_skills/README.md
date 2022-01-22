@@ -187,7 +187,49 @@ Previously when I was working on robot writing, I was using the `movo_pose_publi
 to control the arm to a desired starting pose. I slowly rotate the joints. See notes above
 about movo_pose_publisher for how to do that. Then I get the joint state through `rostopic echo` and then save that into a file.
 
+## Quickly Get Arm Joint State
+1. Press the big red E-Stop button
+2. Cradle the robot arm to prevent it from falling and hitting obstacles.
+3. Move the arm freely as you wish.
+4. Reengage the big red E-Stop button. Now, the movo_bringup system is still running, but none of the joint state
+   publisher is working anymore. So, do:
+     ```
+     roslaunch rbd_movo_motor_skills basic_state.launch
+     ```
+     This will start the (arguably minimal) nodes necessary
+     to publish real-time MOVO joint states.
 
+Caveat:
+- To prevent the gripper from automatically opening
+  upon running
+     ```
+     roslaunch rbd_movo_motor_skills basic_state.launch
+     ```
+  I looked into Kinova's codebase. The reason
+  the gripper opens is due to the following line in
+  `MovoArmJTAS.__init__` which is under `movo_ros/src/movo_jtas`:
+    ```python
+    self._ctl.api.InitFingers()
+
+    ```
+    Here, `ctl` is a `SIArmController` (class in `movo_joint_interface/jaco_joint_controller.py`)
+    which has a `api` field that is created by:
+      ```python
+      self.api = KinovaAPI('left',self.iface,jaco_ip,'255.255.255.0',24000,24024,44000, self.arm_dof)
+      ```
+      This `KinovaAPI` class (seems very important) under
+       `movo_joint_interface/kinova_api_wrapper.py`
+       has the following line:
+           ```python
+            self.InitFingers = self.kinova.Ethernet_InitFingers
+           ```
+       and `self.kinova` is **proprietory**:
+           ```python
+           self.kinova=CDLL('Kinova.API.EthCommandLayerUbuntu.so')
+           ```
+        (interesting; CDLL is a function in [ctypes](https://docs.python.org/3.8/library/ctypes.html),
+            a library that allows python to call functions in C?!)
+        There isn't anything you can do about the `InitFingers` function.
 
 
 
