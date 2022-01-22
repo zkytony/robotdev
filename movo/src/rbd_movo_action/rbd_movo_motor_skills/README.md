@@ -111,6 +111,28 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
    ./movo_pose_publisher.py head -p 0.5 0.1 0.1 -t 0.3 0.1 0.1
    ```
 
+  The values `0.5 0.1 0.1` are the goal angle (radians),
+  velocity, and acceleration of the pan.
+
+  The values `0.3 0.1 0.1` are the goal angle (radians),
+  velocity, and acceleration of the tilt.
+
+2. Move torso. Example:
+
+    ```
+    ./movo_pose_publisher.py torso -v 0.5 0.05
+    ```
+
+  The values `0.5 0.05` are the height and velocity
+  of the torso.
+
+  `0.5` is pretty tall (up 0.5m from initial torso height).
+  The valid numbers are within `0 ~ 0.6`
+
+  `0.05` is pretty fast. The valid numbers are within `0 ~ 0.1`.
+  You cannot exceed 0.1.
+
+
 
 MOVO arm joint indexing:
 
@@ -133,7 +155,11 @@ Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET
 
 # Appendix
 
+
+
 ## MOVO joint state topics
 
 
 ## MOVO control topics
+
+Look at [this Github thread](https://github.com/Kinovarobotics/kinova-movo/issues/33).
