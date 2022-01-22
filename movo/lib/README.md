@@ -13,3 +13,7 @@ some action services for example:
 /movo/right_gripper_controller/gripper_cmd
 /movo/torso_controller/follow_joint_trajectory
 ```
+
+You may get "IOError: [Errno 19] No such device"
+if you try to start `MovoArmJTAS` from your local computer
+because the arm's ip address only makes sense on MOVO.
