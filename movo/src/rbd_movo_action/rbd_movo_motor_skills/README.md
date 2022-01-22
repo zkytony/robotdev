@@ -132,12 +132,64 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
   `0.05` is pretty fast. The valid numbers are within `0 ~ 0.1`.
   You cannot exceed 0.1.
 
-3. Move arm **DOESN'T WORK
+3. Move arm.
+
+    To rotate the left wrist by 10 degrees per second
+      ```
+      ./movo_pose_publisher.py left -i 6 -v 10
+
+      ```
+     Here, `-i` specifies the index of the joint we want to control.
+     Here, 6 refers to the wrist joint.
+     The indices are drawn below.
+     `-v` specifies the angular velocity of the joint. The positive
+     direction is also shown in the drawing below. (Previously I
+     was setting this to 0.1 that's why the joint didn't move!!)
+
+     ![arm-indexing](https://i.imgur.com/De61JOy.jpg)
+
+     You can pass in a list of indicies, each with a
+     corresponding angular velocity of movement.
+
+     You can also specify a duration (seconds) for how long
+     you want to move the joint with the specified velocity.
+     For example
+      ```
+      ./movo_pose_publisher.py left -i 6 -v 10 -d 1
+
+      ```
+      will run the velocity command for 1 second, and
+      ```
+      ./movo_pose_publisher.py left -i 6 -v 10 -d 0.5
+
+      ```
+      will do it for half a second.
 
 
-   MOVO arm joint indexing:
+    **Some Investigation to figure out the above command:**
+    This is slightly trickier. The way `movo_pose_publisher` deals
+    with this is to publish messages to the `/movo/left_arm/angular_vel_cmd` topic.
 
-   ![arm-indexing](https://i.imgur.com/De61JOy.jpg)
+    According to [this merge request](https://github.com/Kinovarobotics/kinova-movo/pull/24#issue-307543835)
+    where the features of controlling by angular and cartesian velocities are added:
+
+    >"If messages are published to one of these topics >1hz, the appropriate
+    >SIArmController class will switch from it's current control mode to angular
+    >velocity control mode, bypassing the software PID control loop."
+
+    So, if you want velocity control, you need to publish to those topics at >1hz.
+    The example command they give worked:
+      ```
+      rostopic pub /movo/left_arm/angular_vel_cmd movo_msgs/JacoAngularVelocityCmd6DOF '{header: auto, theta_wrist_3_joint: 45.0}' --rate=100
+      ```
+     This actually publishes at 100Hz. I experimented and indeed, you want >1Hz.
+     Otherwise, you are doing **position control** (the joint just moves
+     into a position), as indicated above; that may suit you too.
+
+     Another thing is the joint angles are specified in DEGREES not radians.
+     Once I realized this, I found that my `movo_pose_publisher.py` script worked!
+
+
 
 
 ## Troubleshooting
