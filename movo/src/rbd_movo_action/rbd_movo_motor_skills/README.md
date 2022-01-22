@@ -112,6 +112,9 @@ for how to do that. Then I get the joint state through `rostopic echo` and then 
    ```
 
 
+MOVO arm joint indexing:
+
+![arm-indexing](https://i.imgur.com/De61JOy.jpg)
 
 
 ## Troubleshooting
