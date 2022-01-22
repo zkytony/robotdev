@@ -1,18 +1,72 @@
+<!-- This file is created by smooshing together
+     different launch files used by movo's system bringup.
+     The purpose is to start the minimum amount of nodes in order
+     to get the joint states -->
 <launch>
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
-        <param name="publish_frequency" value="100.0" />
-        <param name="tf_prefix" value=""/>
-        <param name="use_tf_static" value="false"/>
-    </node>
+  <arg name="local" default="false"/>
+  
+  <machine name="movo1" address="movo1" user="movo"
+           env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
 
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-        <rosparam param="source_list">[movo/linear_actuator/joint_states,
-                                       movo/body/joint_states,
-                                       movo/head/joint_states,
-                                       movo/right_arm/joint_states,
-                                       movo/left_arm/joint_states,
-                                       movo/right_gripper/joint_states,
-                                       movo/left_gripper/joint_states]</rosparam>
-        <param name="rate" value="100"/>
+  <!--System watchdog-->
+  <node pkg="movo_ros" type="movo_wd" name="movo1_wd" output="screen" unless="$(arg local)">
+    <param name="pc_name" value="movo1"/>
+  </node>
+  
+  <!-- Vector Base platform ROS Driver -->
+  <node pkg="movo_ros" ns="movo" type="movo_driver" name="movo_driver" respawn="true" output="screen">
+    <param name="use_platform_odometry" value="$(optenv MOVO_USE_PLATFORM_ODOMETRY false)" />
+    <param name="use_lsm_for_odom" value="$(optenv MOVO_USE_LSM_TO_CORRECT_ODOMETRY false)" />
+    <param name="movo_ip" value="$(optenv MOVO_IP_ADDRESS 10.66.171.1)"/>
+  </node>
+
+  <node pkg="movo_ros" type="movo_pan_tilt" name="movo_pan_tilt_driver" respawn="true" output="screen">
+    <param name="movo_ip" value="$(optenv MOVO_IP_ADDRESS 10.66.171.1)"/>
+  </node>
+
+  <node pkg="movo_ros" type="movo_head_ctl" name="movo_head_ctl" output="screen"/>
+  <node pkg="movo_ros" type="movo_torso_ctl" name="movo_torso_ctl" output="screen"/>
+
+  <group ns="movo/head_controller">
+    <node name="point_head_action" pkg="head_action" type="head_action" output="screen" >
+      <!-- Necessary params -->
+      <rosparam>
+        success_angle_threshold: 0.01
+        pan_link: pan_link
+        default_pointing_frame: movo_camera_link
+      </rosparam>
     </node>
+  </group>
+
+  <!-- Platform specific configuration -->
+  <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam"
+        args="load /movo/movo_driver $(find movo_bringup)/launch/platform/config/movo_params.yaml" />
+
+  <group if="$(optenv MOVO_HAS_KINOVA_ARM false)">
+    <!-- Right arm is not used -->
+    <!-- <node pkg="movo_ros" type="movo_arm_ctl" name="right_arm_ctl" output="screen"> -->
+    <!--   <param name="arm_name" value="right"/> -->
+    <!--   <param name="jaco_ip" value="$(optenv KINOVA_RIGHT_ARM_IP_ADDRESS 10.66.171.16)"/> -->
+    <!--   <param name="interface" value="$(optenv KINOVA_ARM_IFACE eth0)"/> -->
+    <!--   <param name="gripper" value="kg2" if="$(optenv MOVO_HAS_RIGHT_KG2_GRIPPER false)"/> -->
+    <!--   <param name="gripper" value="kg3" if="$(optenv MOVO_HAS_RIGHT_KG3_GRIPPER false)"/> -->
+    <!--   <param name="gripper" value="rq85" if="$(optenv MOVO_HAS_RIGHT_ROBOTIQ_GRIPPER false)"/> -->
+    <!--   <param name="jaco_dof" value="6dof" if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"/> -->
+    <!--   <param name="jaco_dof" value="7dof" if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"/> -->
+    <!-- </node> -->
+
+    <node pkg="movo_ros" type="movo_arm_ctl" name="left_arm_ctl" output="screen" if="$(optenv MOVO_HAS_TWO_KINOVA_ARMS false)">
+      <param name="arm_name" value="left"/>
+      <param name="jaco_ip" value="$(optenv KINOVA_LEFT_ARM_IP_ADDRESS 10.66.171.16)"/>
+      <param name="interface" value="$(optenv KINOVA_ARM_IFACE eth0)"/>
+      <param name="gripper" value="kg2" if="$(optenv MOVO_HAS_LEFT_KG2_GRIPPER false)"/>
+      <param name="gripper" value="kg3" if="$(optenv MOVO_HAS_LEFT_KG3_GRIPPER false)"/>
+      <param name="gripper" value="rq85" if="$(optenv MOVO_HAS_LEFT_ROBOTIQ_GRIPPER false)"/>
+      <param name="jaco_dof" value="6dof" if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)"/>
+      <param name="jaco_dof" value="7dof" if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)"/>
+    </node>
+  </group>
+  
+  <!-- Platform specific robot state publisher and parameters -->
+  <include file="$(find movo_description)/launch/movo_upload.launch"/>
 </launch>
