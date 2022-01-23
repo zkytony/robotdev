@@ -192,5 +192,8 @@ def quat_diff_angle_relative(q1, q2):
 def to_degrees(th):
     return th*180 / math.pi
 
+def to_radians(th):
+    return th*math.pi / 180
+
 def remap(oldval, oldmin, oldmax, newmin, newmax):
     return (((oldval - oldmin) * (newmax - newmin)) / (oldmax - oldmin)) + newmin

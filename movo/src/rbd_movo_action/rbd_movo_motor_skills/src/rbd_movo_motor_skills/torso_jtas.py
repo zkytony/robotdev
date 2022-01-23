@@ -24,7 +24,6 @@ class TorsoJTAS(object):
             'movo/torso_controller/follow_joint_trajectory',
             FollowJointTrajectoryAction,
         )
-        self.total_time = 0.0
         server_up = self._client.wait_for_server(timeout=rospy.Duration(timeout))
         if not server_up:
             rospy.logerr("Timed out waiting for Joint Trajectory"
@@ -55,7 +54,6 @@ class TorsoJTAS(object):
         else:
             vel = v
         dt = abs(abs(desired_height - current_height) / vel)
-        total_time_torso += dt
         _add_point(goal, [desired_height], total_time_torso)
         goal.goal_time_tolerance = rospy.Time(0.1)
         goal.trajectory.joint_names = ['linear_joint']

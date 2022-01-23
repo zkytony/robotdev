@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import actionlib
+import rospy
+import yaml
+import sys
+from rbd_movo_motor_skills.head_jtas import HeadJTAS
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.utils.ros_utils import to_radians
+
+class HeadCommandExecutor(Executor):
+    """
+    cue args:
+       pan: desired pan (horizontal rotation); degrees
+       tilt: desired tilt (vertical rotation); degrees
+       vel: velocity of movement. Default 0.05
+    """
+
+    def __init__(self, name, cue, timeout=15):
+        super(HeadCommandExecutor, self).__init__(name, cue)
+        self.head_jtas = HeadJTAS()
+        self._timeout = timeout
+
+    def make_goal(self, cue):
+        args = cue["args"]
+        vel = args.get("vel", 0.3)
+        desired_pan = to_radians(args["pan"])
+        desired_tilt = to_radians(args["tilt"])
+        return HeadJTAS.make_goal(desired_pan, desired_tilt, v=vel)
+
+    def _execute(self):
+        self.head_jtas.client.send_goal(self.goal)
+        self.status = "Waiting for head action to finish"
+        self.head_jtas.client.wait_for_result(timeout=rospy.Duration(self._timeout))
+
+    def on_stop(self):
+        # It could be the case that HeadJTAS() in the constructor is not called yet,
+        # but this node is already being stopped. So this object has no attribute
+        # 'head_jtas'.
+        if self.running:
+            self.status = "To be stopped"
+            if self.head_jtas.client.simple_state != actionlib.SimpleGoalState.DONE:
+                self.head_jtas.client.cancel_goal()
+
+def __test():
+    # For testing only
+    node_name = "HeadCommand_Exe"
+    cue = {"type": 'Head', "args": {"pan": 30, "tilt": 30}}
+    executor = HeadCommandExecutor(node_name, cue)
+    executor.run()
+
+if __name__ == "__main__":
+    # node_name = sys.argv[1]
+    # cue = yaml.load(sys.argv[2])
+    # executor = HeadCommandExecutor(node_name, cue)
+    # executor.run()
+    __test()
