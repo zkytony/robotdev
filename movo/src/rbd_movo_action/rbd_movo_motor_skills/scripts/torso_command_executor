@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import actionlib
 import rospy
 import yaml
 import sys
@@ -13,32 +14,33 @@ class TorsoCommandExecutor(Executor):
     cue args:
        height: target height to move the torso to. Valid number is between 0 ~ 0.6(m)
        vel: velocity of movement. Default 0.05
-       torso_topic: topic used to get torso state. Default "/movo/linear_actuator/joint_states"
     """
 
-    def __init__(self, name, cue):
+    def __init__(self, name, cue, timeout=15):
         super(TorsoCommandExecutor, self).__init__(name, cue)
+        self.torso_jtas = TorsoJTAS()
+        self._timeout = timeout
 
     def make_goal(self, cue):
         args = cue["args"]
-        torso_topic = args.get("torso_topic", "/movo/linear_actuator/joint_states")
         vel = args.get("vel", 0.05)
         desired_height = args["height"]
         if desired_height < TORSO_HEIGHT_MIN or desired_height > TORSO_HEIGHT_MAX:
             rospy.logwarn("Specified torso goal height {} is out of range ({} ~ {}). Will clamp."\
                           .format(desired_height, TORSO_HEIGHT_MIN, TORSO_HEIGHT_MAX))
             desired_height = max(TORSO_HEIGHT_MIN, min(TORSO_HEIGHT_MAX, desired_height))
-
-        return dict(desired_height=desired_height,
-                    torso_topic=torso_topic,
-                    v=vel)
+        return TorsoJTAS.make_goal(desired_height,
+                                   v=vel)
 
     def _execute(self):
-        TorsoJTAS.move(self.goal["desired_height"],
-                       torso_topic=self.goal["torso_topic"],
-                       v=self.goal["v"])
-        current_height = TorsoJTAS.wait_for_torso_height(torso_topic=self.goal["torso_topic"])
-        rospy.loginfo("[{}] Torso moved to height: {}".format(self.name, current_height))
+        self.torso_jtas.client.send_goal(self.goal)
+        self.torso_jtas.client.wait_for_result(timeout=rospy.Duration(self._timeout))
+        current_height = TorsoJTAS.wait_for_torso_height()
+        self.loginfo("Torso moved to height: {}".format(current_height))
+
+    def on_stop(self):
+        if self.torso_jtas.client.simple_state != actionlib.SimpleGoalState.DONE:
+            self.torso_jtas.client.cancel_goal()
 
 
 def __test():
@@ -49,7 +51,8 @@ def __test():
     executor.run()
 
 if __name__ == "__main__":
-    node_name = sys.argv[1]
-    cue = yaml.load(sys.argv[2])
-    executor = TorsoCommandExecutor(node_name, cue)
-    executor.run()
+    # node_name = sys.argv[1]
+    # cue = yaml.load(sys.argv[2])
+    # executor = TorsoCommandExecutor(node_name, cue)
+    # executor.run()
+    __test()

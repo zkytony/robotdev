@@ -475,6 +475,11 @@ class SkillWorker(object):
     a ROS node."""
     def __init__(self, name, accept_command=True):
         self.name = name
+
+        # Initialize node
+        rospy.init_node(self.name)
+        rospy.loginfo(sinfo2("Initialized node {}".format(self.name)))
+
         if accept_command:
             rospy.Subscriber("skill/command", String,
                              self._manager_command_callback)
@@ -566,11 +571,8 @@ class Verifier(SkillWorker):
         self.message = ""  # the message for explaining the status
         self._rate = rate
 
-        # Initialize the verifier node
-        rospy.init_node(self.name)
-        rospy.loginfo(sinfo2("Initialized VERIFIER node {}".format(self.name)))
+        # Publisher to the /pass topic
         self.pub = rospy.Publisher(self.topic, String, queue_size=10, latch=True)
-
 
     @property
     def topic(self):
@@ -578,9 +580,9 @@ class Verifier(SkillWorker):
 
     def loginfo(self, basic=False):
         if basic:
-            rospy.loginfo("{:>50}| {:<15}".format(self.name, self.status))
+            rospy.loginfo("{:>45}| {:<15}".format(self.name, self.status))
         else:
-            rospy.loginfo("{:>50}| {:<15}: {}".format(self.name, self.status, self.message))
+            rospy.loginfo("{:>45}| {:<15}: {}".format(self.name, self.status, self.message))
 
     def run(self):
         """Runs the verifier; The current process should
@@ -597,6 +599,8 @@ class Verifier(SkillWorker):
             self.pub.publish(String(self.status))
             rate.sleep()
 
+    def on_stop(self):
+        self.loginfo(basic=True)
 
 
 class Executor(SkillWorker):
@@ -609,10 +613,6 @@ class Executor(SkillWorker):
            or "args" not in cue:
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.goal = self.make_goal(cue)
-
-        # Initialize the executor node
-        rospy.init_node(self.name)
-        rospy.loginfo(sinfo2("Initialized EXECUTOR node {}".format(self.name)))
 
     def make_goal(self, cue):
         """
@@ -639,3 +639,6 @@ class Executor(SkillWorker):
         self._execute()
         # need to spin because the executor will be killed by manager
         rospy.spin()
+
+    def loginfo(self, message):
+        rospy.loginfo("{:>45}| {}".format(self.name, message))

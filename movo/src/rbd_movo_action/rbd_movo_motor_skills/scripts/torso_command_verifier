@@ -11,13 +11,12 @@ class TorsoCommandVerifier(Verifier):
     cue args:
        height: target height to move the torso to. Valid number is between 0 ~ 0.6(m)
        vel: velocity of movement. Default 0.05
-       torso_topic: topic used to get torso state. Default "/movo/linear_actuator/joint_states"
        tolerance: amount of difference allowed between desired and actual height (default: 0.05).
     """
     def __init__(self, name, cue, rate=10):
         super(TorsoCommandVerifier, self).__init__(name, cue, rate=rate)
         args = cue["args"]
-        torso_topic = args.get("torso_topic", "/movo/linear_actuator/joint_states")
+        torso_topic = "/movo/linear_actuator/joint_states"
         self._desired_height = args["height"]
         self._tolerance = args.get("tolerance", 0.05)
         rospy.Subscriber(torso_topic,

@@ -113,14 +113,13 @@ class HeadJTAS(object):
         return True
 
 class TorsoJTAS(object):
+    """Extension to movo's TorsoActionClient that allows
+    specifying velocity of torso movement."""
     def __init__(self, timeout=10.0):
         self._client = actionlib.SimpleActionClient(
             'movo/torso_controller/follow_joint_trajectory',
             FollowJointTrajectoryAction,
         )
-        self._goal = FollowJointTrajectoryGoal()
-        self._goal_time_tolerance = rospy.Time(0.1)
-        self._goal.goal_time_tolerance = self._goal_time_tolerance
         self.total_time = 0.0
         server_up = self._client.wait_for_server(timeout=rospy.Duration(timeout))
         if not server_up:
@@ -129,64 +128,39 @@ class TorsoJTAS(object):
                          " before running example.")
             rospy.signal_shutdown("Timed out waiting for Action Server")
             sys.exit(1)
-        self.clear()
 
-    def add_point(self, positions, time):
-        point = JointTrajectoryPoint()
-        point.positions = copy(positions)
-        point.velocities = [0.0] * len(self._goal.trajectory.joint_names)
-        point.time_from_start = rospy.Duration(time)
-        self._goal.trajectory.points.append(point)
-
-    def start(self):
-        self._goal.trajectory.header.stamp = rospy.Time(0.0)
-        self._client.send_goal(self._goal)
-
-    def stop(self):
-        self._client.cancel_goal()
-
-    def wait(self, timeout=15.0):
-        self._client.wait_for_result(timeout=rospy.Duration(timeout))
-
-    def result(self):
-        return self._client.get_result()
-
-    def clear(self):
-        self._goal = FollowJointTrajectoryGoal()
-        self._goal.goal_time_tolerance = self._goal_time_tolerance
-        self._goal.trajectory.joint_names = ['linear_joint']
+    @property
+    def client(self):
+        return self._client
 
     @staticmethod
-    def wait_for_torso_height(torso_topic="/movo/torso_controller/state"):
-        if torso_topic=="/movo/torso_controller/state":
-            msg = rospy.wait_for_message(torso_topic, JointTrajectoryControllerState, timeout=15)
-            assert msg.joint_names[0] == 'linear_joint', "Joint is not linear joint (not torso)."
-            position = msg.actual.positions[0]
-        else:
-            assert torso_topic == "/movo/linear_actuator/joint_states"  # real robot
-            msg = rospy.wait_for_message(torso_topic, JointState, timeout=15)
-            assert msg.name[0] == 'linear_joint', "Joint is not linear joint (not torso)."
-            position = msg.position[0]
-        return position
+    def make_goal(desired_height, v=0.05):
+        def _add_point(goal, positions, time):
+            point = JointTrajectoryPoint()
+            point.positions = copy(positions)
+            point.velocities = [0.0] * len(goal.trajectory.joint_names)
+            point.time_from_start = rospy.Duration(time)
+            goal.trajectory.points.append(point)
 
-
-    @classmethod
-    def move(cls, desired_height, current_height=None,
-             torso_topic="/movo/torso_controller/state",
-             v=0.05):
-        # get current position
-        if current_height is None:
-            current_height = TorsoJTAS.wait_for_torso_height(torso_topic=torso_topic)
-        traj_torso = TorsoJTAS()
+        goal = FollowJointTrajectoryGoal()
+        current_height = TorsoJTAS.wait_for_torso_height()
         total_time_torso = 0.0
-        traj_torso.add_point([current_height], 0.0)
+        _add_point(goal, [current_height], 0.0)
         if desired_height < current_height:
             vel = -v
         else:
             vel = v
         dt = abs(abs(desired_height - current_height) / vel)
         total_time_torso += dt
-        traj_torso.add_point([desired_height],total_time_torso)
-        traj_torso.start()
-        traj_torso.wait(total_time_torso+3.0)
-        return True
+        _add_point(goal, [desired_height], total_time_torso)
+        goal.goal_time_tolerance = rospy.Time(0.1)
+        goal.trajectory.joint_names = ['linear_joint']
+        return goal
+
+    @staticmethod
+    def wait_for_torso_height():
+        torso_topic="/movo/linear_actuator/joint_states"
+        msg = rospy.wait_for_message(torso_topic, JointState, timeout=15)
+        assert msg.name[0] == 'linear_joint', "Joint is not linear joint (not torso)."
+        position = msg.position[0]
+        return position
