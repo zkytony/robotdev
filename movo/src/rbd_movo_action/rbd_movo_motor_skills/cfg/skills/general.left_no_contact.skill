@@ -9,11 +9,21 @@ config:
   ARTagPose:
     verifier: ar_tag_pose_verifier
     executor: "NA"   # not-applicable
-  GripperCommand:
+  Gripper:
     verifier: gripper_command_verifier
     executor: gripper_command_executor
+  Torso:
+    verifier: torso_command_verifier
+    executor: torso_command_executor
 
 skill:
+  - name: "Lower Torso"
+    actuation_cues:
+      - type: Torso
+        args:
+          height: 0.05
+          vel: 0.04
+
   - name: "See AR Tag"
     perception_cues:
       - type: ARTagPose
@@ -25,14 +35,14 @@ skill:
 
   - name: "Open Gripper"
     actuation_cues:
-      - type: GripperCommand
+      - type: Gripper
         args:
           side: 'left'
           position: 0.8
 
   - name: "Close Gripper"
     actuation_cues:
-      - type: GripperCommand
+      - type: Gripper
         args:
           side: 'left'
           position: 0.0
