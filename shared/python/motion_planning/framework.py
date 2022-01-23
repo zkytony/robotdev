@@ -614,17 +614,27 @@ class Executor(SkillWorker):
         rospy.loginfo("Initialized executor node {}".format(self.name))
 
     def make_goal(self, cue):
+        """
+        Returns a goal based on cue.
+        There is no requirement for the type that goal needs to be.
+        Args:
+            cue (dict): Cue
+        Returns:
+            object
+        """
         raise NotImplementedError
 
     def _execute(self):
-        """Runs the executor; The current process should
-        be the executor's node. This method's job is
-        to achieve the goal. Can be blocking until
+        """Runs the executor; Will execute the goal in `self.goal`
+        The current process should be the executor's node.
+        This method's job is to achieve the goal. Can be blocking until
         the goal is achieved. SHOULD BE OVERRIDDEN."""
+        if self.goal is None:
+            raise ValueError("No goal is set. Did you forget to return something from 'make_goal'?")
         raise NotImplementedError
 
     def run(self):
-        """You should call run() to start the executor"""
+        """You should call run() to start the executor;"""
         self._execute()
         # need to spin because the executor will be killed by manager
         rospy.spin()
