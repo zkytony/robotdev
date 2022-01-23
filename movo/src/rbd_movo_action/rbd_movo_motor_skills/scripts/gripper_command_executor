@@ -22,6 +22,7 @@ class GripperCommandExecutor(Executor):
        position: Gripper goal position; must be in range (0.0 ~ 1.0).
                  The actual value sent to MOVO's GripperActionServer
                  is remapped to be within 0 to 0.165
+       side: 'left' or 'right'
     """
     def __init__(self, name, cue, timeout=15):
         super(GripperCommandExecutor, self).__init__(name, cue)
@@ -68,7 +69,7 @@ class GripperCommandExecutor(Executor):
 def __test():
     # For testing only
     node_name = "GripperState_Exe"
-    cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.0}}
+    cue = {"type": 'Gripper', "args": {"side": "left", "position": 0.0}}
     executor = GripperStateExecutor(node_name, cue)
     executor.run()
 
