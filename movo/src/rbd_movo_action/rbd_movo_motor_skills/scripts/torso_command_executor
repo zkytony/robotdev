@@ -4,7 +4,7 @@ import actionlib
 import rospy
 import yaml
 import sys
-from rbd_movo_motor_skills.head_and_torso import TorsoJTAS
+from rbd_movo_motor_skills.torso_jtas import TorsoJTAS
 from rbd_movo_motor_skills.motion_planning.framework import Executor
 from rbd_movo_motor_skills.config import TORSO_HEIGHT_MAX, TORSO_HEIGHT_MIN
 
@@ -34,14 +34,19 @@ class TorsoCommandExecutor(Executor):
 
     def _execute(self):
         self.torso_jtas.client.send_goal(self.goal)
+        self.status = "Waiting"
         self.torso_jtas.client.wait_for_result(timeout=rospy.Duration(self._timeout))
         current_height = TorsoJTAS.wait_for_torso_height()
-        self.loginfo("Torso moved to height: {}".format(current_height))
+        self.status = "Torso moved to height: {}".format(current_height)
 
     def on_stop(self):
-        if self.torso_jtas.client.simple_state != actionlib.SimpleGoalState.DONE:
-            self.torso_jtas.client.cancel_goal()
-
+        self.status = "To be stopped"
+        # It could be the case that TorsoJTAS() in the constructor is not called yet,
+        # but this node is already being stopped. So this object has no attribute
+        # 'torso_jtas'.
+        if hasattr(self, "torso_jtas"):
+            if self.torso_jtas.client.simple_state != actionlib.SimpleGoalState.DONE:
+                self.torso_jtas.client.cancel_goal()
 
 def __test():
     # For testing only
@@ -51,8 +56,7 @@ def __test():
     executor.run()
 
 if __name__ == "__main__":
-    # node_name = sys.argv[1]
-    # cue = yaml.load(sys.argv[2])
-    # executor = TorsoCommandExecutor(node_name, cue)
-    # executor.run()
-    __test()
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    executor = TorsoCommandExecutor(node_name, cue)
+    executor.run()
