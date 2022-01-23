@@ -105,6 +105,7 @@ import rospy
 import subprocess
 
 from std_msgs.msg import String
+from ..utils import sinfo, sinfo2
 
 class Command:
     STOP = "Stop"
@@ -213,7 +214,7 @@ class SkillManager(object):
         # for each checkpoint and monitors the progress.
         self._current_checkpoint_index = 0
         while self._current_checkpoint_index < len(self._skill.checkpoints):
-            rospy.loginfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index))
+            rospy.loginfo(sinfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index)))
             # Build workers and run them
             checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
             workers = checkpoint.setup(self._config)
@@ -567,7 +568,7 @@ class Verifier(SkillWorker):
 
         # Initialize the verifier node
         rospy.init_node(self.name)
-        rospy.loginfo("Initialized verifier node {}".format(self.name))
+        rospy.loginfo(sinfo2("Initialized VERIFIER node {}".format(self.name)))
         self.pub = rospy.Publisher(self.topic, String, queue_size=10, latch=True)
 
 
@@ -577,9 +578,9 @@ class Verifier(SkillWorker):
 
     def loginfo(self, basic=False):
         if basic:
-            rospy.loginfo("[{}] {}".format(self.name, self.status))
+            rospy.loginfo("{:>50}| {:<15}".format(self.name, self.status))
         else:
-            rospy.loginfo("[{}] {}: {}".format(self.name, self.status, self.message))
+            rospy.loginfo("{:>50}| {:<15}: {}".format(self.name, self.status, self.message))
 
     def run(self):
         """Runs the verifier; The current process should
@@ -611,7 +612,7 @@ class Executor(SkillWorker):
 
         # Initialize the executor node
         rospy.init_node(self.name)
-        rospy.loginfo("Initialized executor node {}".format(self.name))
+        rospy.loginfo(sinfo2("Initialized EXECUTOR node {}".format(self.name)))
 
     def make_goal(self, cue):
         """
