@@ -105,7 +105,7 @@ import rospy
 import subprocess
 
 from std_msgs.msg import String
-from ..utils import sinfo, sinfo2
+from ..utils import sinfo, sinfo2, ssuccess
 
 class Command:
     STOP = "Stop"
@@ -214,9 +214,12 @@ class SkillManager(object):
         # for each checkpoint and monitors the progress.
         self._current_checkpoint_index = 0
         while self._current_checkpoint_index < len(self._skill.checkpoints):
-            rospy.loginfo(sinfo("*** CHECKPOINT {} ***".format(self._current_checkpoint_index)))
             # Build workers and run them
             checkpoint = self._skill.checkpoints[self._current_checkpoint_index]
+            rospy.loginfo(sinfo("*** CHECKPOINT {}: {} ***"\
+                                .format(self._current_checkpoint_index,
+                                        checkpoint.name), bold=True))
+
             workers = checkpoint.setup(self._config)
             for worker_type, worker_node_executable, worker_node_name, args in workers:
                 p = SkillWorker.start(self.pkg_name,
@@ -232,6 +235,7 @@ class SkillManager(object):
             self._wait_for_verifiers(vfr_node_names)
 
             # stop the workers
+            rospy.loginfo(ssuccess("Verifiers all passed. Stopping workers"))
             self._broadcast_stop_notification()
             self.stop_all_workers(soft=True)   # try to be nice; tell workers you are stopped.
 
@@ -368,11 +372,12 @@ class SkillManager(object):
         for p in self._p_workers:
             _, worker_node_name = self._p_workers[p]
             self._received_stop_acks[p] = False
-            # setup a subscriber for this worker's stop ack
-            self._send_command(p, worker_node_name, Command.STOP)
         rate = rospy.Rate(5)  # rate to publish stop command
         while not self._stop_ack_all_received():
             self._check_health()
+            for p in self._p_workers:
+                # setup a subscriber for this worker's stop ack
+                self._send_command(p, worker_node_name, Command.STOP)
             rate.sleep()
 
     def _send_command(self, p, worker_node_name, cmd):
@@ -479,6 +484,7 @@ class SkillWorker(object):
         # Initialize node
         rospy.init_node(self.name)
         rospy.loginfo(sinfo2("Initialized node {}".format(self.name)))
+        self.status = ""
 
         if accept_command:
             rospy.Subscriber("skill/command", String,
@@ -515,6 +521,12 @@ class SkillWorker(object):
 
     def _make_reply(self, cmd, reply):
         return "{}::{}".format(cmd, reply)
+
+    def loginfo(self, basic=False):
+        if basic:
+            rospy.loginfo("* {:<30}| {:<15}".format(self.name, self.status))
+        else:
+            rospy.loginfo("* {:<30}| {:<15}: {}".format(self.name, self.status, self.message))
 
     @staticmethod
     def start(pkg, node_executable, node_name, args):
@@ -578,12 +590,6 @@ class Verifier(SkillWorker):
     def topic(self):
         return "{}/pass".format(self.name)
 
-    def loginfo(self, basic=False):
-        if basic:
-            rospy.loginfo("{:>45}| {:<15}".format(self.name, self.status))
-        else:
-            rospy.loginfo("{:>45}| {:<15}: {}".format(self.name, self.status, self.message))
-
     def run(self):
         """Runs the verifier; The current process should
         be the verifier's node"""
@@ -636,9 +642,10 @@ class Executor(SkillWorker):
 
     def run(self):
         """You should call run() to start the executor;"""
-        self._execute()
-        # need to spin because the executor will be killed by manager
-        rospy.spin()
+        # run a timer to print out status
+        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
 
-    def loginfo(self, message):
-        rospy.loginfo("{:>45}| {}".format(self.name, message))
+        self._execute()
+        # need to spin because the executor
+        # will be killed by manager
+        rospy.spin()
