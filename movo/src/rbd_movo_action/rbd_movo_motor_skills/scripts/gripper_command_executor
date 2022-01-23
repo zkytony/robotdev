@@ -1,48 +1,77 @@
 #!/usr/bin/env python
-
-import sys
-import yaml
-
-import tf2_ros
+import actionlib
 import rospy
-import numpy as np
+import yaml
+import sys
 
-from geometry_msgs.msg import PoseStamped
-from rbd_movo_motor_skills.motion_planning.framework import Verifier
-from rbd_movo_motor_skills.utils.ros_utils import *
+# reference: http://wiki.ros.org/control_msgs
+from control_msgs.msg import (
+    GripperCommand,
+    GripperCommandAction,
+    GripperCommandGoal
+)
 
-class GripperCommandGoalVerifier(Verifier):
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.config import GRIPPER_POSITION_MAX
+from rbd_movo_motor_skills.utils.ros_utils import remap
+
+class GripperCommandExecutor(Executor):
     """
-    Gripper state verifier. Although the gripper states
-    are published under /movo/left_gripper/joint_states,
-    the values in the "position" field of those messages
-    do not match the value of "position" in the command,
-    sent to the Gripper Action Server. Therefore, it is
-    quite challenging to tell whether a gripper goal
-    state is reached.
-
-    Experimentally, I have observed:
-    - When the gripper is fully open, the joint_state
-      position reading is 0.002549 for finger1, 0.0016998
-      for fingers 2 and 3.
-
-    - When fully closed, the value is about 0.890716
-      for all fingers.
-
-    - When half open, the value is about 0.515
-      for all fingers.
-
-    It is a little tricky to check for these values. Instead,
-    the Action Server publishes feedback to the Action Client,
-    at '/movo/left_gripper_controller/gripper_cmd/feedback'
-    If the goal is successful, then the last feedback
-    will have a 'reached_goal' field to be True.
-
-    This Verifier just needs to verify that!
-
-    Therefore, this Verifier does not care about the
-    configuration in the cue - that is for the executor.
-    It only cares about whether the Action Goal is reached.
+    cue args:
+       position: Gripper goal position; must be in range (0.0 ~ 1.0).
+                 The actual value sent to MOVO's GripperActionServer
+                 is remapped to be within 0 to 0.165
     """
-    def __init__(self, name, cue, rate=10):
-        super(ARTagPoseVerifier, self).__init__(name, cue, rate=rate)
+    def __init__(self, name, cue, timeout=15):
+        super(GripperCommandExecutor, self).__init__(name, cue)
+        side = cue["args"]["side"]
+
+        # This implementation borrows
+        # from movo_action_clients.gripper_action_client.GripperActionClient
+        self._client = actionlib.SimpleActionClient(
+            '/movo/%s_gripper_controller/gripper_cmd' % side,
+            GripperCommandAction,
+        )
+        server_up = self._client.wait_for_server(timeout=rospy.Duration(timeout))
+        if not server_up:
+            rospy.logerr("Timed out waiting for Gripper Command"
+                         " Action Server to connect. Start the action server"
+                         " before running example.")
+            rospy.signal_shutdown("Timed out waiting for Action Server")
+            sys.exit(1)
+        self._timeout = timeout
+
+    def make_goal(self, cue):
+        """create a GripperCommandGoal"""
+        # the specified position must be within 0 to 1
+        spec_position = cue["args"]["position"]
+        if spec_position < 0.0 or spec_position > 1.0:
+            rospy.logwarn("Specified gripper goal position {} is out of range (0.0 ~ 1.0). Will clamp."\
+                          .format(self._goal_position))
+            spec_position = max(0.0, min(1.0, spec_position))
+        self._goal_position = remap(spec_position, 0., 1., 0., GRIPPER_POSITION_MAX)
+        self._max_effort = cue["args"].get("max_effort", -1.0)
+        goal = GripperCommandGoal()
+        goal.command.position = self._goal_position
+        goal.command.max_effort = self._max_effort
+        return goal
+
+    def run(self):
+        self._client.send_goal(self.goal)
+        self._client.wait_for_result(timeout=rospy.Duration(self._timeout))
+
+    def on_stop(self):
+        self._client.cancel_goal()
+
+
+if __name__ == "__main__":
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    executor = GripperCommandExecutor(node_name, cue)
+    executor.run()
+
+    # # For testing only
+    # node_name = "GripperState_Exe"
+    # cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.0}}
+    # executor = GripperStateExecutor(node_name, cue)
+    # executor.run()

@@ -27,10 +27,12 @@ skill:
     actuation_cues:
       - type: GripperCommand
         args:
-          position: 0.165
+          side: 'left'
+          position: 0.8
 
   - name: "Close Gripper"
     actuation_cues:
       - type: GripperCommand
         args:
+          side: 'left'
           position: 0.0
