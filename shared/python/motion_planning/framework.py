@@ -153,6 +153,23 @@ class SkillManager(object):
         # Indicates which index in the checkpoints are we at now
         self._current_checkpoint_index = -1
 
+    def _get_params(self):
+        """set params for manager itself upon initialization"""
+        def _g(p):
+            import socket
+            try:
+                if rospy.has_param(p):
+                    return rospy.get_param(p)
+                else:
+                    rospy.logerr("Required prarameter '{}' is not provided".format(p))
+                    raise ValueError("Required prarameter '{}' is not provided".format(p))
+            except socket.error:
+                print("Unable to communicate with ROS master. Do you have 'roscore' running?")
+                exit()
+
+        self.pkg_base_dir = _g("skill/pkg_base_dir")
+        self.pkg_name = _g("skill/pkg_name")
+
     @property
     def initialized(self):
         return self._current_checkpoint_index >= 0
@@ -191,7 +208,6 @@ class SkillManager(object):
                                           ckspec.get('perception_cues', []),
                                           ckspec.get('actuation_cues', [])))
         return config, Skill(os.path.basename(skill_file_relpath), checkpoints)
-
 
     def run(self):
         """Starts the SkillManager node -> This means
@@ -242,21 +258,54 @@ class SkillManager(object):
             self._current_checkpoint_index += 1
             self._current_checkpoint_status = {}
 
-    def _get_params(self):
-        def _g(p):
-            import socket
-            try:
-                if rospy.has_param(p):
-                    return rospy.get_param(p)
-                else:
-                    rospy.logerr("Required prarameter '{}' is not provided".format(p))
-                    raise ValueError("Required prarameter '{}' is not provided".format(p))
-            except socket.error:
-                print("Unable to communicate with ROS master. Do you have 'roscore' running?")
+    def stop_all_workers(self, soft=True):
+        """soft=True if the manager notifies the workers
+        before they are stopped."""
+        if soft:
+            self._broadcast_stop_notification()
+        for p in self._p_workers:
+            worker_type, worker_node_name = self._p_workers[p]
+            rospy.loginfo("Stopping {} {}".format(worker_type, worker_node_name))
+            SkillWorker.stop(p)
+        # Enforce manager state to be correct after workers are all stopped.
+        self._p_workers = {}
+        self._received_stop_acks = {}
+
+    def _check_health(self):
+        """Check if all workers are running. If one
+        of them dies, then the whole checkpoint failed."""
+        for p in self._p_workers:
+            if p.poll() is not None:
+                # p has terminated. This is unexpected.
+                self.stop_all_workers(soft=False)   # try to be nice first.
                 exit()
 
-        self.pkg_base_dir = _g("skill/pkg_base_dir")
-        self.pkg_name = _g("skill/pkg_name")
+    def _wait_for_verifiers(self, vfr_node_names):
+        """
+        Args:
+            vfr_node_names (list): list of verifier node names.
+                Note that for each verifier node, we expect it to
+                publish String messages to topic 'vfr_node_name/pass'
+        """
+        assert len(self._current_checkpoint_status) == 0,\
+            "Bad manager state: status of previous checkpoint is not cleared."
+        self._current_checkpoint_status = {
+            v: Verifier.NOT_DONE
+            for v in vfr_node_names
+        }
+        # Set up a subscriber to each verifier topic
+        for v in vfr_node_names:
+            topic = "{}/pass".format(v)
+            rospy.Subscriber(topic, String, self._verify_callback, (v,))
+        rospy.loginfo("Waiting for verifiers ({})".format(vfr_node_names))
+        rate = rospy.Rate(self._rate_verification_check)
+        while not self._checkpoint_passed():
+            self._check_health()
+            rate.sleep()
+
+    def _checkpoint_passed(self):
+        return all(self._current_checkpoint_status[v] == Verifier.DONE
+                   for v in self._current_checkpoint_status)
 
     def _path_to_skill(self, skill_file_relpath):
         return os.path.join(self.dir_skills, skill_file_relpath)
@@ -293,7 +342,7 @@ class SkillManager(object):
 
     def _verify_callback(self, m, args):
         """
-        called when receiving a message from verifier. This will update the
+        called when receiving a message from a verifier. This will update the
         tracking of the status of the verifier that sent this message `m`.
 
         Args:
@@ -308,54 +357,19 @@ class SkillManager(object):
             .format(m.data, vfr_node_name, Verifier.DONE, Verifier.NOT_DONE)
         self._current_checkpoint_status[vfr_node_name] = m.data
 
-    def _wait_for_verifiers(self, vfr_node_names):
-        """
-        Args:
-            vfr_node_names (list): list of verifier node names.
-                Note that for each verifier node, we expect it to
-                publish String messages to topic 'vfr_node_name/pass'
-        """
-        assert len(self._current_checkpoint_status) == 0,\
-            "Bad manager state: status of previous checkpoint is not cleared."
-        self._current_checkpoint_status = {
-            v: Verifier.NOT_DONE
-            for v in vfr_node_names
-        }
-        # Set up a subscriber to each verifier topic
-        for v in vfr_node_names:
-            topic = "{}/pass".format(v)
-            rospy.Subscriber(topic, String, self._verify_callback, (v,))
-        rospy.loginfo("Waiting for verifiers ({})".format(vfr_node_names))
-        rate = rospy.Rate(self._rate_verification_check)
-        while not self._checkpoint_passed():
-            self._check_health()
-            rate.sleep()
+    def _send_command(self, p, worker_node_name, cmd):
+        self._pub_command.publish(self._make_command(worker_node_name, cmd))
+        rospy.Subscriber("{}/command_reply".format(worker_node_name),
+                         String, self._command_reply_callback, (p,))
 
-    def _checkpoint_passed(self):
-        return all(self._current_checkpoint_status[v] == Verifier.DONE
-                   for v in self._current_checkpoint_status)
+    def _make_command(self, worker_node_name, cmd):
+        return String("{}## {}".format(worker_node_name, cmd))
 
-    def _check_health(self):
-        """Check if all workers are running. If one
-        of them dies, then the whole checkpoint failed."""
-        for p in self._p_workers:
-            if p.poll() is not None:
-                # p has terminated. This is unexpected.
-                self.stop_all_workers(soft=False)   # try to be nice first.
-                exit()
-
-    def stop_all_workers(self, soft=True):
-        """soft=True if the manager notifies the workers
-        before they are stopped."""
-        if soft:
-            self._broadcast_stop_notification()
-        for p in self._p_workers:
-            worker_type, worker_node_name = self._p_workers[p]
-            rospy.loginfo("Stopping {} {}".format(worker_type, worker_node_name))
-            SkillWorker.stop(p)
-        # Enforce manager state to be correct after workers are all stopped.
-        self._p_workers = {}
-        self._received_stop_acks = {}
+    def _command_reply_callback(self, m, args):
+        p = args[0]
+        cmd, reply = m.data.split("::")
+        if cmd == Command.STOP:
+            self._handle_stop_reply(p, reply)
 
     def _broadcast_stop_notification(self):
         """Notifies all workers within self._p_workers that they will be
@@ -379,24 +393,9 @@ class SkillManager(object):
                 self._send_command(p, worker_node_name, Command.STOP)
             rate.sleep()
 
-    def _send_command(self, p, worker_node_name, cmd):
-        self._pub_command.publish(self._make_command(worker_node_name, cmd))
-        rospy.Subscriber("{}/command_reply".format(worker_node_name),
-                         String, self._command_reply_callback, (p,))
-
-
-    def _command_reply_callback(self, m, args):
-        p = args[0]
-        cmd, reply = m.data.split("::")
-        if cmd == Command.STOP:
-            self._handle_stop_reply(p, reply)
-
     def _stop_ack_all_received(self):
         return all(self._received_stop_acks[p]
                    for p in self._received_stop_acks)
-
-    def _make_command(self, worker_node_name, cmd):
-        return String("{}## {}".format(worker_node_name, cmd))
 
     def _handle_stop_reply(self, p, reply):
         if reply == "ok":
@@ -492,40 +491,6 @@ class SkillWorker(object):
                                 String, queue_size=10, latch=True)
         self.running = False
 
-    def _manager_command_callback(self, m):
-        # check if this command is about me.
-        command_subject_name = m.data.split("##")[0]
-        if command_subject_name == self.name:
-            # yes, it is about me.
-            cmd = m.data.split("##")[1].strip()
-            reply = self._handle_command(cmd)
-            # we are done handling this command. Publish ack to
-            self._cmd_reply_pub.publish(self._make_reply(cmd, reply))
-
-    def _handle_command(self, cmd):
-        """Handles command from manager. Returns
-        a string reply."""
-        if cmd == Command.STOP:
-            self.on_stop()
-            return "ok"
-        else:
-            raise ValueError("[{}] Unknown command {}".format(self.name, cmd))
-
-    def on_stop(self):
-        """This function is called when the executor is stopped,
-        either because it is preempted or it has finished.
-        This function can raise an exception if something
-        happened to prevent successful stopping."""
-        pass
-
-    def _make_reply(self, cmd, reply):
-        return "{}::{}".format(cmd, reply)
-
-    def loginfo(self, basic=False):
-        if basic:
-            rospy.loginfo("* {:<30}| {:<15}".format(self.name, self.status))
-        else:
-            rospy.loginfo("* {:<30}| {:<15}: {}".format(self.name, self.status, self.message))
 
     @staticmethod
     def start(pkg, node_executable, node_name, args):
@@ -556,6 +521,41 @@ class SkillWorker(object):
                 pass
             else:
                 raise e
+
+    def on_stop(self):
+        """This function is called when the executor is stopped,
+        either because it is preempted or it has finished.
+        This function can raise an exception if something
+        happened to prevent successful stopping."""
+        pass
+
+    def loginfo(self, basic=False):
+        if basic:
+            rospy.loginfo("* {:<30}| {:<15}".format(self.name, self.status))
+        else:
+            rospy.loginfo("* {:<30}| {:<15}: {}".format(self.name, self.status, self.message))
+
+    def _manager_command_callback(self, m):
+        # check if this command is about me.
+        command_subject_name = m.data.split("##")[0]
+        if command_subject_name == self.name:
+            # yes, it is about me.
+            cmd = m.data.split("##")[1].strip()
+            reply = self._handle_command(cmd)
+            # we are done handling this command. Publish ack to
+            self._cmd_reply_pub.publish(self._make_reply(cmd, reply))
+
+    def _handle_command(self, cmd):
+        """Handles command from manager. Returns
+        a string reply."""
+        if cmd == Command.STOP:
+            self.on_stop()
+            return "ok"
+        else:
+            raise ValueError("[{}] Unknown command {}".format(self.name, cmd))
+
+    def _make_reply(self, cmd, reply):
+        return "{}::{}".format(cmd, reply)
 
 
 class Verifier(SkillWorker):
@@ -593,10 +593,8 @@ class Verifier(SkillWorker):
         """Runs the verifier; The current process should
         be the verifier's node"""
         self.running = True
-
         # run a timer to print out status
         rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
-
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(self._rate)
         now = rospy.Time.now()
@@ -621,6 +619,16 @@ class Executor(SkillWorker):
             raise ValueError("cue must be a dictionary with 'type' and 'args' fields.")
         self.goal = self.make_goal(cue)
 
+    def run(self):
+        """You should call run() to start the executor;"""
+        self.running = True
+        # run a timer to print out status
+        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
+        if self.goal is None:
+            raise ValueError("No goal is set. Did you forget to return something from 'make_goal'?")
+        self._execute()
+        rospy.spin()  # need to spin because the executor will be killed by manager
+
     def make_goal(self, cue):
         """
         Returns a goal based on cue.
@@ -637,18 +645,4 @@ class Executor(SkillWorker):
         The current process should be the executor's node.
         This method's job is to achieve the goal. Can be blocking until
         the goal is achieved. SHOULD BE OVERRIDDEN."""
-        if self.goal is None:
-            raise ValueError("No goal is set. Did you forget to return something from 'make_goal'?")
         raise NotImplementedError
-
-    def run(self):
-        """You should call run() to start the executor;"""
-        self.running = True
-
-        # run a timer to print out status
-        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
-
-        self._execute()
-        # need to spin because the executor
-        # will be killed by manager
-        rospy.spin()
