@@ -484,13 +484,13 @@ class SkillWorker(object):
         rospy.init_node(self.name)
         rospy.loginfo(sinfo2("Initialized node {}".format(self.name)))
         self.status = ""
-
         if accept_command:
             rospy.Subscriber("skill/command", String,
                              self._manager_command_callback)
             self._cmd_reply_pub =\
                 rospy.Publisher("{}/command_reply".format(self.name),
                                 String, queue_size=10, latch=True)
+        self.running = False
 
     def _manager_command_callback(self, m):
         # check if this command is about me.
@@ -592,6 +592,8 @@ class Verifier(SkillWorker):
     def run(self):
         """Runs the verifier; The current process should
         be the verifier's node"""
+        self.running = True
+
         # run a timer to print out status
         rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
 
@@ -641,6 +643,8 @@ class Executor(SkillWorker):
 
     def run(self):
         """You should call run() to start the executor;"""
+        self.running = True
+
         # run a timer to print out status
         rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
 

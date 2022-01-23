@@ -36,15 +36,13 @@ class TorsoCommandExecutor(Executor):
         self.torso_jtas.client.send_goal(self.goal)
         self.status = "Waiting"
         self.torso_jtas.client.wait_for_result(timeout=rospy.Duration(self._timeout))
-        current_height = TorsoJTAS.wait_for_torso_height()
-        self.status = "Torso moved to height: {}".format(current_height)
 
     def on_stop(self):
-        self.status = "To be stopped"
         # It could be the case that TorsoJTAS() in the constructor is not called yet,
         # but this node is already being stopped. So this object has no attribute
         # 'torso_jtas'.
-        if hasattr(self, "torso_jtas"):
+        if self.running:
+            self.status = "To be stopped"
             if self.torso_jtas.client.simple_state != actionlib.SimpleGoalState.DONE:
                 self.torso_jtas.client.cancel_goal()
 
