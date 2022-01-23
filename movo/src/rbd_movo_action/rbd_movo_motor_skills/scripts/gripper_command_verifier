@@ -50,10 +50,10 @@ class GripperCommandVerifier(Verifier):
     def _callback(self, m):
         if m.result.reached_goal:
             position_in_spec = remap(m.result.position, 0., GRIPPER_POSITION_MAX, 0., 1.)
-            if abs(self._spec_position - position_in_spec) < 1e-3:
-                self.message = "ok"
-                self.status = Verifier.DONE
-                return
+            self.message = "ok"
+            self.status = Verifier.DONE
+            return
+
         self.message = "Gripper command goal not reached"
         self.status = Verifier.NOT_DONE
 
