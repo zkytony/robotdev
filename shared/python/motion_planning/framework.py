@@ -227,11 +227,12 @@ class SkillManager(object):
 
             # Now, the workers have started. We just need to wait for the
             # verifiers to all pass.
-            rospy.loginfo("Waiting for verifier")
             vfr_node_names = set(w[2] for w in workers if w[0] == "verifier")
+            rospy.loginfo("Waiting for verifiers ({})".format(vfr_node_names))
             self._wait_for_verifiers(vfr_node_names)
 
             # stop the workers
+            print("~~~~~~~~BROADCAST STOP NOTIFICATION~~~~~~~")
             self._broadcast_stop_notification()
             self.stop_all_workers(soft=True)   # try to be nice; tell workers you are stopped.
 
@@ -325,16 +326,21 @@ class SkillManager(object):
 
         rate = rospy.Rate(self._rate_verification_check)
         while not self._checkpoint_passed():
-            for p in self._p_workers:
-                if p.poll() is not None:
-                    # p has terminated. This is unexpected.
-                    self.stop_all_workers(soft=True)   # try to be nice first.
-                    exit()
+            self._check_health()
             rate.sleep()
 
     def _checkpoint_passed(self):
         return all(self._current_checkpoint_status[v] == Verifier.DONE
                    for v in self._current_checkpoint_status)
+
+    def _check_health(self):
+        """Check if all workers are running. If one
+        of them dies, then the whole checkpoint failed."""
+        for p in self._p_workers:
+            if p.poll() is not None:
+                # p has terminated. This is unexpected.
+                self.stop_all_workers(soft=False)   # try to be nice first.
+                exit()
 
     def stop_all_workers(self, soft=True):
         """soft=True if the manager notifies the workers
@@ -364,16 +370,20 @@ class SkillManager(object):
             _, worker_node_name = self._p_workers[p]
             self._received_stop_acks[p] = False
             # setup a subscriber for this worker's stop ack
+            print("SENT {} {} STOP COMMAND".format(p, worker_node_name))
             self._send_command(p, worker_node_name, Command.STOP)
         rate = rospy.Rate(5)  # rate to publish stop command
         while not self._stop_ack_all_received():
-            for p in self._p_workers:
-                if p.poll() is not None:
-                    # p has terminated. This is unexpected.
-                    # We tried to be soft but not working. Be tough.
-                    self.stop_all_workers(soft=False)
-                    exit()
+            #DEBUGGING
+            for p in self._received_stop_acks:
+                n = self._p_workers[p][1]
+                print("RECEIVED STOP ACK FROM {}? {}".format(n, self._received_stop_acks[p]))
+            self._check_health()
             rate.sleep()
+        #DEBUGGING
+        for p in self._received_stop_acks:
+            n = self._p_workers[p][1]
+            print("RECEIVED STOP ACK FROM {}? {}".format(n, self._received_stop_acks[p]))
 
     def _send_command(self, p, worker_node_name, cmd):
         self._pub_command.publish(self._make_command(worker_node_name, cmd))
@@ -453,6 +463,12 @@ class Checkpoint(object):
                 workers.append(("executor", executor_node_executable, node_name, cue))
         return workers
 
+    def __repr__(self):
+        return "Checkpoint(\"{}\"; {}p; {}a)".format(self.name, len(self._perception_cues), len(self._actuation_cues))
+
+    def __str__(self):
+        return self.name
+
 
 class Skill(object):
     """A skill is a list of checkpoints"""
@@ -490,11 +506,17 @@ class SkillWorker(object):
         """Handles command from manager. Returns
         a string reply."""
         if cmd == Command.STOP:
-            return self.on_stop()
+            self.on_stop()
+            return "ok"
+        else:
+            raise ValueError("[{}] Unknown command {}".format(self.name, cmd))
 
     def on_stop(self):
-        """SHOULD BE OVERRIDDEN"""
-        return "ok"
+        """This function is called when the executor is stopped,
+        either because it is preempted or it has finished.
+        This function can raise an exception if something
+        happened to prevent successful stopping."""
+        pass
 
     def _make_reply(self, cmd, reply):
         return "{}::{}".format(cmd, reply)
@@ -605,14 +627,15 @@ class Executor(SkillWorker):
     def make_goal(self, cue):
         raise NotImplementedError
 
-    def run(self):
+    def _execute(self):
         """Runs the executor; The current process should
         be the executor's node. This method's job is
         to achieve the goal. Can be blocking until
-        the goal is achieved"""
+        the goal is achieved. SHOULD BE OVERRIDDEN."""
         raise NotImplementedError
 
-    def on_stop(self):
-        """This function is called when the executor is stopped,
-        either because it is preempted or it has finished."""
-        raise NotImplementedError
+    def run(self):
+        """You should call run() to start the executor"""
+        self._execute()
+        # need to spin because the executor will be killed by manager
+        rospy.spin()
