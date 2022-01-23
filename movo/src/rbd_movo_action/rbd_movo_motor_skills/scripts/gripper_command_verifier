@@ -9,6 +9,9 @@ from control_msgs.msg import (
 )
 
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
+from rbd_movo_motor_skills.config import GRIPPER_POSITION_MAX
+from rbd_movo_motor_skills.utils.ros_utils import remap
+
 
 class GripperCommandVerifier(Verifier):
     """
@@ -36,25 +39,23 @@ class GripperCommandVerifier(Verifier):
     at '/movo/left_gripper_controller/gripper_cmd/feedback'
     If the goal is successful, then the last feedback
     will have a 'reached_goal' field to be True.
-
-    This Verifier just needs to verify that!
-    Therefore, this Verifier does not care about the
-    'position' configuration in the cue - that is for the executor.
-    It only cares about the 'side' and whether the Action Goal is reached.
     """
     def __init__(self, name, cue, rate=10):
         super(GripperCommandVerifier, self).__init__(name, cue, rate=rate)
         side = cue['args']['side']
+        self._spec_position = cue['args']['position']
         rospy.Subscriber("/movo/{}_gripper_controller/gripper_cmd/result".format(side),
                          GripperCommandActionResult, self._callback)
 
     def _callback(self, m):
         if m.result.reached_goal:
-            self.message = "ok"
-            self.status = Verifier.DONE
-        else:
-            self.message = "Gripper command goal not reached"
-            self.status = Verifier.NOT_DONE
+            position_in_spec = remap(m.result.position, 0., GRIPPER_POSITION_MAX, 0., 1.)
+            if abs(self._spec_position - position_in_spec) < 1e-3:
+                self.message = "ok"
+                self.status = Verifier.DONE
+                return
+        self.message = "Gripper command goal not reached"
+        self.status = Verifier.NOT_DONE
 
 if __name__ == "__main__":
     node_name = sys.argv[1]

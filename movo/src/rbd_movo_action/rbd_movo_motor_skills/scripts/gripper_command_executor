@@ -15,6 +15,7 @@ from rbd_movo_motor_skills.motion_planning.framework import Executor
 from rbd_movo_motor_skills.config import GRIPPER_POSITION_MAX
 from rbd_movo_motor_skills.utils.ros_utils import remap
 
+
 class GripperCommandExecutor(Executor):
     """
     cue args:
