@@ -231,7 +231,6 @@ class SkillManager(object):
             # Now, the workers have started. We just need to wait for the
             # verifiers to all pass.
             vfr_node_names = set(w[2] for w in workers if w[0] == "verifier")
-            rospy.loginfo("Waiting for verifiers ({})".format(vfr_node_names))
             self._wait_for_verifiers(vfr_node_names)
 
             # stop the workers
@@ -326,7 +325,7 @@ class SkillManager(object):
         for v in vfr_node_names:
             topic = "{}/pass".format(v)
             rospy.Subscriber(topic, String, self._verify_callback, (v,))
-
+        rospy.loginfo("Waiting for verifiers ({})".format(vfr_node_names))
         rate = rospy.Rate(self._rate_verification_check)
         while not self._checkpoint_passed():
             self._check_health()
