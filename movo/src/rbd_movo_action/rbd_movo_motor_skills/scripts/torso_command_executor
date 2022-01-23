@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import rospy
+from rbd_movo_motor_skills.head_and_torso import TorsoJTAS
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.config import TORSO_HEIGHT_MAX, TORSO_HEIGHT_MIN
+
+class TorsoCommandExecutor(Executor):
+
+    """
+    cue args:
+       height: target height to move the torso to. Valid number is between 0 ~ 0.6(m)
+       vel: velocity of movement. Default 0.05
+       torso_topic: topic used to get torso state. Default "/movo/linear_actuator/joint_states"
+    """
+
+    def __init__(self, name, cue, timeout=15):
+        super(TorsoCommandExecutor, self).__init__(name, cue)
+
+    def make_goal(self, cue):
+        args = cue["args"]
+        torso_topic = args.get("torso_topic", "/movo/linear_actuator/joint_states")
+        vel = args.get("vel", 0.05)
+        desired_height = args["height"]
+        if desired_height < TORSO_HEIGHT_MIN or desired_height > TORSO_HEIGHT_MAX:
+            rospy.logwarn("Specified torso goal height {} is out of range ({} ~ {}). Will clamp."\
+                          .format(desired_height, TORSO_HEIGHT_MIN, TORSO_HEIGHT_MAX))
+            desired_height = max(TORSO_HEIGHT_MIN, min(TORSO_HEIGHT_MAX, desired_height))
+
+        return dict(desired_height=desired_height,
+                    torso_topic=torso_topic,
+                    v=vel)
+
+    def _execute(self):
+        TorsoJTAS.move(self.goal["desired_height"],
+                       torso_topic=self.goal["torso_topic"],
+                       v=self.goal["v"])
+        current_height = TorsoJTAS.wait_for_torso_height(torso_topic=self.goal["torso_topic"])
+        rospy.loginfo("[{}] Torso moved to height: {}".format(self.name, current_height))
+
+
+def __test():
+    # For testing only
+    node_name = "TorsoCommand_Exe"
+    cue = {"type": 'Torso', "args": {"height": 0.5}}
+    executor = TorsoCommandExecutor(node_name, cue)
+    executor.run()
+
+if __name__ == "__main__":
+    __test()

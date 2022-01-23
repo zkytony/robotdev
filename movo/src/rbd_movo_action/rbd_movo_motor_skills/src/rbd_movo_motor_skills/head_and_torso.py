@@ -113,7 +113,7 @@ class HeadJTAS(object):
         return True
 
 class TorsoJTAS(object):
-    def __init__(self):
+    def __init__(self, timeout=10.0):
         self._client = actionlib.SimpleActionClient(
             'movo/torso_controller/follow_joint_trajectory',
             FollowJointTrajectoryAction,
@@ -122,7 +122,7 @@ class TorsoJTAS(object):
         self._goal_time_tolerance = rospy.Time(0.1)
         self._goal.goal_time_tolerance = self._goal_time_tolerance
         self.total_time = 0.0
-        server_up = self._client.wait_for_server(timeout=rospy.Duration(10.0))
+        server_up = self._client.wait_for_server(timeout=rospy.Duration(timeout))
         if not server_up:
             rospy.logerr("Timed out waiting for Joint Trajectory"
                          " Action Server to connect. Start the action server"
