@@ -24,14 +24,13 @@ skill:
           height: 0.2
           vel: 0.04
 
-  - name: "Lower Torso"
+  - name: "Lower Torso and See AR Tag"
     actuation_cues:
       - type: Torso
         args:
           height: 0.05
           vel: 0.04
 
-  - name: "See AR Tag"
     perception_cues:
       - type: ARTagPose
         args:
