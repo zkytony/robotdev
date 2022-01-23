@@ -57,22 +57,23 @@ class GripperCommandExecutor(Executor):
         goal.command.max_effort = self._max_effort
         return goal
 
-    def run(self):
+    def _execute(self):
         self._client.send_goal(self.goal)
         self._client.wait_for_result(timeout=rospy.Duration(self._timeout))
 
     def on_stop(self):
-        self._client.cancel_goal()
+        if self._client.simple_state != actionlib.SimpleGoalState.DONE:
+            self._client.cancel_goal()
 
+def __test():
+    # For testing only
+    node_name = "GripperState_Exe"
+    cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.0}}
+    executor = GripperStateExecutor(node_name, cue)
+    executor.run()
 
 if __name__ == "__main__":
     node_name = sys.argv[1]
     cue = yaml.load(sys.argv[2])
     executor = GripperCommandExecutor(node_name, cue)
     executor.run()
-
-    # # For testing only
-    # node_name = "GripperState_Exe"
-    # cue = {"type": 'GripperState', "args": {"side": "left", "position": 0.0}}
-    # executor = GripperStateExecutor(node_name, cue)
-    # executor.run()
