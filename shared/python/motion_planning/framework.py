@@ -162,7 +162,6 @@ class SkillManager(object):
 
     @property
     def current_checkpoint(self):
-        print(self._current_checkpoint_index)
         return self._skill.checkpoints[self._current_checkpoint_index]
 
     @property
@@ -232,7 +231,6 @@ class SkillManager(object):
             self._wait_for_verifiers(vfr_node_names)
 
             # stop the workers
-            print("~~~~~~~~BROADCAST STOP NOTIFICATION~~~~~~~")
             self._broadcast_stop_notification()
             self.stop_all_workers(soft=True)   # try to be nice; tell workers you are stopped.
 
@@ -370,20 +368,11 @@ class SkillManager(object):
             _, worker_node_name = self._p_workers[p]
             self._received_stop_acks[p] = False
             # setup a subscriber for this worker's stop ack
-            print("SENT {} {} STOP COMMAND".format(p, worker_node_name))
             self._send_command(p, worker_node_name, Command.STOP)
         rate = rospy.Rate(5)  # rate to publish stop command
         while not self._stop_ack_all_received():
-            #DEBUGGING
-            for p in self._received_stop_acks:
-                n = self._p_workers[p][1]
-                print("RECEIVED STOP ACK FROM {}? {}".format(n, self._received_stop_acks[p]))
             self._check_health()
             rate.sleep()
-        #DEBUGGING
-        for p in self._received_stop_acks:
-            n = self._p_workers[p][1]
-            print("RECEIVED STOP ACK FROM {}? {}".format(n, self._received_stop_acks[p]))
 
     def _send_command(self, p, worker_node_name, cmd):
         self._pub_command.publish(self._make_command(worker_node_name, cmd))
