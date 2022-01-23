@@ -17,6 +17,13 @@ config:
     executor: torso_command_executor
 
 skill:
+  - name: "Raise Torso"
+    actuation_cues:
+      - type: Torso
+        args:
+          height: 0.2
+          vel: 0.04
+
   - name: "Lower Torso"
     actuation_cues:
       - type: Torso
