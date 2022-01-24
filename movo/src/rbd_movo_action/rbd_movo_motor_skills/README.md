@@ -274,6 +274,8 @@ the paramter "octomap_frame" with "base_link" (which is the parent frame for mot
 <param name="octomap_frame" type="string" value="base_link" />
 ```
 
+**actually I think you may not need to run this; I still feel that move_group is launched automatically during movo bringup. So if you set the point cloud topic correctly for `sensors.yml` (and other parameters correctly), the octomap avoidance should just work; see if you get messages from /move_group/filtered_cloud.
+
 Then, you need to launch another launch file to have this. That launch file should contain:
 ```
   <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
