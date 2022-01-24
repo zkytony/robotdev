@@ -20,6 +20,7 @@ from geometry_msgs.msg import (
     Pose
 )
 from sensor_msgs.msg import JointState
+from shape_msgs.msg import SolidPrimitive
 from moveit_python.move_group_interface import MoveGroupInterface
 from rbd_movo_motor_skills.motion_planning.framework import Executor
 from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
@@ -101,7 +102,7 @@ class ArmPoseExecutor(Executor):
             raise ValueError("Invalid arm side: {}".format(side))
         self._side = side
         self._type = args["type"]
-        if self._type not in {"ee", "joints", "preset"}:
+        if self._type not in {"ee", "joints", "pose"}:
             raise ValueError("Invalid arm pose type: {}".format(self._type))
         self._fixed_frame = args.get("frame", "base_link")
         self._planning_group = "{}_arm".format(side)
@@ -200,7 +201,7 @@ class ArmPoseExecutor(Executor):
 def __test():
     # For testing only
     node_name = "ArmPose_Exe"
-    cue = {
+    cue1 = {
         "type": 'ArmPose',
         "args": {
             "type": 'joints',
@@ -216,7 +217,21 @@ def __test():
                 "left_wrist_3_joint"]
         }
     }
-    executor = ArmPoseExecutor(node_name, cue)
+
+    cue2 = {
+        "type": 'ArmPose',
+        "args": {
+            "type": 'pose',
+            "side": "left",
+            "pose": {
+                "position": [0.575, -0.031, 0.858],
+                "orientation": [-0.432, -0.163, -0.684, 0.564]
+            },
+            "frame": "base_link",
+            "plan_only": False
+        }
+    }
+    executor = ArmPoseExecutor(node_name, cue2)
     executor.run()
 
 if __name__ == "__main__":
