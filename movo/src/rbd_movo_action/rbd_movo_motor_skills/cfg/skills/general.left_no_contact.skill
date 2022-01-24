@@ -1,6 +1,5 @@
 # Location: General
-# Skill: open left gripper after detecting an AR tag to be
-#        close enough
+# Skill: Several random movements in a sequence (no arm movement)
 # [test skill]
 ##################################################################
 

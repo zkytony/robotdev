@@ -1,0 +1,50 @@
+# Location: General
+# Skill: Move the arm by specifying different kinds of goals
+# [test skill]
+##################################################################
+
+# Two checkpoints
+config:
+  ARTagPose:
+    verifier: ar_tag_pose_verifier
+    executor: "NA"   # not-applicable
+  ArmPoseEE:
+    verifier: arm_pose_ee_verifier
+    executor: arm_pose_ee_executor
+  ArmPoseJoints:
+    verifier: arm_pose_joints_verifier
+    executor: arm_pose_joints_executor
+  ArmPosePreset:
+    verifier: arm_pose_preset_verifier
+    executor: arm_pose_preset_executor
+
+skill:
+  - name: "See AR Tag"
+    perception_cues:
+      - type: ARTagPose
+        args:
+          type: distance
+          dist: 0.75
+          base_frame: base_link #kinect2_color_optical_frame
+          tolerance: 0.5
+
+  - name: "Move Arm End Effector"
+    actuation_cues:
+      - type: ArmPoseEE
+        args:
+          side: 'left'
+          position: 0.8
+
+  - name: "Move Arm Joint Angles"
+    actuation_cues:
+      - type: ArmPoseJoints
+        args:
+          side: 'left'
+          position: 0.8
+
+  - name: "Arm Return Home"
+    actuation_cues:
+      - type: ArmPosePreset
+        args:
+          side: 'left'
+          name: "home"
