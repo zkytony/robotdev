@@ -304,3 +304,6 @@ rosparam get /move_group/sensors
 If you add a PointCloud2 visualization in RVIZ, and set the topic to `movo_group/filtered_cloud`,
 you will be able to see the visualized OctoMap for the obstacles, which the motion planner
 should supposedly know how to avoid.
+
+![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
+
