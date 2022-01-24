@@ -8,15 +8,9 @@ config:
   ARTagPose:
     verifier: ar_tag_pose_verifier
     executor: "NA"   # not-applicable
-  ArmPoseEE:
-    verifier: arm_pose_ee_verifier
-    executor: arm_pose_ee_executor
-  ArmPoseJoints:
-    verifier: arm_pose_joints_verifier
-    executor: arm_pose_joints_executor
-  ArmPosePreset:
-    verifier: arm_pose_preset_verifier
-    executor: arm_pose_preset_executor
+  ArmPose:
+    verifier: arm_pose_verifier
+    executor: arm_pose_executor
 
 skill:
   - name: "See AR Tag"
@@ -30,21 +24,74 @@ skill:
 
   - name: "Move Arm End Effector"
     actuation_cues:
-      - type: ArmPoseEE
+      - type: ArmPose
         args:
+          type: 'ee'
           side: 'left'
-          position: 0.8
+          pose:
+            position: [0.575, -0.031, 0.858]
+            orientation: [-0.432, -0.163, -0.684, 0.564]
+          Frame: "base_link"
+
+  - name: "Arm 'Bringup Open Position'"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          type: 'joints'
+          side: 'left'
+          positions: [1.5, 0.2, 0.15, 2.0, -2.0, 1.24]
+          joint_names: [
+              "left_shoulder_pan_joint",
+              "left_shoulder_lift_joint",
+              "left_arm_half_joint",
+              "left_elbow_joint",
+              "left_wrist_spherical_1_joint",
+              "left_wrist_spherical_2_joint",
+              "left_wrist_3_joint"]
+
+  - name: "Arm 'Bringup Settled Position'"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          type: 'joints'
+          side: 'left'
+          positions: [
+              1.6437552227542724,
+              1.4068856859193537,
+              -0.35984449556825737,
+              2.6100757674384707,
+              -0.03409591880406637,
+              -0.5345739287666245,
+              1.6976176558011247]
+          joint_names: [
+              "left_shoulder_pan_joint",
+              "left_shoulder_lift_joint",
+              "left_arm_half_joint",
+              "left_elbow_joint",
+              "left_wrist_spherical_1_joint",
+              "left_wrist_spherical_2_joint",
+              "left_wrist_3_joint"]
+
 
   - name: "Move Arm Joint Angles"
     actuation_cues:
-      - type: ArmPoseJoints
+      - type: ArmPose
         args:
+          type: 'joints'
           side: 'left'
-          position: 0.8
-
-  - name: "Arm Return Home"
-    actuation_cues:
-      - type: ArmPosePreset
-        args:
-          side: 'left'
-          name: "home"
+          joint_names: [
+              left_shoulder_pan_joint,
+              left_shoulder_lift_joint,
+              left_arm_half_joint,
+              left_elbow_joint,
+              left_wrist_spherical_1_joint,
+              left_wrist_spherical_2_joint,
+              left_wrist_3_joint]
+          positions: [
+              1.0241601425029767,
+              1.2355363034870015,
+              -0.359058763178143,
+              2.2509144059793322,
+              -0.020240024284602143,
+              -0.5206559825937613,
+              1.669080286824272]
