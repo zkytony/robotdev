@@ -250,6 +250,8 @@ Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET
 
 ## Using Moveit! with MOVO
 
+Refer to official tutorial for Moveit! with ROS kinetic [here](https://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/getting_started/getting_started.html).
+
 Possible Moveit planners (settings to `planner_id`):
 
 - SBLkConfigDefault
@@ -265,3 +267,40 @@ Possible Moveit planners (settings to `planner_id`):
 - PRMstarkConfigDefault
 
 ### OctoMap collision avoidance
+
+You need to launch another launch file to have this. That launch file should contain:
+```
+  <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
+    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
+  </include>
+```
+Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
+```yaml
+sensors:
+  - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+    point_cloud_topic: /kinect2/sd/points
+    max_range: 2.0
+    point_subsample: 1
+    padding_offset: 0.05
+    padding_scale: 1.0
+    filtered_cloud_topic: filtered_cloud
+```
+Basically Moveit! has made it really convenient to use Octomap for dynamic collision avoidance.
+How practical!
+Also, make sure you are editing the right `sensors.yaml` file. You might be
+editing the one under `movo_moveit_config`, which is for the 6DOF arm.
+
+If the setup is correct, you should be able to receive message if you do
+```
+rostopic echo /move_group/filtered_cloud
+```
+You can check if your configuration is correct by
+```
+rosparam get /move_group/sensors
+- {filtered_cloud_topic: filtered_cloud, max_range: 2.0, padding_offset: 0.05, padding_scale: 1.0,
+  point_cloud_topic: /kinect2/sd/points, point_subsample: 1, sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater}
+```
+
+If you add a PointCloud2 visualization in RVIZ, and set the topic to `movo_group/filtered_cloud`,
+you will be able to see the visualized OctoMap for the obstacles, which the motion planner
+should supposedly know how to avoid.
