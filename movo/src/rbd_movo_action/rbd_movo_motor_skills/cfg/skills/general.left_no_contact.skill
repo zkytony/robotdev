@@ -15,21 +15,41 @@ config:
   Torso:
     verifier: torso_command_verifier
     executor: torso_command_executor
+  Head:
+    verifier: head_command_verifier
+    executor: head_command_executor
 
 skill:
-  - name: "Raise Torso"
+  - name: "Tilt Head"
+    actuation_cues:
+      - type: Head
+        args:
+          pan: -10
+          tilt: -15
+
+  - name: "Raise Torso and tilt head"
     actuation_cues:
       - type: Torso
         args:
           height: 0.2
           vel: 0.04
 
-  - name: "Lower Torso and See AR Tag"
+      - type: Head
+        args:
+          pan: 10
+          tilt: 30
+
+  - name: "Lower Torso Right Head and See AR Tag"
     actuation_cues:
       - type: Torso
         args:
           height: 0.05
           vel: 0.04
+
+      - type: Head
+        args:
+          pan: 0
+          tilt: 0
 
     perception_cues:
       - type: ARTagPose

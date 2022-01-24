@@ -15,7 +15,6 @@ from control_msgs.msg import (
 from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
-from sensor_msgs.msg import JointState
 from control_msgs.msg import JointTrajectoryControllerState
 
 class HeadJTAS(object):

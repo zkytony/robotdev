@@ -34,7 +34,7 @@ class TorsoCommandExecutor(Executor):
 
     def _execute(self):
         self.torso_jtas.client.send_goal(self.goal)
-        self.status = "Waiting"
+        self.status = "Waiting for torso action to finish"
         self.torso_jtas.client.wait_for_result(timeout=rospy.Duration(self._timeout))
 
     def on_stop(self):

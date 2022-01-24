@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+import rospy
+import yaml
+import sys
+from sensor_msgs.msg import JointState
+from rbd_movo_motor_skills.motion_planning.framework import Verifier
+from rbd_movo_motor_skills.utils.ros_utils import to_degrees
+from control_msgs.msg import JointTrajectoryControllerState
+
+class HeadCommandVerifier(Verifier):
+    """
+    cue args:
+       height: target height to move the head to. Valid number is between 0 ~ 0.6(m)
+       vel: velocity of movement. Default 0.05
+       tolerance: amount of difference allowed between desired and actual height (default: 0.05).
+    """
+    def __init__(self, name, cue, rate=10):
+        super(HeadCommandVerifier, self).__init__(name, cue, rate=rate)
+        args = cue["args"]
+        head_topic = "/movo/head_controller/state"
+        self._desired_pan = args["pan"]
+        self._desired_tilt = args["tilt"]
+        self._tolerance = args.get("tolerance", 2.5)  # degrees
+        rospy.Subscriber(head_topic,
+                         JointTrajectoryControllerState,
+                         self._callback)
+
+    def _callback(self, m):
+        pan, tilt = map(to_degrees, m.actual.positions)
+        if abs(pan - self._desired_pan) < self._tolerance\
+           and abs(tilt - self._desired_tilt) < self._tolerance:
+            self.message = "ok"
+            self.status = Verifier.DONE
+            return
+        self.message = "Head desired orientation not reached."
+        self.status = Verifier.NOT_DONE
+
+if __name__ == "__main__":
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    verifier = HeadCommandVerifier(node_name, cue, rate=10)
+    verifier.run()
