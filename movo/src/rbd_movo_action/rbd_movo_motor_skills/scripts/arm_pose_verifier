@@ -7,7 +7,7 @@ import tf2_ros
 from actionlib_msgs.msg import GoalStatusArray, GoalStatus
 from sensor_msgs.msg import JointState
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
-from rbd_movo_motor_skills.motion_planning.utils.ros_utils import (
+from rbd_movo_motor_skills.utils.ros_utils import (
     joint_state_dict,
     tf2_lookup_transform,
     transform_to_tuple
@@ -24,14 +24,15 @@ class ArmPoseVerifier(Verifier):
         self._tflistener = tf2_ros.TransformListener(self._tfbuffer)
 
     def _callback(self, m):
-        assert len(m.status_list) == 1
-        status_msg = m.status_list[0]
-        self.message = status_msg.text
-        if status_msg.status == GoalStatus.SUCCEEDED:
-            ok = self._check_arm_config_satisfaction()
-            if ok:
-                self.status = Verifier.DONE
-        self.status = Verifier.NOT_DONE
+        for status_msg in m.status_list:
+            self.message = status_msg.text
+            if status_msg.status == GoalStatus.SUCCEEDED:
+                ok = self._check_arm_config_satisfaction()
+                if ok:
+                    self.status = Verifier.DONE
+                else:
+                    self.status = Verifier.NOT_DONE
+                    return
 
     def _check_arm_config_satisfaction(self):
         """
@@ -47,7 +48,7 @@ class ArmPoseVerifier(Verifier):
                 JointState, timeout=15)
             current_joint_dict = joint_state_dict(
                 current_joint_state.position,
-                current_joint_state.names
+                current_joint_state.name
             )
             expected_joint_dict = joint_state_dict(
                 args['positions'],
