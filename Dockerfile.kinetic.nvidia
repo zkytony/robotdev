@@ -42,6 +42,7 @@ RUN apt-get install -y ros-kinetic-ar-track-alvar
 RUN apt-get install -y ros-kinetic-moveit-commander
 RUN apt-get install -y ros-kinetic-moveit-visual-tools
 RUN apt-get install -y ros-kinetic-moveit-ros-visualization
+RUN apt-get install -y ros-kinetic-moveit-planners-ompl
 RUN apt-get install -y ros-kinetic-trac-ik-kinematics-plugin
 RUN apt-get install -y gdb
 RUN apt-get install -y mlocate
