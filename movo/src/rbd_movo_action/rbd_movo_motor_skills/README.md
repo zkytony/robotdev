@@ -280,6 +280,8 @@ Then, you need to launch another launch file to have this. That launch file shou
     <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
   </include>
 ```
+You can do `roslaunch rbd_movo_motor_skills manipulation_system.launch` to launch this.
+
 Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
 ```yaml
 sensors:
