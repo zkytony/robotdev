@@ -531,9 +531,9 @@ class SkillWorker(object):
 
     def loginfo(self, basic=False):
         if basic:
-            rospy.loginfo("* {:<30}| {:<15}".format(self.name, self.status))
+            rospy.loginfo("* {:<30}| {:<10}".format(self.name, self.status))
         else:
-            rospy.loginfo("* {:<30}| {:<15}: {}".format(self.name, self.status, self.message))
+            rospy.loginfo("* {:<30}| {:<10} {}".format(self.name, self.status, self.message))
 
     def _manager_command_callback(self, m):
         # check if this command is about me.
@@ -594,7 +594,7 @@ class Verifier(SkillWorker):
         be the verifier's node"""
         self.running = True
         # run a timer to print out status
-        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=True))
+        rospy.Timer(rospy.Duration(1.0), lambda event: self.loginfo(basic=False))
         rospy.loginfo("Publishing to {}/pass...".format(self.name))
         rate = rospy.Rate(self._rate)
         now = rospy.Time.now()
