@@ -13,14 +13,14 @@ config:
     executor: arm_pose_executor
 
 skill:
-  - name: "See AR Tag"
-    perception_cues:
-      - type: ARTagPose
-        args:
-          type: distance
-          dist: 1.2
-          base_frame: base_link #kinect2_color_optical_frame
-          tolerance: 0.2
+  # - name: "See AR Tag"
+  #   perception_cues:
+  #     - type: ARTagPose
+  #       args:
+  #         type: distance
+  #         dist: 1.2
+  #         base_frame: base_link #kinect2_color_optical_frame
+  #         tolerance: 0.2
 
   - name: "Arm Bringup Open Position"
     actuation_cues:
@@ -38,28 +38,28 @@ skill:
               "left_wrist_spherical_2_joint",
               "left_wrist_3_joint"]
 
-  # - name: "Arm 'Bringup Settled Position'"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         type: 'joints'
-  #         side: 'left'
-  #         positions: [
-  #             1.6437552227542724,
-  #             1.4068856859193537,
-  #             -0.35984449556825737,
-  #             2.6100757674384707,
-  #             -0.03409591880406637,
-  #             -0.5345739287666245,
-  #             1.6976176558011247]
-  #         joint_names: [
-  #             "left_shoulder_pan_joint",
-  #             "left_shoulder_lift_joint",
-  #             "left_arm_half_joint",
-  #             "left_elbow_joint",
-  #             "left_wrist_spherical_1_joint",
-  #             "left_wrist_spherical_2_joint",
-  #             "left_wrist_3_joint"]
+  - name: "Arm Bringup Settled Position"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          type: 'joints'
+          side: 'left'
+          positions: [
+              1.6437552227542724,
+              1.4068856859193537,
+              -0.35984449556825737,
+              2.6100757674384707,
+              -0.03409591880406637,
+              -0.5345739287666245,
+              1.6976176558011247]
+          joint_names: [
+              "left_shoulder_pan_joint",
+              "left_shoulder_lift_joint",
+              "left_arm_half_joint",
+              "left_elbow_joint",
+              "left_wrist_spherical_1_joint",
+              "left_wrist_spherical_2_joint",
+              "left_wrist_3_joint"]
 
 
   # # - name: "Move Arm Joint Angles"

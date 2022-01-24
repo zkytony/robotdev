@@ -100,6 +100,7 @@ will interact with other nodes (e.g. launch them).
 
 import yaml
 import os
+import re
 import signal
 import rospy
 import subprocess
@@ -251,7 +252,6 @@ class SkillManager(object):
 
             # stop the workers
             rospy.loginfo(ssuccess("Verifiers all passed. Stopping workers"))
-            self._broadcast_stop_notification()
             self.stop_all_workers(soft=True)   # try to be nice; tell workers you are stopped.
 
             # reset state for the next checkpoint
@@ -261,6 +261,7 @@ class SkillManager(object):
     def stop_all_workers(self, soft=True):
         """soft=True if the manager notifies the workers
         before they are stopped."""
+        rospy.loginfo(sinfo("Manager: Stopping all workers..."))
         if soft:
             self._broadcast_stop_notification()
         for p in self._p_workers:
@@ -327,6 +328,7 @@ class SkillManager(object):
             cue_types.add(cue_type)
         for i, ckspec in enumerate(spec["skill"]):
             assert "name" in ckspec, "checkpoint {} has no name".format(i)
+            assert Checkpoint.name_valid(ckspec['name']), "Checkpoint name {} is not valid".format(ckspec['name'])
             assert "perception_cues" in ckspec\
                 or "actuation_cues" in ckspec,\
                 "checkpoint {} has neither perception cue nor actuation cue".format(i)
@@ -385,12 +387,14 @@ class SkillManager(object):
         for p in self._p_workers:
             _, worker_node_name = self._p_workers[p]
             self._received_stop_acks[p] = False
-        rate = rospy.Rate(5)  # rate to publish stop command
+        rate = rospy.Rate(2)  # rate to publish stop command
         while not self._stop_ack_all_received():
             self._check_health()
             for p in self._p_workers:
                 # setup a subscriber for this worker's stop ack
                 self._send_command(p, worker_node_name, Command.STOP)
+                if not self._received_stop_acks[p]:
+                    rospy.loginfo(sinfo("Manager: waiting for {} to stop".format(worker_node_name)))
             rate.sleep()
 
     def _stop_ack_all_received(self):
@@ -461,6 +465,10 @@ class Checkpoint(object):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def name_valid(name):
+        return re.search("^([A-Za-z0-9\s]+)$", name) is not None
 
 
 class Skill(object):
