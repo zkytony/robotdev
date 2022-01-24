@@ -39,6 +39,7 @@ RUN apt-get install -y ros-kinetic-joy
 RUN apt-get install -y ros-kinetic-gmapping ros-kinetic-navigation
 RUN apt-get install -y ros-kinetic-rviz-imu-plugin
 RUN apt-get install -y ros-kinetic-ar-track-alvar
+RUN apt-get install -y ros-kinetic-moveit
 RUN apt-get install -y ros-kinetic-moveit-commander
 RUN apt-get install -y ros-kinetic-moveit-visual-tools
 RUN apt-get install -y ros-kinetic-moveit-ros-visualization
