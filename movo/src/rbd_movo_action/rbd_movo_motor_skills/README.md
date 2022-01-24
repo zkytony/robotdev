@@ -268,7 +268,13 @@ Possible Moveit planners (settings to `planner_id`):
 
 ### OctoMap collision avoidance
 
-You need to launch another launch file to have this. That launch file should contain:
+First, edit "movo_7dof_moveit_config/launch/sensor_manager.launch.xml" and filling
+the paramter "octomap_frame" with "base_link" (which is the parent frame for motion planning); Set to base_link when there is no navigation and motion is with respect to the robot's base frame.
+```xml
+<param name="octomap_frame" type="string" value="base_link" />
+```
+
+Then, you need to launch another launch file to have this. That launch file should contain:
 ```
   <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
     <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
