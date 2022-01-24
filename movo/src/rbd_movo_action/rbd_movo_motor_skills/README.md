@@ -246,3 +246,22 @@ tag in the launch file allowed me to control the publication frequency of
 ar_track_alvar. **NO THIS IS NOT USEFUL**
 
 Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET 2HZ**
+
+
+## Using Moveit! with MOVO
+
+Possible Moveit planners (settings to `planner_id`):
+
+- SBLkConfigDefault
+- ESTkConfigDefault
+- LBKPIECEkConfigDefault
+- BKPIECEkConfigDefault
+- KPIECEkConfigDefault
+- RRTkConfigDefault
+- RRTConnectkConfigDefault
+- RRTstarkConfigDefault
+- TRRTkConfigDefault
+- PRMkConfigDefault
+- PRMstarkConfigDefault
+
+### OctoMap collision avoidance
