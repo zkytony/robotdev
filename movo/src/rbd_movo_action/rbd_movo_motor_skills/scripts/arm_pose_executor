@@ -1,0 +1,227 @@
+#!/usr/bin/env python
+
+import actionlib
+import rospy
+import yaml
+import sys
+from moveit_msgs.msg import (
+    MoveGroupAction,
+    MoveGroupGoal,
+    RobotState
+)
+from moveit_msgs.msg import (
+    Constraints,
+    JointConstraint,
+    PositionConstraint,
+    OrientationConstraint,
+    BoundingVolume
+)
+from geometry_msgs.msg import (
+    Pose
+)
+from sensor_msgs.msg import JointState
+from moveit_python.move_group_interface import MoveGroupInterface
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
+
+# Notes on using moveit with MOVO:
+#
+# The groups are: head, left_arm, left_gripper, left_side,
+# right_arm, right_gripper, right_side, torso, upper_body
+#
+# The joints in upper_body are:
+#   "right_shoulder_pan_joint",
+#   "right_shoulder_lift_joint",
+#   "right_arm_half_joint",
+#   "right_elbow_joint",
+#   "right_wrist_spherical_1_joint",
+#   "right_wrist_spherical_2_joint",
+#   "right_wrist_3_joint",
+#   "left_shoulder_pan_joint",
+#   "left_shoulder_lift_joint",
+#   "left_arm_half_joint",
+#   "left_elbow_joint",
+#   "left_wrist_spherical_1_joint",
+#   "left_wrist_spherical_2_joint",
+#   "left_wrist_3_joint",
+#   "linear_joint",
+#   "pan_joint",
+#   "tilt_joint"
+#
+# The default planning algorithm is:
+# move_group_jtas.setPlannerId("RRTConnectkConfigDefault")
+
+class ArmPoseExecutor(Executor):
+    """
+    cue args:
+    - fixed_frame: the frame that's the parent frame of all bodies
+          that will possibly move during planning. For example, "/odom",
+          "/map", which are both world-fixed frames (REP 105). The frame
+          "base_link" might be used if the motion planning happens with
+          respect to the frame of the robot (base_link is rigidly attached
+          to the mobile robot base.); Default: base_link
+
+          Note: This really matters. Because all the hard-coded end-effector
+          poses will be with respect to this frame.
+    """
+    def __init__(self, name, cue, timeout=15):
+        super(ArmPoseExecutor, self).__init__(name, cue)
+        self._timeout = timeout
+        # We only very lightly use this API; we build our own goal.
+        self._move_group_api = MoveGroupInterface(self._planning_group,
+                                                  self._fixed_frame,
+                                                  plan_only=self._plan_only)
+        self._client = self._move_group_api._action
+
+    def on_stop(self):
+        # It could be the case that HeadJTAS() in the constructor is not called yet,
+        # but this node is already being stopped. So this object has no attribute
+        # 'head_jtas'.
+        if self.running:
+            self.status = "To be stopped"
+            if self._client.simple_state != actionlib.SimpleGoalState.DONE:
+                self._client.cancel_goal()
+
+    def _execute(self):
+        self._client.send_goal(self.goal)
+        self._client.wait_for_result(timeout=rospy.Duration(self._timeout))
+        self.status = "Waiting for moveit planning for goal"
+
+    def make_goal(self, cue):
+        # This references the "moveToPose" and "moveToJointPosition"
+        # functions in "move_group_interface". Also reference:
+        # - http://docs.ros.org/en/api/moveit_msgs/html/action/MoveGroup.html
+        # - http://docs.ros.org/en/api/moveit_msgs/html/msg/PlanningOptions.html
+        # - http://docs.ros.org/en/api/moveit_msgs/html/msg/MotionPlanRequest.html
+        # - http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/RobotState.html
+
+        args = cue["args"]
+        side = args["side"]
+        if side != "left" and side != "right":
+            raise ValueError("Invalid arm side: {}".format(side))
+        self._side = side
+        self._type = args["type"]
+        if self._type not in {"ee", "joints", "preset"}:
+            raise ValueError("Invalid arm pose type: {}".format(self._type))
+        self._fixed_frame = args.get("frame", "base_link")
+        self._planning_group = "{}_arm".format(side)
+        self._plan_only = args.get("plan_only", False)
+        self._planner_id = PLANNER
+
+        goal = MoveGroupGoal()
+
+        # Set start state. We will get the current arm state.
+        joint_state_topic = "/movo/{}_arm/joint_states".format(self._side)
+        joint_state = rospy.wait_for_message(joint_state_topic, JointState, timeout=15)
+        # is_diff is set to True because the doc says "This is mostly important for handling the attached bodies"
+        start_state = RobotState(joint_state=joint_state, is_diff=True)
+        goal.request.start_state = start_state
+
+        # goal pose
+        if self._type == "ee" or self._type == "pose":
+            pose_spec = cue["args"]["pose"]
+            tolerance = cue["args"].get("tolerance", 0.01)
+            gripper_frame = cue["args"].get("gripper_frame", "{}_ee_link".format(self._side))
+            goal = self._make_ee_goal(goal, pose_spec, gripper_frame, tolerance=tolerance)
+        elif self._type == "joints":
+            positions = cue["args"]["positions"]
+            joints = cue["args"]["joint_names"]
+            tolerance = cue["args"].get("tolerance", 0.01)
+            goal = self._make_joint_goal(goal, positions, joints, tolerance=tolerance)
+        else:
+            raise ValueError("Invalid arm goal type {}".format(self._type))
+        return goal
+
+    def _make_ee_goal(self, goal, pose_spec, gripper_frame, tolerance=0.01):
+        pose = Pose()
+        pose.position.x = pose_spec["position"][0]
+        pose.position.y = pose_spec["position"][1]
+        pose.position.z = pose_spec["position"][2]
+        pose.orientation.x = pose_spec["orientation"][0]
+        pose.orientation.y = pose_spec["orientation"][1]
+        pose.orientation.z = pose_spec["orientation"][2]
+        pose.orientation.w = pose_spec["orientation"][3]
+
+        # Add constraint for target pose
+        c1 = Constraints()
+        c1.position_constraints.append(PositionConstraint())
+        c1.position_constraints[0].header.frame_id = self._fixed_frame
+        c1.position_constraints[0].link_name = gripper_frame
+        b = BoundingVolume()
+        s = SolidPrimitive()
+        s.dimensions = [tolerance * tolerance]
+        s.type = s.SPHERE
+        b.primitives.append(s)
+        b.primitive_poses.append(pose)
+        c1.position_constraints[0].constraint_region = b
+        c1.position_constraints[0].weight = 1.0
+        c1.orientation_constraints.append(OrientationConstraint())
+        c1.orientation_constraints[0].header.frame_id = self._fixed_frame
+        c1.orientation_constraints[0].orientation = pose.orientation
+        c1.orientation_constraints[0].link_name = gripper_frame
+        c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
+        c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
+        c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
+        c1.orientation_constraints[0].weight = 1.0
+        goal.request.goal_constraints.append(c1)
+
+        goal.request.planner_id = PLANNER
+        goal.request.group_name = self._planning_group
+        goal.request.num_planning_attempts = PLANNING_ATTEMPTS
+        goal.request.allowed_planning_time = PLANNING_TIME
+        goal.planning_options.planning_scene_diff.is_diff = True
+        goal.planning_options.planning_scene_diff.robot_state.is_diff = True
+        goal.planning_options.plan_only = self._plan_only
+        goal.planning_options.look_around = True
+        goal.planning_options.replan = False
+        return goal
+
+    def _make_joint_goal(self, goal, positions, joints, tolerance=0.01):
+        c1 = Constraints()
+        for i in range(len(joints)):
+            c1.joint_constraints.append(JointConstraint())
+            c1.joint_constraints[i].joint_name = joints[i]
+            c1.joint_constraints[i].position = positions[i]
+            c1.joint_constraints[i].tolerance_above = tolerance
+            c1.joint_constraints[i].tolerance_below = tolerance
+            c1.joint_constraints[i].weight = 1.0
+        goal.request.goal_constraints.append(c1)
+        goal.request.planner_id = PLANNER
+        goal.request.group_name = self._planning_group
+        goal.request.num_planning_attempts = PLANNING_ATTEMPTS
+        goal.request.allowed_planning_time = PLANNING_TIME
+        goal.planning_options.planning_scene_diff.is_diff = True
+        goal.planning_options.planning_scene_diff.robot_state.is_diff = True
+        goal.planning_options.plan_only = self._plan_only
+        goal.planning_options.look_around = True
+        goal.planning_options.replan = False
+        return goal
+
+def __test():
+    # For testing only
+    node_name = "ArmPose_Exe"
+    cue = {
+        "type": 'ArmPose',
+        "args": {
+            "type": 'joints',
+            "side": "left",
+            "positions": [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1],
+            "joint_names": [
+                "left_shoulder_pan_joint",
+                "left_shoulder_lift_joint",
+                "left_arm_half_joint",
+                "left_elbow_joint",
+                "left_wrist_spherical_1_joint",
+                "left_wrist_spherical_2_joint",
+                "left_wrist_3_joint"]
+        }
+    }
+    executor = ArmPoseExecutor(node_name, cue)
+    executor.run()
+
+if __name__ == "__main__":
+    # node_name = sys.argv[1]
+    # cue = yaml.load(sys.argv[2])
+    # executor = ArmPoseExecutor(node_name, cue)
+    # executor.run()
+    __test()
