@@ -241,8 +241,7 @@ def __test():
     executor.run()
 
 if __name__ == "__main__":
-    # node_name = sys.argv[1]
-    # cue = yaml.load(sys.argv[2])
-    # executor = ArmPoseExecutor(node_name, cue)
-    # executor.run()
-    __test()
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    executor = ArmPoseExecutor(node_name, cue)
+    executor.run()
