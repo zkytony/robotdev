@@ -55,6 +55,10 @@ from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TI
 class ArmPoseExecutor(Executor):
     """
     cue args:
+
+    - type: Either "ee", "joints", or "pose"
+
+    If type == "ee" or "pose":
     - fixed_frame: the frame that's the parent frame of all bodies
           that will possibly move during planning. For example, "/odom",
           "/map", which are both world-fixed frames (REP 105). The frame
@@ -64,6 +68,8 @@ class ArmPoseExecutor(Executor):
 
           Note: This really matters. Because all the hard-coded end-effector
           poses will be with respect to this frame.
+    - pose: dictionary with 'position' [x, y, z] and 'orientation' [qx, qy, qz, qw] fields.
+
     """
     def __init__(self, name, cue, timeout=15):
         super(ArmPoseExecutor, self).__init__(name, cue)
