@@ -102,7 +102,6 @@ class ROSLaunchWriter:
         else:
             return "".join(lines)
 
-
 def pose_to_tuple(pose):
     """
     Given a geometry_msgs/Pose message,
@@ -117,11 +116,23 @@ def pose_to_tuple(pose):
     qw = pose.orientation.w
     return (x, y, z, qx, qy, qz, qw)
 
+def transform_to_tuple(transform):
+    x = transform.translation.x
+    y = transform.translation.y
+    z = transform.translation.z
+    qx = transform.rotation.x
+    qy = transform.rotation.y
+    qz = transform.rotation.z
+    qw = transform.rotation.w
+    return (x, y, z, qx, qy, qz, qw)
 
 def topic_exists(topic):
     all_topics = [t[0] for t in rospy.get_published_topics()]
     return topic in all_topics
 
+def joint_state_dict(position, names):
+    return {names[i]:position[i]
+            for i in range(len(names))}
 
 def tf2_frame_eq(f1, f2):
     if f1[0] == "/":
@@ -156,6 +167,12 @@ def tf2_transform(tf2buf, object_stamped, target_frame):
         rospy.logerr(msg)
     finally:
         return result_stamped
+
+def tf2_lookup_transform(tf2buf, target_frame, source_frame, timestamp):
+    """If timestamp is None, will get the most recent transform"""
+    return tf2buf.lookup_transform(tf2_frame(target_frame),
+                                   tf2_frame(source_framce),
+                                   timestamp)
 
 ### Mathematics ###
 def euclidean_dist(p1, p2):

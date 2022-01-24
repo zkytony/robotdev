@@ -237,7 +237,7 @@ def __test():
             "plan_only": False
         }
     }
-    executor = ArmPoseExecutor(node_name, cue2)
+    executor = ArmPoseExecutor(node_name, cue1)
     executor.run()
 
 if __name__ == "__main__":

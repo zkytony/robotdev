@@ -266,6 +266,32 @@ Possible Moveit planners (settings to `planner_id`):
 - PRMkConfigDefault
 - PRMstarkConfigDefault
 
+### Obtain feedback
+
+You can get feedback of current plan status by subscribing to
+either `/move_group/feedback` or `/move_group/status`. You may get a
+message like
+```
+header:
+  seq: 54418
+  stamp:
+    secs: 1643057072
+    nsecs: 696490146
+  frame_id: ''
+status_list:
+  -
+    goal_id:
+      stamp:
+        secs: 1643056997
+        nsecs:  12346982
+      id: "/ArmPose_Exe-1-1643056997.012"
+    status: 3
+    text: "Solution was found and executed."
+```
+This message is of atype [actionlib_msgs/GoalStatusArray](http://docs.ros.org/en/melodic/api/actionlib_msgs/html/msg/GoalStatusArray.html).
+You can see from [GoalStatus](http://docs.ros.org/en/melodic/api/actionlib_msgs/html/msg/GoalStatus.html)
+message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among other status values.
+
 ### OctoMap collision avoidance
 
 First, edit "movo_7dof_moveit_config/launch/sensor_manager.launch.xml" and filling
@@ -316,4 +342,3 @@ you will be able to see the visualized OctoMap for the obstacles, which the moti
 should supposedly know how to avoid.
 
 ![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
-

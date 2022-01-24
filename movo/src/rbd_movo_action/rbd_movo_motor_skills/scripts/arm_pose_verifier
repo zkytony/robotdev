@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+
+import rospy
+import yaml
+import sys
+import tf2_ros
+from actionlib_msgs.msg import GoalStatusArray, GoalStatus
+from sensor_msgs.msg import JointState
+from rbd_movo_motor_skills.motion_planning.framework import Verifier
+from rbd_movo_motor_skills.motion_planning.utils.ros_utils import (
+    joint_state_dict,
+    tf2_lookup_transform,
+    transform_to_tuple
+)
+
+class ArmPoseVerifier(Verifier):
+    def __init__(self, name, cue, rate=10):
+        super(ArmPoseVerifier, self).__init__(name, cue, rate=rate)
+        rospy.Subscriber("/move_group/status",
+                         GoalStatusArray,
+                         self._callback)
+        # tf listener
+        self._tfbuffer = tf2_ros.Buffer()
+        self._tflistener = tf2_ros.TransformListener(self._tfbuffer)
+
+    def _callback(self, m):
+        assert len(m.status_list) == 1
+        status_msg = m.status_list[0]
+        self.message = status_msg.text
+        if status_msg.status == GoalStatus.SUCCEEDED:
+            ok = self._check_arm_config_satisfaction()
+            if ok:
+                self.status = Verifier.DONE
+        self.status = Verifier.NOT_DONE
+
+    def _check_arm_config_satisfaction(self):
+        """
+        Checks whether the arm's current configuration
+        satisfies what is in the 'cue'.
+        """
+        args = self.cue["args"]
+        side = args['side']
+        tolerance = args.get("tolerance", 0.01)
+        if args['type'] == "joints":
+            current_joint_state = rospy.wait_for_message(
+                "/movo/{}_arm/joint_states".format(side),
+                JointState, timeout=15)
+            current_joint_dict = joint_state_dict(
+                current_joint_state.position,
+                current_joint_state.names
+            )
+            expected_joint_dict = joint_state_dict(
+                args['positions'],
+                args['joint_names']
+            )
+            for n in expected_joint_dict:
+                if n in current_joint_dict:
+                    if abs(current_joint_dict[n] - expected_joint_dict[n]) > tolerance:
+                        return False
+                else:
+                    return False
+            return True
+        elif args['type'] == 'pose' or args['type'] == 'ee':
+            # Obtain tf transform from end effector to frame
+            ee_frame = "{}_ee_link".format(side)
+            base_frame = args.get("frame", "base_link")
+            trans = tf2_lookup_transform(self._tfbuffer, base_frame, ee_frame, rospy.Time(0))
+            actual_pose = transform_to_tuple(trans.transform)
+            expected_pose = tuple(args['pose']['position']) + tuple(args['pose']['orientation'])
+            if all(abs(actual - expected) <= tolerance
+                   for actual, expected in zip(actual_pose, expected_pose)):
+                return True
+            else:
+                return False
+        else:
+            raise ValueError("Invalid arm config goal type: {}".format(args['type']))
+
+
+if __name__ == "__main__":
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    verifier = ArmPoseVerifier(node_name, cue, rate=10)
+    verifier.run()
