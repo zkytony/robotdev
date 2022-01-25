@@ -109,7 +109,6 @@ def move_head(pan, tilt):
     while not rospy.is_shutdown():
         rospy.sleep(2)
 
-
 def move_torso(pos, vel):
     global SEQ
 
@@ -132,7 +131,6 @@ def move_torso(pos, vel):
     print("Publishing and latching message. Press ctrl-C to terminate")
     while not rospy.is_shutdown():
         rospy.sleep(0.5)
-
 
 def main():
     parser = argparse.ArgumentParser(description='Publish velocity commands to MOVO arm joints.')
