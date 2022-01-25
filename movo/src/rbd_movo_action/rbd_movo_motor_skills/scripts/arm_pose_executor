@@ -52,7 +52,7 @@ from moveit_python.move_group_interface import MoveGroupInterface
 from rbd_movo_motor_skills.motion_planning.framework import Executor
 from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
 
-def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.01):
+def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.05):
     """Returns a Constraints object for the end effector (gripper) pose"""
     pose = Pose()
     pose.position.x = pose_spec["position"][0]
@@ -86,7 +86,7 @@ def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.01):
     c1.orientation_constraints[0].weight = 1.0
     return c1
 
-def joints_constraints(positions, joints, tolerance=0.01):
+def joints_constraints(positions, joints, tolerance=0.05):
     """Add a constraint for the joints; Note that the joints
     should be available in goal.request.start_state."""
     c1 = Constraints()
@@ -103,7 +103,7 @@ def joints_constraints(positions, joints, tolerance=0.01):
 #args.get("
 def pose_constraints_from_spec(spec, **kwargs):
     pose_spec = spec["pose"]
-    tolerance = spec.get("tolerance", 0.01)
+    tolerance = spec.get("tolerance", 0.05)
     # the frame that we want the position constraint to apply to (the end effector)
     gripper_frame = kwargs["gripper_frame"]
     # the frame with respect to which the pose is set
@@ -113,7 +113,7 @@ def pose_constraints_from_spec(spec, **kwargs):
 def joints_constraints_from_spec(spec):
     positions = spec["positions"]
     joints = spec["joint_names"]
-    tolerance = spec.get("tolerance", 0.01)
+    tolerance = spec.get("tolerance", 0.05)
     return joints_constraints(positions, joints, tolerance=tolerance)
 
 def constraints_from_spec(spec, **kwargs):

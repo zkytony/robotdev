@@ -19,7 +19,7 @@ class ArmPoseVerifier(Verifier):
         args = self.cue["args"]
         self._side = args['side']
         self._goal_spec = args["goal"]
-        self._tolerance = self._goal_spec.get("tolerance", 0.01)
+        self._tolerance = self._goal_spec.get("tolerance", 0.05)
         self._ee_frame = "{}_ee_link".format(self._side)
         self._base_frame = args.get("frame", "base_link")
         rospy.Subscriber("/move_group/status",
