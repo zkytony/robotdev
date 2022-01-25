@@ -241,6 +241,16 @@ rosrun tf tf_echo base_link left_ee_link
 Note that `tf_echo <source_frame> <target_frame>`
 
 
+## Obtain AR tag transform:
+Each ar tag gets its own tf frame. Do:
+```
+rosrun tf tf_echo /kinect2_color_optical_frame ar_marker_4
+```
+This will get you the pose that matches the output of
+```
+rostopic echo /ar_pose_marker
+```
+
 ## Troubleshooting
 
 ### AR detector frequency too low (<1hz)
