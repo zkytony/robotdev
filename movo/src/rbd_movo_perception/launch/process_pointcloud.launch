@@ -1,11 +1,23 @@
 <launch>
-    <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
-    <node pkg="nodelet" type="nodelet"
-          name="statistical_filter"
-          args="load pcl/StatisticalOutlierRemoval pcl_manager">
-    <param name="mean_k" value="20" />
-    <param name="stddev" value="0.5" />
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+
+  <node pkg="nodelet" type="nodelet"
+        name="pass_through_z"
+        args="load pcl/PassThrough pcl_manager">
+    <param name="filter_field_name" value="z" />
+    <param name="filter_limit_min" value="0.25" />
+    <param name="filter_limit_max" value="3.0" />
+    <param name="filter_limit_negative" value="False" />
     <remap from="~input" to="/kinect2/sd/points"/>
+    <remap from="~output" to="/kinect2/sd/filtered_passthrough_z"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet"
+        name="statistical_filter"
+        args="load pcl/StatisticalOutlierRemoval pcl_manager">
+    <param name="mean_k" value="100" />
+    <param name="stddev" value="0.1" />
+    <remap from="~input" to="/kinect2/sd/filtered_passthrough_z"/>
     <remap from="~output" to="/kinect2/sd/filtered_points"/>
   </node>
 </launch>
