@@ -232,7 +232,7 @@ class ArmPoseExecutor(Executor):
         goal.planning_options.planning_scene_diff.robot_state.is_diff = True
         goal.planning_options.plan_only = self._plan_only
         goal.planning_options.look_around = True
-        goal.planning_options.replan = False
+        goal.planning_options.replan = True
         return goal
 
 def __test():

@@ -22,23 +22,23 @@ class ArmPoseVerifier(Verifier):
         self._tolerance = self._goal_spec.get("tolerance", 0.05)
         self._ee_frame = "{}_ee_link".format(self._side)
         self._base_frame = args.get("frame", "base_link")
-        rospy.Subscriber("/move_group/status",
-                         GoalStatusArray,
-                         self._callback)
         # tf listener
         self._tfbuffer = tf2_ros.Buffer()
         self._tflistener = tf2_ros.TransformListener(self._tfbuffer)
+        rospy.Subscriber("/move_group/status",
+                         GoalStatusArray,
+                         self._callback)
 
     def _callback(self, m):
         for status_msg in m.status_list:
             self.message = "status {}: {}".format(status_msg.status, status_msg.text)
             if status_msg.status == GoalStatus.SUCCEEDED:
-                ok, largest_diff = self._check_arm_config_satisfaction()
-                if ok:
+                largest_diff = self._check_arm_config_satisfaction()
+                if largest_diff < self._tolerance:
                     self.status = Verifier.DONE
                 else:
                     self.message =\
-                        "Although Moveit! reports success,"\
+                        "Although Moveit! reports success, "\
                         "difference (<={:.5f}) is larger than tolerance ({})."\
                         .format(largest_diff, self._tolerance)
                     self.status = Verifier.NOT_DONE
@@ -51,8 +51,7 @@ class ArmPoseVerifier(Verifier):
         Checks whether the arm's current configuration
         satisfies what is in the 'cue'.
         """
-        largest_diff = float('inf')
-        ok = True
+        largest_diff = float('-inf')
         if self._goal_spec['type'] == "joints":
             actual_joint_state = rospy.wait_for_message(
                 "/movo/{}_arm/joint_states".format(self._side),
@@ -69,10 +68,6 @@ class ArmPoseVerifier(Verifier):
                 if n in actual_joint_dict:
                     diff = abs(actual_joint_dict[n] - expected_joint_dict[n])
                     largest_diff = max(diff, largest_diff)
-                    if diff > self._tolerance:
-                        ok = False
-                else:
-                    ok = False
 
         elif self._goal_spec['type'] == 'pose' or self._goal_spec['type'] == 'ee':
             # Obtain tf transform from end effector to frame
@@ -90,12 +85,10 @@ class ArmPoseVerifier(Verifier):
                 for actual, expected in zip(actual_pose, expected_pose):
                     diff = abs(actual - expected)
                     largest_diff = max(diff, largest_diff)
-                    if abs(actual - expected) > self._tolerance:
-                       ok = False
         else:
             raise ValueError("Invalid arm config goal type: {}"\
                              .format(self._goal_spec['type']))
-        return ok, largest_diff
+        return largest_diff
 
 
 if __name__ == "__main__":
