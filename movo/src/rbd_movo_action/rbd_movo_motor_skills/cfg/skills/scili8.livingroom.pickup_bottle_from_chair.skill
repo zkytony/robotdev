@@ -52,6 +52,30 @@ skill:
           tolerance_posit: 0.08
           tolerance_orien: 10
 
+  - name: "Motion Plan to Prep"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.923, 0.190, 0.712]
+              orientation: [-0.539, -0.255, 0.764, -0.247]
+            tolerance: 0.1
+          path_constraints:
+            - type: "joints"
+              positions: [1.6199996926727103, 1.365087905242778, 0.6605017672271316, 1.4191538037969127]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
+              tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
+
+  - name: "Open Gripper"
+    actuation_cues:
+      - type: Gripper
+        args:
+          side: 'left'
+          position: 1.0
 
   # - name: "Tilt Head and Spot the Bottle"
   #   actuation_cues:
