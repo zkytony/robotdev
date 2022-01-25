@@ -15,7 +15,13 @@ def test_quat_diff_angle():
 
     q6 = [-0.005, 0.609, 0.007, -0.793]
     print(round(to_degrees(abs(quat_diff_angle_relative(q4, q6)))))
-    assert round(to_degrees(abs(quat_diff_angle_relative(q4, q6)))) == 359.0
+    assert round(to_degrees(abs(quat_diff_angle_relative(q4, q6)))) == 1.0
+
+    q7 = [0.729, 0.576, 0.302, 0.214]
+    q8 = (0.7243693112024411, 0.5885347916612598, 0.3117590946682811, 0.17810717808093052)#(0.7609753990475726, 0.5970478485791919, 0.2415943524759006, 0.07799023915270577)
+    print(round(to_degrees(abs(quat_diff_angle_relative(q7, q8)))))
+    assert round(to_degrees(abs(quat_diff_angle_relative(q7, q8)))) < 30.0
+
     print("pass.")
 
 if __name__ == "__main__":
