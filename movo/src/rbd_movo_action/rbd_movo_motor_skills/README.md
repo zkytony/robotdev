@@ -306,55 +306,66 @@ message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among oth
 
 ### OctoMap collision avoidance
 
-First, edit "movo_7dof_moveit_config/launch/sensor_manager.launch.xml" and filling
-the paramter "octomap_frame" with "base_link" (which is the parent frame for motion planning); Set to base_link when there is no navigation and motion is with respect to the robot's base frame.
-```xml
-<param name="octomap_frame" type="string" value="base_link" />
-```
-Note that by default, the MOVO bringup system launch does not start the `move_group.launch` component. Therefore,
-by default you will not get the `move_group/sensors` parameter which means the OctoMap stuff is not loaded.
+1. First, edit "movo_7dof_moveit_config/launch/sensor_manager.launch.xml" and filling
+   the paramter "octomap_frame" with "base_link" (which is the parent frame for motion planning); Set to base_link when there is no navigation and motion is with respect to the robot's base frame.
+   ```xml
+   <param name="octomap_frame" type="string" value="base_link" />
+   ```
 
-Then, you need to launch another launch file to have this. That launch file should contain:
-```
-  <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
-    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
-  </include>
-```
-You can do `roslaunch rbd_movo_motor_skills manipulation_system.launch` to launch this.
-It is preferred to do this on the robot to reduce the need to transmit depth data off the robot.
+   **Note (01/25/22) that by default, the MOVO bringup system launch will starts the `move_group.launch`.**
+   You can find this by checking `movo2.launch` --(starts)-> `movo_bringup/manipulation/movo_moveit.launch` --(starts)-> `movo_moveit_planning_execution.launch` which starts `move_group.launch` under
+   the `movo_7dof_moveit_config` package. The reason by default movo bringup doesn;t
+   load the sensors is because of the following line in `move_group.launch`
+   ```
+   <rosparam command="delete" param="move_group/sensors" />
+   ```
+   I commented it out. I am not sure why Kinova has it there.
 
-Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
-```yaml
-sensors:
-  - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-    point_cloud_topic: /kinect2/sd/points
-    max_range: 2.0
-    point_subsample: 1
-    padding_offset: 0.05
-    padding_scale: 1.0
-    filtered_cloud_topic: filtered_cloud
-```
-Basically Moveit! has made it really convenient to use Octomap for dynamic collision avoidance.
-How practical!
-Also, make sure you are editing the right `sensors.yaml` file. You might be
-editing the one under `movo_moveit_config`, which is for the 6DOF arm.
 
-If the setup is correct, you should be able to receive message if you do
-```
-rostopic echo /move_group/filtered_cloud
-```
-You can check if your configuration is correct by
-```
-rosparam get /move_group/sensors
-- {filtered_cloud_topic: filtered_cloud, max_range: 2.0, padding_offset: 0.05, padding_scale: 1.0,
-  point_cloud_topic: /kinect2/sd/points, point_subsample: 1, sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater}
-```
+2. Then, you need to launch another launch file to have this. That launch file should contain:
+     ```
+       <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
+         <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
+       </include>
+     ```
+     You can do `roslaunch rbd_movo_motor_skills manipulation_system.launch` to launch this.
+     It is preferred to do this on the robot to reduce the need to transmit depth data off the robot.
 
-If you add a PointCloud2 visualization in RVIZ, and set the topic to `movo_group/filtered_cloud`,
-you will be able to see the visualized OctoMap for the obstacles, which the motion planner
-should supposedly know how to avoid.
+     Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
+     ```yaml
+     sensors:
+       - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+         point_cloud_topic: /kinect2/sd/points
+         max_range: 2.0
+         point_subsample: 1
+         padding_offset: 0.05
+         padding_scale: 1.0
+         filtered_cloud_topic: filtered_cloud
+     ```
+     Basically Moveit! has made it really convenient to use Octomap for dynamic collision avoidance.
+     How practical!
+     Also, make sure you are editing the right `sensors.yaml` file. You might be
+     editing the one under `movo_moveit_config`, which is for the 6DOF arm.
 
-![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
+     **Note that after the fix (01/25/22), the above should not be necessary;**
+     **The octomap stuff and sensor configs should be loaded by default**
+
+3. If the setup is correct, you should be able to receive message if you do
+     ```
+     rostopic echo /move_group/filtered_cloud
+     ```
+     You can check if your configuration is correct by
+     ```
+     rosparam get /move_group/sensors
+     - {filtered_cloud_topic: filtered_cloud, max_range: 2.0, padding_offset: 0.05, padding_scale: 1.0,
+       point_cloud_topic: /kinect2/sd/points, point_subsample: 1, sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater}
+     ```
+
+     If you add a PointCloud2 visualization in RVIZ, and set the topic to `movo_group/filtered_cloud`,
+     you will be able to see the visualized OctoMap for the obstacles, which the motion planner
+     should supposedly know how to avoid.
+
+     ![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
 
 
 ### Avoiding big weird motions.
