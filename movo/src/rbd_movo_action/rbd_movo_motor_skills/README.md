@@ -101,7 +101,7 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES="rbd_movo_motor_skills"
 
 
 
-## (UNUSED) Using the moveit_client and moveit_planner
+## Using the moveit_client and moveit_planner
 
 Run the planner
 ```
@@ -232,6 +232,13 @@ Caveat:
          a library that allows python to call functions in C?!)
      There isn't anything you can do about the `InitFingers` function. **COMMENTING OUT THE InitFingers() Line breaks the movo bringup system launch.**
 
+## Get Arm End Effector Pose
+You want to get the end effector pose in the base_link frame:
+So the base_link is the parent/source, left_ee_link is the child/target.
+```
+rosrun tf tf_echo base_link left_ee_link
+```
+Note that `tf_echo <source_frame> <target_frame>`
 
 
 ## Troubleshooting
