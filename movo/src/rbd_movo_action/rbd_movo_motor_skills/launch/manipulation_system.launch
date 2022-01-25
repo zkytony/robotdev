@@ -6,5 +6,11 @@
        necessary for manipulation) and motion planning. Does not care
        about navigation. Although, it is possible to combine navigation
        with the motor skill specification-->
-  <include file="$(find rbd_movo_perception)/launch/perception.launch" />
+  <!-- <include file="$(find rbd_movo_perception)/launch/perception.launch" /> -->
+
+  <node pkg="nodelet" type="nodelet"
+        name="statistical_filter"
+        args="load pcl_ros/StatisticalOutlierRemoval">
+    <param name="mean_k" type="int" default="10" />
+  </node>
 </launch>
