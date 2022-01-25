@@ -54,7 +54,7 @@ skill:
       - type: ARTagPose
         args:
           type: distance
-          dist: 0.75
+          dist: 1.3
           base_frame: base_link #kinect2_color_optical_frame
           tolerance: 0.5
 
