@@ -266,6 +266,10 @@ Possible Moveit planners (settings to `planner_id`):
 - PRMkConfigDefault
 - PRMstarkConfigDefault
 
+
+A very nice overview of how Moveit! works ([source](https://moveit.ros.org/documentation/concepts/))
+![moveitflow](https://moveit.ros.org/assets/images/diagrams/moveit_pipeline.png)
+
 ### Obtain feedback
 
 You can get feedback of current plan status by subscribing to
@@ -352,6 +356,42 @@ If you just send Moveit! the end effector pose, you may end up something like th
 ![image](https://user-images.githubusercontent.com/7720184/150889532-0dfa798d-1a6b-4d68-a23b-1ca3d3df46a7.png)
 
 The end effector goal pose is the same, but the planner comes up with different trajectories, some requiring very dramatic movement of the arm. The motion planner
-does not readily make any distinction between the solutions. Furthermore, even though Moveit! outputs a plan and the robot executes the plan, it may 
-happen that the robot stops keep executing the motion plan. The goal is not reached, but the arm has moved half way. You will get the "ABORTED" status at `move_group/feedback`, and may get `Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing.` The left two images of the above figure are in exactly that situation. 
+does not readily make any distinction between the solutions. Furthermore, even though Moveit! outputs a plan and the robot executes the plan, it may
+happen that the robot stops keep executing the motion plan. The goal is not reached, but the arm has moved half way. You will get the "ABORTED" status at `move_group/feedback`, and may get `Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing.` The left two images of the above figure are in exactly that situation.
 
+
+Ideally you can set constraints the planner should satisfy in a sequence.
+Isn't that equivalent as planning a sequence of smaller subgoals?
+In that case, [this ROS Answers post](https://answers.ros.org/question/296994/how-to-set-a-sequence-of-goals-in-moveit/#:~:text=You%20can%20set%20(n)%20targets,on%20the%20sequence%20you%20established.)
+and [this tutorial](https://www.theconstructsim.com/ros-qa-138-how-to-set-a-sequence-of-goals-in-moveit-for-a-manipulator/) could be useful.
+(In fact these are not useful because I am not using the Moveit Commander thing)
+
+Instead, I noticed [MotionPlanRequest](http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/MotionPlanRequest.html)
+message, which is part of the [MoveGroupGoal](https://github.com/kunal15595/ros/blob/master/moveit/devel/share/moveit_msgs/msg/MoveGroupGoal.msg)
+I need to set, contains several useful fields:
+```
+# The possible goal states for the model to plan for. Each element of
+# the array defines a goal region. The goal is achieved
+# if the constraints for a particular region are satisfied
+Constraints[] goal_constraints
+
+# No state at any point along the path in the produced motion plan will violate these constraints (this applies to all points, not just waypoints)
+Constraints path_constraints
+
+# The constraints the resulting trajectory must satisfy
+TrajectoryConstraints trajectory_constraints
+
+# A set of trajectories that may be used as reference or initial trajectories for (typically optimization-based) planners
+# These trajectories do not override start_state or goal_constraints
+GenericTrajectory[] reference_trajectories
+```
+
+Here is info I found about these parameters:
+says about these parameters:
+*  Kinematic constraints for the path given by `path_constraints` will be met for every point along the trajectory, if they are not met, a partial solution will be returned. (Reference: the [documentation (Jade)](http://docs.ros.org/en/jade/api/moveit_ros_planning_interface/html/classmoveit_1_1planning__interface_1_1MoveGroup.html))
+
+* The type [TrajectoryConstraints](http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/TrajectoryConstraints.html) is simply defined as an array of constraints:
+    ```
+    # The array of constraints to consider along the trajectory
+    Constraints[] constraints
+    ```
