@@ -353,5 +353,5 @@ If you just send Moveit! the end effector pose, you may end up something like th
 
 The end effector goal pose is the same, but the planner comes up with different trajectories, some requiring very dramatic movement of the arm. The motion planner
 does not readily make any distinction between the solutions. Furthermore, even though Moveit! outputs a plan and the robot executes the plan, it may 
-happen that the robot stops keep executing the motion plan. The goal is not reached, but the arm has moved half way. You will get the "ABORTED" status at `move_group/feedback`.
+happen that the robot stops keep executing the motion plan. The goal is not reached, but the arm has moved half way. You will get the "ABORTED" status at `move_group/feedback`, and may get `Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing.` The left two images of the above figure are in exactly that situation. 
 
