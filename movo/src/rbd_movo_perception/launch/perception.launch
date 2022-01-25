@@ -6,4 +6,7 @@
   <machine name="movo2" address="movo2" user="movo"
            env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
   <include file="$(find rbd_movo_perception)/launch/artag_tracker.launch" />
+
+  <!-- Process Pointcloud -->
+  <include file="$(find rbd_movo_perception)/launch/process_pointcloud.launch" />
 </launch>

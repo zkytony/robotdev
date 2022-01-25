@@ -1,0 +1,11 @@
+<launch>
+    <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+    <node pkg="nodelet" type="nodelet"
+          name="statistical_filter"
+          args="load pcl_ros/StatisticalOutlierRemoval">
+    <param name="mean_k" value="20" />
+    <param name="stddev" value="0.5" />
+    <remap from="~input" to="/kinect2/sd/points"/>
+    <remap from="~output" to="/kinect2/sd/filtered_points"/>
+  </node>
+</launch>
