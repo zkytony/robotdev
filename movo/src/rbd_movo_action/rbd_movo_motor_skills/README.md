@@ -367,8 +367,15 @@ message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among oth
 
      ![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
 
+I encountered a problem due to noisy kinect that there are some
+points really close to the robot, which causes the motion
+planning to fail. I asked a [question on ROS Answers](https://answers.ros.org/question/395059/noisy-points-from-point-cloud-causes-moveit-to-fail/).
+
+
 
 ### Avoiding big weird motions.
+
+TRY FIRST: INCREASE TOLERANCE.
 
 If you just send Moveit! the end effector pose, you may end up something like this:
 
