@@ -86,7 +86,7 @@ def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.01):
     c1.orientation_constraints[0].weight = 1.0
     return c1
 
-def joints_constraints(goal, positions, joints, tolerance=0.01):
+def joints_constraints(positions, joints, tolerance=0.01):
     """Add a constraint for the joints; Note that the joints
     should be available in goal.request.start_state."""
     c1 = Constraints()
@@ -112,7 +112,7 @@ def joints_constraints_from_spec(spec):
     positions = spec["positions"]
     joints = spec["joint_names"]
     tolerance = spec.get("tolerance", 0.01)
-    return joints_constraint(positions, joints, tolerance=tolerance)
+    return joints_constraints(positions, joints, tolerance=tolerance)
 
 def constraints_from_spec(spec):
     constype = spec["type"]
@@ -121,17 +121,19 @@ def constraints_from_spec(spec):
     if constype == "ee" or constype == "pose":
         return pose_constraints_from_spec(spec)
     else:
-        return joints_constraints_from_spec(goal, spec)
+        return joints_constraints_from_spec(spec)
 
 
 class ArmPoseExecutor(Executor):
     """
     cue args:
 
-    - type: Either "ee", "joints", or "pose"
+    - goal: constraint_spec
 
-    If type == "ee" or "pose":
-    - fixed_frame: the frame that's the parent frame of all bodies
+    - trajectory_constraints:
+       a list of constraint_specs
+
+    - frame: the frame that's the parent frame of all bodies
           that will possibly move during planning. For example, "/odom",
           "/map", which are both world-fixed frames (REP 105). The frame
           "base_link" might be used if the motion planning happens with
@@ -140,13 +142,23 @@ class ArmPoseExecutor(Executor):
 
           Note: This really matters. Because all the hard-coded end-effector
           poses will be with respect to this frame.
-    - pose: dictionary with 'position' [x, y, z] and 'orientation' [qx, qy, qz, qw] fields.
 
+          This is also required to initialize the MoveGroupInterface.
+          Official documentation: 'Name of the fixed frame in which planning happens'
+
+    A constraint_spec contains the following fields:
+    - type: Either "ee", "joints", or "pose"
+    - tolerance: tolerance for satisfying the constraint
+    If type == "ee" or "pose":
+    - pose: dictionary with 'position' [x, y, z] and 'orientation' [qx, qy, qz, qw] fields.
+    If type == "joints":
+    - positions: [joint positions ...]
+    - joint_names: [joint names ...]
     """
     def __init__(self, name, cue, timeout=15):
         super(ArmPoseExecutor, self).__init__(name, cue)
         self._timeout = timeout
-        # We only very lightly use this API; we build our own goal.
+        # We only use the SimpleActionService from within this API
         self._move_group_api = MoveGroupInterface(self._planning_group,
                                                   self._fixed_frame,
                                                   plan_only=self._plan_only)
@@ -195,7 +207,7 @@ class ArmPoseExecutor(Executor):
         goal.request.start_state = start_state
 
         # Add goal
-        cg = constraints_from_spec(spec)
+        cg = constraints_from_spec(args["goal"])
         goal.request.goal_constraints.append(cg)
 
         # Add trajectory constraints
@@ -203,7 +215,7 @@ class ArmPoseExecutor(Executor):
         for tspec in args.get("trajectory_constraints", []):
             ct = constraints_from_spec(tspec)
             trajectory_constraints.constraints.append(ct)
-        goal.trajectory_constraints = trajectory_constraints
+        goal.request.trajectory_constraints = trajectory_constraints
 
         # options
         goal.request.planner_id = PLANNER

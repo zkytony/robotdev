@@ -45,7 +45,8 @@ class ArmPoseVerifier(Verifier):
         args = self.cue["args"]
         side = args['side']
         tolerance = args.get("tolerance", 0.01)
-        if args['type'] == "joints":
+        goal_spec = args["goal"]
+        if goal_spec['type'] == "joints":
             current_joint_state = rospy.wait_for_message(
                 "/movo/{}_arm/joint_states".format(side),
                 JointState, timeout=15)
@@ -54,8 +55,8 @@ class ArmPoseVerifier(Verifier):
                 current_joint_state.name
             )
             expected_joint_dict = joint_state_dict(
-                args['positions'],
-                args['joint_names']
+                goal_spec['positions'],
+                goal_spec['joint_names']
             )
             for n in expected_joint_dict:
                 if n in current_joint_dict:
@@ -64,7 +65,7 @@ class ArmPoseVerifier(Verifier):
                 else:
                     return False
             return True
-        elif args['type'] == 'pose' or args['type'] == 'ee':
+        elif goal_spec['type'] == 'pose' or goal_spec['type'] == 'ee':
             # Obtain tf transform from end effector to frame
             ee_frame = "{}_ee_link".format(side)
             base_frame = args.get("frame", "base_link")
@@ -73,14 +74,14 @@ class ArmPoseVerifier(Verifier):
                 self.message = "lookup transform from {} to {} failed".format(ee_frame, base_frame)
                 return False  # lookup error
             actual_pose = transform_to_tuple(trans.transform)
-            expected_pose = tuple(args['pose']['position']) + tuple(args['pose']['orientation'])
+            expected_pose = tuple(goal_spec['pose']['position']) + tuple(goal_spec['pose']['orientation'])
             if all(abs(actual - expected) <= tolerance
                    for actual, expected in zip(actual_pose, expected_pose)):
                 return True
             else:
                 return False
         else:
-            raise ValueError("Invalid arm config goal type: {}".format(args['type']))
+            raise ValueError("Invalid arm config goal type: {}".format(goal_spec['type']))
 
 
 if __name__ == "__main__":
