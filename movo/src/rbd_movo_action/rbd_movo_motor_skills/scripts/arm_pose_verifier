@@ -33,17 +33,17 @@ class ArmPoseVerifier(Verifier):
         for status_msg in m.status_list:
             self.message = "status {}: {}".format(status_msg.status, status_msg.text)
             if status_msg.status == GoalStatus.SUCCEEDED:
-                self.status = Verifier.DONE
-                # largest_diff = self._check_arm_config_satisfaction()
-                # if largest_diff < self._tolerance:
-                #     self.status = Verifier.DONE
-                # else:
-                #     self.message =\
-                #         "Although Moveit! reports success, "\
-                #         "difference (<={:.5f}) is larger than tolerance ({})."\
-                #         .format(largest_diff, self._tolerance)
-                #     self.status = Verifier.NOT_DONE
-                #     return
+                # self.status = Verifier.DONE
+                largest_diff = self._check_arm_config_satisfaction()
+                if largest_diff < self._tolerance:
+                    self.status = Verifier.DONE
+                else:
+                    self.message =\
+                        "Although Moveit! reports success, "\
+                        "difference (<={:.5f}) is larger than tolerance ({})."\
+                        .format(largest_diff, self._tolerance)
+                    self.status = Verifier.NOT_DONE
+                    return
             elif status_msg.status == GoalStatus.ABORTED:
                 self.status = Verifier.NOT_DONE
 
