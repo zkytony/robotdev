@@ -60,6 +60,11 @@ skill:
               orientation: [-0.432, -0.163, -0.684, 0.564]
             tolerance: 0.02
           trajectory_constraints:
+            - type: "joints"
+              positions: [0.8059927210021671, 1.397079926785682, 0.02140222778431422, 2.600630600316396, -0.037343389920876824, -0.5362152349464403, 1.7053205829380689]
+              joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+              tolerance: 0.02
+
             - type: "pose"
               pose:
                 position: [0.647, -0.055, 0.939]
