@@ -50,7 +50,7 @@ skill:
           base_frame: kinect2_color_optical_frame
           pose: [-0.288, 0.340, 0.848, 0.729, 0.576, 0.302, 0.214]
           tolerance_posit: 0.08
-          tolerance_orien: 20
+          tolerance_orien: 10
 
 
   # - name: "Tilt Head and Spot the Bottle"
