@@ -381,6 +381,12 @@ I encountered a problem due to noisy kinect that there are some
 points really close to the robot, which causes the motion
 planning to fail. I asked a [question on ROS Answers](https://answers.ros.org/question/395059/noisy-points-from-point-cloud-causes-moveit-to-fail/).
 
+#### How to clear octomap
+(1) If you add an appropriate collision object, the octomap will be cleared in the vicinity of the object. You still have to allow the collision with the collision object of course.
+
+(2) If you really want to disable octomap updates, the easiest way to do so is externally by writing a node that forwards point clouds to the topic move_group subscribes to only when required.
+
+[Reference](https://github.com/ros-planning/moveit/issues/1728#issuecomment-553882310).
 
 
 ### Avoiding big weird motions.
@@ -433,11 +439,11 @@ says about these parameters:
     # The array of constraints to consider along the trajectory
     Constraints[] constraints
     ```
+    **NOTE THIS DOES NOT WORK. SEE BELOW**
 
 * The comments of `goal_constraints` seems to say that it supports defining
   multiple goals (goal regions) and as long as any one of them is satisfied,
   the goal is achieved. That is useful too.
-
 
 Read [this documentation](https://ros-planning.github.io/moveit_tutorials/doc/planning_with_approximated_constraint_manifolds/planning_with_approximated_constraint_manifolds_tutorial.html)
 that explains the constraints interface Moveit! provides.
@@ -448,3 +454,15 @@ Side step: This [post](https://answers.ros.org/question/236564/moveit-path-plann
 apt-get install ros-kinetic-trac-ik-kinematics-plugin
 ```
 (This is already installed for me on ROS Kinetic).
+
+### More on Trajectory Constraint
+From v4dn on [Github](https://github.com/ros-planning/moveit/issues/1707):
+>The MotionPlanRequest API allows to set the trajectory_constraints field, but a planner plugin actually has to take them into account.
+>The default OMPL interface does not do that.
+>Incidentally, I'm not aware of a planner plugin that does that at the moment -
+>also because the semantics of these constraints are not very well-defined.
+That is very sad! Similar info on [ROS Answers](https://answers.ros.org/question/304342/path_constraints-vs-trajectory_constraints-in-motion_plan_request/)
+>...it seems that the function of trajectory_constraints hasn't been clearly defined yet. Hence I >suppose it would be safe to say that you should be using path_constraints until that discussion gets closed.
+Refer to [this Github issue](https://github.com/ros-planning/moveit/pull/793)
+
+SO I need to use Path Constraints, or just do waypoints.
