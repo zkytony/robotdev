@@ -299,8 +299,8 @@ the paramter "octomap_frame" with "base_link" (which is the parent frame for mot
 ```xml
 <param name="octomap_frame" type="string" value="base_link" />
 ```
-
-**actually I think you may not need to run this; I still feel that move_group is launched automatically during movo bringup. So if you set the point cloud topic correctly for `sensors.yml` (and other parameters correctly), the octomap avoidance should just work; see if you get messages from /move_group/filtered_cloud.
+Note that by default, the MOVO bringup system launch does not start the `move_group.launch` component. Therefore,
+by default you will not get the `move_group/sensors` parameter which means the OctoMap stuff is not loaded.
 
 Then, you need to launch another launch file to have this. That launch file should contain:
 ```
@@ -309,6 +309,7 @@ Then, you need to launch another launch file to have this. That launch file shou
   </include>
 ```
 You can do `roslaunch rbd_movo_motor_skills manipulation_system.launch` to launch this.
+It is preferred to do this on the robot to reduce the need to transmit depth data off the robot.
 
 Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
 ```yaml
