@@ -380,9 +380,11 @@ message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among oth
 I encountered a problem due to noisy kinect that there are some
 points really close to the robot, which causes the motion
 planning to fail. I asked a [question on ROS Answers](https://answers.ros.org/question/395059/noisy-points-from-point-cloud-causes-moveit-to-fail/).
+**I think the only solution is to publish your own, filtered point cloud for Moveit! that cleans such things up.**
 
 #### How to clear octomap
 (1) If you add an appropriate collision object, the octomap will be cleared in the vicinity of the object. You still have to allow the collision with the collision object of course.
+`rosservice call /clear_octomap`
 
 (2) If you really want to disable octomap updates, the easiest way to do so is externally by writing a node that forwards point clouds to the topic move_group subscribes to only when required.
 
