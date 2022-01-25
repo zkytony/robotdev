@@ -33,14 +33,14 @@ class ArmPoseVerifier(Verifier):
         for status_msg in m.status_list:
             self.message = "status {}: {}".format(status_msg.status, status_msg.text)
             if status_msg.status == GoalStatus.SUCCEEDED:
-                ok, smallest_diff = self._check_arm_config_satisfaction()
+                ok, largest_diff = self._check_arm_config_satisfaction()
                 if ok:
                     self.status = Verifier.DONE
                 else:
                     self.message =\
                         "Although Moveit! reports success,"\
-                        "difference (>={:.5f}) is larger than tolerance ({})."\
-                        .format(smallest_diff, self._tolerance)
+                        "difference (<={:.5f}) is larger than tolerance ({})."\
+                        .format(largest_diff, self._tolerance)
                     self.status = Verifier.NOT_DONE
                     return
             elif status_msg.status == GoalStatus.ABORTED:
@@ -51,7 +51,7 @@ class ArmPoseVerifier(Verifier):
         Checks whether the arm's current configuration
         satisfies what is in the 'cue'.
         """
-        smallest_diff = float('inf')
+        largest_diff = float('inf')
         ok = True
         if self._goal_spec['type'] == "joints":
             actual_joint_state = rospy.wait_for_message(
@@ -68,7 +68,7 @@ class ArmPoseVerifier(Verifier):
             for n in expected_joint_dict:
                 if n in actual_joint_dict:
                     diff = abs(actual_joint_dict[n] - expected_joint_dict[n])
-                    smallest_diff = min(diff, smallest_diff)
+                    largest_diff = max(diff, largest_diff)
                     if diff > self._tolerance:
                         ok = False
                 else:
@@ -89,13 +89,13 @@ class ArmPoseVerifier(Verifier):
 
                 for actual, expected in zip(actual_pose, expected_pose):
                     diff = abs(actual - expected)
-                    smallest_diff = min(diff, smallest_diff)
+                    largest_diff = max(diff, largest_diff)
                     if abs(actual - expected) > self._tolerance:
                        ok = False
         else:
             raise ValueError("Invalid arm config goal type: {}"\
                              .format(self._goal_spec['type']))
-        return ok, smallest_diff
+        return ok, largest_diff
 
 
 if __name__ == "__main__":
