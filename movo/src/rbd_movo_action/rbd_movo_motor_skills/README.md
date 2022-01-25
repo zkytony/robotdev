@@ -268,7 +268,8 @@ Possible Moveit planners (settings to `planner_id`):
 
 
 A very nice overview of how Moveit! works ([source](https://moveit.ros.org/documentation/concepts/))
-![moveitflow](https://moveit.ros.org/assets/images/diagrams/moveit_pipeline.png)
+
+<img src="https://moveit.ros.org/assets/images/diagrams/moveit_pipeline.png" width="500px"/>
 
 ### Obtain feedback
 
