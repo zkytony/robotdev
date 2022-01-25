@@ -6,14 +6,5 @@
        necessary for manipulation) and motion planning. Does not care
        about navigation. Although, it is possible to combine navigation
        with the motor skill specification-->
-
-  <arg name="local" default="false"/>
   <include file="$(find rbd_movo_perception)/launch/perception.launch" />
-
-  <!-- movo group; Run the following on MOVO2-->
-  <machine name="movo2" address="movo2" user="movo"
-           env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
-  <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
-    <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
-  </include>
 </launch>
