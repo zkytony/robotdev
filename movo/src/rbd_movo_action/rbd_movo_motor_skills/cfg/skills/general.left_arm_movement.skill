@@ -68,7 +68,7 @@ skill:
             pose:
               position: [0.575, -0.031, 0.858]
               orientation: [-0.432, -0.163, -0.684, 0.564]
-            tolerance: 0.05
+            tolerance: 0.1
           path_constraints:
             # To avoid big arm rotation movments
             - type: "joints"
