@@ -69,6 +69,9 @@ class ArmPoseVerifier(Verifier):
             ee_frame = "{}_ee_link".format(side)
             base_frame = args.get("frame", "base_link")
             trans = tf2_lookup_transform(self._tfbuffer, base_frame, ee_frame, rospy.Time(0))
+            if trans is None:
+                self.message = "lookup transform from {} to {} failed".format(ee_frame, base_frame)
+                return False  # lookup error
             actual_pose = transform_to_tuple(trans.transform)
             expected_pose = tuple(args['pose']['position']) + tuple(args['pose']['orientation'])
             if all(abs(actual - expected) <= tolerance

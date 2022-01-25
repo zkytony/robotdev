@@ -170,9 +170,13 @@ def tf2_transform(tf2buf, object_stamped, target_frame):
 
 def tf2_lookup_transform(tf2buf, target_frame, source_frame, timestamp):
     """If timestamp is None, will get the most recent transform"""
-    return tf2buf.lookup_transform(tf2_frame(target_frame),
-                                   tf2_frame(source_frame),
-                                   timestamp)
+    try:
+        return tf2buf.lookup_transform(tf2_frame(target_frame),
+                                       tf2_frame(source_frame),
+                                       timestamp)
+    except tf2_ros.LookupException:
+        rospy.logerr("Error looking up transform from {} to {}"\
+                     .format(target_frame, source_frame))
 
 ### Mathematics ###
 def euclidean_dist(p1, p2):
