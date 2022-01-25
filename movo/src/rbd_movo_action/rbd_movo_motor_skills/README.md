@@ -346,3 +346,12 @@ should supposedly know how to avoid.
 
 
 ### Avoiding big weird motions.
+
+If you just send Moveit! the end effector pose, you may end up something like this:
+
+![image](https://user-images.githubusercontent.com/7720184/150889532-0dfa798d-1a6b-4d68-a23b-1ca3d3df46a7.png)
+
+The end effector goal pose is the same, but the planner comes up with different trajectories, some requiring very dramatic movement of the arm. The motion planner
+does not readily make any distinction between the solutions. Furthermore, even though Moveit! outputs a plan and the robot executes the plan, it may 
+happen that the robot stops keep executing the motion plan. The goal is not reached, but the arm has moved half way. You will get the "ABORTED" status at `move_group/feedback`.
+
