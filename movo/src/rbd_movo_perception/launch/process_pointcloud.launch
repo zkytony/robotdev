@@ -2,7 +2,7 @@
     <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
     <node pkg="nodelet" type="nodelet"
           name="statistical_filter"
-          args="load pcl/StatisticalOutlierRemoval">
+          args="load pcl/StatisticalOutlierRemoval pcl_manager">
     <param name="mean_k" value="20" />
     <param name="stddev" value="0.5" />
     <remap from="~input" to="/kinect2/sd/points"/>
