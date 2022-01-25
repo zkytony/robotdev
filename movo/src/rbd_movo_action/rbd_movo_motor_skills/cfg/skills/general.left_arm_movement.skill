@@ -11,8 +11,26 @@ config:
   ArmPose:
     verifier: arm_pose_verifier
     executor: arm_pose_executor
+  Torso:
+    verifier: torso_command_verifier
+    executor: torso_command_executor
+  Head:
+    verifier: head_command_verifier
+    executor: head_command_executor
 
 skill:
+
+  - name: "Raise Torso Head Down"
+    actuation_cues:
+      - type: Torso
+        args:
+          height: 0.4
+          vel: 0.02
+
+      - type: Head
+        args:
+          pan: 0
+          tilt: -30
 
   - name: "Arm Bringup Open Position"
     actuation_cues:
@@ -23,6 +41,7 @@ skill:
             type: 'joints'
             positions: [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1]
             joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+            tolerance: 0.1
 
   - name: "Arm Bringup Settled Position"
     actuation_cues:
@@ -33,6 +52,7 @@ skill:
             type: 'joints'
             positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
             joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+            tolerance: 0.1
 
   - name: "Move Arm End Effector"
     # NOTE: YOU MUST BE CAREFUL ABOUT THE TORSO HEIGHT;
@@ -49,19 +69,12 @@ skill:
               position: [0.575, -0.031, 0.858]
               orientation: [-0.432, -0.163, -0.684, 0.564]
             tolerance: 0.05
-          trajectory_constraints:
-            # Not sure if these are really useful...
+          path_constraints:
+            # To avoid big arm rotation movments
             - type: "joints"
-              positions: [0.8059927210021671, 1.397079926785682, 0.02140222778431422, 2.600630600316396, -0.037343389920876824, -0.5362152349464403, 1.7053205829380689]
-              joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-              tolerance: 0.02
-
-            - type: "pose"
-              pose:
-                position: [0.647, -0.055, 0.939]
-                orientation: [-0.458, -0.235, -0.669, 0.536]
-                tolerance: 0.05
-
+              positions: [1.5953469436199015, 1.4071429472806554, 2.60869624999381]
+              joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_elbow_joint"]
+              tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
   - name: "Arm Bringup Settled Position"
     actuation_cues:

@@ -52,7 +52,7 @@ from moveit_python.move_group_interface import MoveGroupInterface
 from rbd_movo_motor_skills.motion_planning.framework import Executor
 from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
 
-def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.05):
+def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.05, c1=None):
     """Returns a Constraints object for the end effector (gripper) pose"""
     pose = Pose()
     pose.position.x = pose_spec["position"][0]
@@ -64,7 +64,8 @@ def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.05):
     pose.orientation.w = pose_spec["orientation"][3]
 
     # Add constraint for target pose
-    c1 = Constraints()
+    if c1 is None:
+        c1 = Constraints()
     c1.position_constraints.append(PositionConstraint())
     c1.position_constraints[0].header.frame_id = fixed_frame
     c1.position_constraints[0].link_name = gripper_frame
@@ -74,56 +75,63 @@ def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.05):
     s.type = s.SPHERE
     b.primitives.append(s)
     b.primitive_poses.append(pose)
-    c1.position_constraints[0].constraint_region = b
-    c1.position_constraints[0].weight = 1.0
+    c1.position_constraints[-1].constraint_region = b
+    c1.position_constraints[-1].weight = 1.0
     c1.orientation_constraints.append(OrientationConstraint())
-    c1.orientation_constraints[0].header.frame_id = fixed_frame
-    c1.orientation_constraints[0].orientation = pose.orientation
-    c1.orientation_constraints[0].link_name = gripper_frame
-    c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
-    c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
-    c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
-    c1.orientation_constraints[0].weight = 1.0
+    c1.orientation_constraints[-1].header.frame_id = fixed_frame
+    c1.orientation_constraints[-1].orientation = pose.orientation
+    c1.orientation_constraints[-1].link_name = gripper_frame
+    c1.orientation_constraints[-1].absolute_x_axis_tolerance = tolerance
+    c1.orientation_constraints[-1].absolute_y_axis_tolerance = tolerance
+    c1.orientation_constraints[-1].absolute_z_axis_tolerance = tolerance
+    c1.orientation_constraints[-1].weight = 1.0
     return c1
 
-def joints_constraints(positions, joints, tolerance=0.05):
+def joints_constraints(positions, joints, tolerance=0.05, c1=None):
     """Add a constraint for the joints; Note that the joints
     should be available in goal.request.start_state."""
-    c1 = Constraints()
+    if c1 is None:
+        c1 = Constraints()
     for i in range(len(joints)):
         c1.joint_constraints.append(JointConstraint())
-        c1.joint_constraints[i].joint_name = joints[i]
-        c1.joint_constraints[i].position = positions[i]
-        c1.joint_constraints[i].tolerance_above = tolerance
-        c1.joint_constraints[i].tolerance_below = tolerance
+        c1.joint_constraints[-1].joint_name = joints[i]
+        c1.joint_constraints[-1].position = positions[i]
+        if type(tolerance) == float:
+            c1.joint_constraints[-1].tolerance_below = tolerance
+        elif type(tolerance) == list:
+            if type(tolerance[0]) == float:
+                c1.joint_constraints[-1].tolerance_below = tolerance[i]
+            else:
+                c1.joint_constraints[-1].tolerance_above = tolerance[i][0]
+                c1.joint_constraints[-1].tolerance_below = tolerance[i][1]
         c1.joint_constraints[i].weight = 1.0
     return c1
 
 #, "{}_ee_link".format(self._side))
 #args.get("
-def pose_constraints_from_spec(spec, **kwargs):
+def pose_constraints_from_spec(spec, c1=None, **kwargs):
     pose_spec = spec["pose"]
     tolerance = spec.get("tolerance", 0.05)
     # the frame that we want the position constraint to apply to (the end effector)
     gripper_frame = kwargs["gripper_frame"]
     # the frame with respect to which the pose is set
     fixed_frame = kwargs.get("frame", "base_link")
-    return pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=tolerance)
+    return pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=tolerance, c1=c1)
 
-def joints_constraints_from_spec(spec):
+def joints_constraints_from_spec(spec, c1=None):
     positions = spec["positions"]
     joints = spec["joint_names"]
     tolerance = spec.get("tolerance", 0.05)
-    return joints_constraints(positions, joints, tolerance=tolerance)
+    return joints_constraints(positions, joints, tolerance=tolerance, c1=c1)
 
-def constraints_from_spec(spec, **kwargs):
+def constraints_from_spec(spec, c1=None, **kwargs):
     constype = spec["type"]
     if constype not in {"ee", "joints", "pose"}:
         raise ValueError("Invalid arm pose type: {}".format(constype))
     if constype == "ee" or constype == "pose":
-        return pose_constraints_from_spec(spec, **kwargs)
+        return pose_constraints_from_spec(spec, c1=c1, **kwargs)
     else:
-        return joints_constraints_from_spec(spec)
+        return joints_constraints_from_spec(spec, c1=c1)
 
 class ArmPoseExecutor(Executor):
     """
@@ -216,12 +224,11 @@ class ArmPoseExecutor(Executor):
         cg = constraints_from_spec(args["goal"], **kwargs)
         goal.request.goal_constraints.append(cg)
 
-        # Add trajectory constraints
-        trajectory_constraints = TrajectoryConstraints()
-        for tspec in args.get("trajectory_constraints", []):
-            ct = constraints_from_spec(tspec, **kwargs)
-            trajectory_constraints.constraints.append(ct)
-        goal.request.trajectory_constraints = trajectory_constraints
+        # Add path constraints
+        path_constraints = Constraints()
+        for pcspec in args.get("path_constraints", []):
+            constraints_from_spec(pcspec, c1=path_constraints, **kwargs)
+        goal.request.path_constraints = path_constraints
 
         # options
         goal.request.planner_id = PLANNER
