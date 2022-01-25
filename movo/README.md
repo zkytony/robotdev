@@ -49,14 +49,14 @@ issues encountered while setting up this workspace.
     127.0.0.1       localhost
     127.0.1.1       zephyr
 
-    # The following lines are desirable for IPv6 capable hosts                                    
+    # The following lines are desirable for IPv6 capable hosts
     ::1     ip6-localhost ip6-loopback
     fe00::0 ip6-localnet
     ff00::0 ip6-mcastprefix
     ff02::1 ip6-allnodes
     ff02::2 ip6-allrouters
 
-    # for movo                                                                                    
+    # for movo
     10.66.171.2 movo1
     10.66.171.1 movo2
     138.16.161.17 movo
@@ -99,6 +99,10 @@ issues encountered while setting up this workspace.
 
     If you happened to SSH into MOVO1 and MOVO2 without running the `ssh` command with the option as above, remove the corresponding entries from your `.ssh/known_hosts` file.
 
+5. For convenience, you can add the following to your container's `.bashrc` file:
+    ```bash
+    alias domovo="cd ~/repo/robotdev/; source setup_movo.bash"
+    ```
 
 ## Usage and more
 

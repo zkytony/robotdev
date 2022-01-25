@@ -18,63 +18,31 @@ skill:
     actuation_cues:
       - type: ArmPose
         args:
-          type: 'joints'
           side: 'left'
-          positions: [
-              1.6437552227542724,
-              1.4068856859193537,
-              -0.35984449556825737,
-              2.6100757674384707,
-              -0.03409591880406637,
-              -0.5345739287666245,
-              1.6976176558011247]
-          joint_names: [
-              "left_shoulder_pan_joint",
-              "left_shoulder_lift_joint",
-              "left_arm_half_joint",
-              "left_elbow_joint",
-              "left_wrist_spherical_1_joint",
-              "left_wrist_spherical_2_joint",
-              "left_wrist_3_joint"]
+          goal:
+            type: 'joints'
+            positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
+            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
 
   - name: "Arm Bringup Open Position"
     actuation_cues:
       - type: ArmPose
         args:
-          type: 'joints'
           side: 'left'
-          positions: [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1]
-          joint_names: [
-              "left_shoulder_pan_joint",
-              "left_shoulder_lift_joint",
-              "left_arm_half_joint",
-              "left_elbow_joint",
-              "left_wrist_spherical_1_joint",
-              "left_wrist_spherical_2_joint",
-              "left_wrist_3_joint"]
+          goal:
+            type: 'joints'
+            positions: [1.5, 0.2, 0.15, 2.0, -2.0, 1.24, 1.1]
+            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
 
   - name: "Arm Bringup Settled Position"
     actuation_cues:
       - type: ArmPose
         args:
-          type: 'joints'
           side: 'left'
-          positions: [
-              1.6437552227542724,
-              1.4068856859193537,
-              -0.35984449556825737,
-              2.6100757674384707,
-              -0.03409591880406637,
-              -0.5345739287666245,
-              1.6976176558011247]
-          joint_names: [
-              "left_shoulder_pan_joint",
-              "left_shoulder_lift_joint",
-              "left_arm_half_joint",
-              "left_elbow_joint",
-              "left_wrist_spherical_1_joint",
-              "left_wrist_spherical_2_joint",
-              "left_wrist_3_joint"]
+          goal:
+            type: 'joints'
+            positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
+            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
 
   - name: "Move Arm End Effector"
     # NOTE: YOU MUST BE CAREFUL ABOUT THE TORSO HEIGHT;
@@ -83,33 +51,26 @@ skill:
     actuation_cues:
       - type: ArmPose
         args:
-          type: 'ee'
           side: 'left'
-          pose:
-            position: [0.575, -0.031, 0.858]
-            orientation: [-0.432, -0.163, -0.684, 0.564]
-          frame: "base_link"
-          tolerance: 0.05
+          goal:
+            type: 'ee'
+            pose:
+              position: [0.575, -0.031, 0.858]
+              orientation: [-0.432, -0.163, -0.684, 0.564]
+            frame: "base_link"
+            tolerance: 0.01
+          trajectory_constraints:
+            - positions: [1.2159644663198996, 1.3998666585503408, -0.3525125134816456, 2.4485071104255436, -0.036274871434887945, -0.5405958686235116, 1.6948659446047998]
+              joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+              tolerance: 0.05
+
 
   - name: "Arm Bringup Settled Position"
     actuation_cues:
       - type: ArmPose
         args:
-          type: 'joints'
           side: 'left'
-          positions: [
-              1.6437552227542724,
-              1.4068856859193537,
-              -0.35984449556825737,
-              2.6100757674384707,
-              -0.03409591880406637,
-              -0.5345739287666245,
-              1.6976176558011247]
-          joint_names: [
-              "left_shoulder_pan_joint",
-              "left_shoulder_lift_joint",
-              "left_arm_half_joint",
-              "left_elbow_joint",
-              "left_wrist_spherical_1_joint",
-              "left_wrist_spherical_2_joint",
-              "left_wrist_3_joint"]
+          goal:
+            type: 'joints'
+            positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
+            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]

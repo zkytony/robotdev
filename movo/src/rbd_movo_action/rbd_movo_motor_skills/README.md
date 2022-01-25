@@ -267,7 +267,7 @@ Possible Moveit planners (settings to `planner_id`):
 - PRMstarkConfigDefault
 
 
-A very nice overview of how Moveit! works ([source](https://moveit.ros.org/documentation/concepts/))
+A very nice overview of how Moveit! works ([source](bhttps://moveit.ros.org/documentation/concepts/))
 
 <img src="https://moveit.ros.org/assets/images/diagrams/moveit_pipeline.png" width="500px"/>
 
@@ -370,19 +370,21 @@ and [this tutorial](https://www.theconstructsim.com/ros-qa-138-how-to-set-a-sequ
 Instead, I noticed [MotionPlanRequest](http://docs.ros.org/en/noetic/api/moveit_msgs/html/msg/MotionPlanRequest.html)
 message, which is part of the [MoveGroupGoal](https://github.com/kunal15595/ros/blob/master/moveit/devel/share/moveit_msgs/msg/MoveGroupGoal.msg)
 I need to set, contains several useful fields:
-```
+```bash
 # The possible goal states for the model to plan for. Each element of
 # the array defines a goal region. The goal is achieved
 # if the constraints for a particular region are satisfied
 Constraints[] goal_constraints
 
-# No state at any point along the path in the produced motion plan will violate these constraints (this applies to all points, not just waypoints)
+# No state at any point along the path in the produced motion plan will
+# violate these constraints (this applies to all points, not just waypoints)
 Constraints path_constraints
 
 # The constraints the resulting trajectory must satisfy
 TrajectoryConstraints trajectory_constraints
 
-# A set of trajectories that may be used as reference or initial trajectories for (typically optimization-based) planners
+# A set of trajectories that may be used as reference or initial trajectories
+# for (typically optimization-based) planners
 # These trajectories do not override start_state or goal_constraints
 GenericTrajectory[] reference_trajectories
 ```
@@ -396,3 +398,18 @@ says about these parameters:
     # The array of constraints to consider along the trajectory
     Constraints[] constraints
     ```
+
+* The comments of `goal_constraints` seems to say that it supports defining
+  multiple goals (goal regions) and as long as any one of them is satisfied,
+  the goal is achieved. That is useful too.
+
+
+Read [this documentation](https://ros-planning.github.io/moveit_tutorials/doc/planning_with_approximated_constraint_manifolds/planning_with_approximated_constraint_manifolds_tutorial.html)
+that explains the constraints interface Moveit! provides.
+
+
+Side step: This [post](https://answers.ros.org/question/236564/moveit-path-planning-with-constraints-fails/) suggests you should use [track_ik](http://wiki.ros.org/trac_ik) instead of KDL (the default IK solver) with moveit
+```
+apt-get install ros-kinetic-trac-ik-kinematics-plugin
+```
+(This is already installed for me on ROS Kinetic).

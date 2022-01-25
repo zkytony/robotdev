@@ -1,30 +1,4 @@
 #!/usr/bin/env python
-
-import actionlib
-import rospy
-import yaml
-import sys
-from moveit_msgs.msg import (
-    MoveGroupAction,
-    MoveGroupGoal,
-    RobotState
-)
-from moveit_msgs.msg import (
-    Constraints,
-    JointConstraint,
-    PositionConstraint,
-    OrientationConstraint,
-    BoundingVolume
-)
-from geometry_msgs.msg import (
-    Pose
-)
-from sensor_msgs.msg import JointState
-from shape_msgs.msg import SolidPrimitive
-from moveit_python.move_group_interface import MoveGroupInterface
-from rbd_movo_motor_skills.motion_planning.framework import Executor
-from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
-
 # Notes on using moveit with MOVO:
 #
 # The groups are: head, left_arm, left_gripper, left_side,
@@ -51,6 +25,104 @@ from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TI
 #
 # The default planning algorithm is:
 # move_group_jtas.setPlannerId("RRTConnectkConfigDefault")
+
+import actionlib
+import rospy
+import yaml
+import sys
+from moveit_msgs.msg import (
+    MoveGroupAction,
+    MoveGroupGoal,
+    RobotState
+)
+from moveit_msgs.msg import (
+    Constraints,
+    JointConstraint,
+    PositionConstraint,
+    OrientationConstraint,
+    BoundingVolume,
+    TrajectoryConstraints
+)
+from geometry_msgs.msg import (
+    Pose
+)
+from sensor_msgs.msg import JointState
+from shape_msgs.msg import SolidPrimitive
+from moveit_python.move_group_interface import MoveGroupInterface
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
+
+def pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=0.01):
+    """Returns a Constraints object for the end effector (gripper) pose"""
+    pose = Pose()
+    pose.position.x = pose_spec["position"][0]
+    pose.position.y = pose_spec["position"][1]
+    pose.position.z = pose_spec["position"][2]
+    pose.orientation.x = pose_spec["orientation"][0]
+    pose.orientation.y = pose_spec["orientation"][1]
+    pose.orientation.z = pose_spec["orientation"][2]
+    pose.orientation.w = pose_spec["orientation"][3]
+
+    # Add constraint for target pose
+    c1 = Constraints()
+    c1.position_constraints.append(PositionConstraint())
+    c1.position_constraints[0].header.frame_id = fixed_frame
+    c1.position_constraints[0].link_name = gripper_frame
+    b = BoundingVolume()
+    s = SolidPrimitive()
+    s.dimensions = [tolerance * tolerance]
+    s.type = s.SPHERE
+    b.primitives.append(s)
+    b.primitive_poses.append(pose)
+    c1.position_constraints[0].constraint_region = b
+    c1.position_constraints[0].weight = 1.0
+    c1.orientation_constraints.append(OrientationConstraint())
+    c1.orientation_constraints[0].header.frame_id = fixed_frame
+    c1.orientation_constraints[0].orientation = pose.orientation
+    c1.orientation_constraints[0].link_name = gripper_frame
+    c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
+    c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
+    c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
+    c1.orientation_constraints[0].weight = 1.0
+    return c1
+
+def joints_constraints(goal, positions, joints, tolerance=0.01):
+    """Add a constraint for the joints; Note that the joints
+    should be available in goal.request.start_state."""
+    c1 = Constraints()
+    for i in range(len(joints)):
+        c1.joint_constraints.append(JointConstraint())
+        c1.joint_constraints[i].joint_name = joints[i]
+        c1.joint_constraints[i].position = positions[i]
+        c1.joint_constraints[i].tolerance_above = tolerance
+        c1.joint_constraints[i].tolerance_below = tolerance
+        c1.joint_constraints[i].weight = 1.0
+    return c1
+
+def pose_constraints_from_spec(spec):
+    pose_spec = spec["pose"]
+    tolerance = spec.get("tolerance", 0.01)
+    # the frame that we want the position constraint to apply to (the end effector)
+    gripper_frame = spec.get("gripper_frame", "{}_ee_link".format(self._side))
+    # the frame with respect to which the pose is set
+    fixed_frame = args.get("frame", "base_link")
+    return pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=tolerance)
+
+def joints_constraints_from_spec(spec):
+    positions = spec["positions"]
+    joints = spec["joint_names"]
+    tolerance = spec.get("tolerance", 0.01)
+    return joints_constraint(positions, joints, tolerance=tolerance)
+
+def constraints_from_spec(spec):
+    constype = spec["type"]
+    if constype not in {"ee", "joints", "pose"}:
+        raise ValueError("Invalid arm pose type: {}".format(self._type))
+    if constype == "ee" or constype == "pose":
+        return pose_constraints_from_spec(spec)
+    else:
+        return joints_constraints_from_spec(goal, spec)
+
 
 class ArmPoseExecutor(Executor):
     """
@@ -107,10 +179,8 @@ class ArmPoseExecutor(Executor):
         if side != "left" and side != "right":
             raise ValueError("Invalid arm side: {}".format(side))
         self._side = side
-        self._type = args["type"]
-        if self._type not in {"ee", "joints", "pose"}:
-            raise ValueError("Invalid arm pose type: {}".format(self._type))
-        self._fixed_frame = args.get("frame", "base_link")
+        if "goal" not in args:
+            raise ValueError("'goal' not specified in cue.")
         self._planning_group = "{}_arm".format(side)
         self._plan_only = args.get("plan_only", False)
         self._planner_id = PLANNER
@@ -124,75 +194,18 @@ class ArmPoseExecutor(Executor):
         start_state = RobotState(joint_state=joint_state, is_diff=True)
         goal.request.start_state = start_state
 
-        # goal pose
-        if self._type == "ee" or self._type == "pose":
-            pose_spec = cue["args"]["pose"]
-            tolerance = cue["args"].get("tolerance", 0.01)
-            gripper_frame = cue["args"].get("gripper_frame", "{}_ee_link".format(self._side))
-            goal = self._make_ee_goal(goal, pose_spec, gripper_frame, tolerance=tolerance)
-        elif self._type == "joints":
-            positions = cue["args"]["positions"]
-            joints = cue["args"]["joint_names"]
-            tolerance = cue["args"].get("tolerance", 0.01)
-            goal = self._make_joint_goal(goal, positions, joints, tolerance=tolerance)
-        else:
-            raise ValueError("Invalid arm goal type {}".format(self._type))
-        return goal
+        # Add goal
+        cg = constraints_from_spec(spec)
+        goal.request.goal_constraints.append(cg)
 
-    def _make_ee_goal(self, goal, pose_spec, gripper_frame, tolerance=0.01):
-        pose = Pose()
-        pose.position.x = pose_spec["position"][0]
-        pose.position.y = pose_spec["position"][1]
-        pose.position.z = pose_spec["position"][2]
-        pose.orientation.x = pose_spec["orientation"][0]
-        pose.orientation.y = pose_spec["orientation"][1]
-        pose.orientation.z = pose_spec["orientation"][2]
-        pose.orientation.w = pose_spec["orientation"][3]
+        # Add trajectory constraints
+        trajectory_constraints = TrajectoryConstraints()
+        for tspec in args.get("trajectory_constraints", []):
+            ct = constraints_from_spec(tspec)
+            trajectory_constraints.constraints.append(ct)
+        goal.trajectory_constraints = trajectory_constraints
 
-        # Add constraint for target pose
-        c1 = Constraints()
-        c1.position_constraints.append(PositionConstraint())
-        c1.position_constraints[0].header.frame_id = self._fixed_frame
-        c1.position_constraints[0].link_name = gripper_frame
-        b = BoundingVolume()
-        s = SolidPrimitive()
-        s.dimensions = [tolerance * tolerance]
-        s.type = s.SPHERE
-        b.primitives.append(s)
-        b.primitive_poses.append(pose)
-        c1.position_constraints[0].constraint_region = b
-        c1.position_constraints[0].weight = 1.0
-        c1.orientation_constraints.append(OrientationConstraint())
-        c1.orientation_constraints[0].header.frame_id = self._fixed_frame
-        c1.orientation_constraints[0].orientation = pose.orientation
-        c1.orientation_constraints[0].link_name = gripper_frame
-        c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
-        c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
-        c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
-        c1.orientation_constraints[0].weight = 1.0
-        goal.request.goal_constraints.append(c1)
-
-        goal.request.planner_id = PLANNER
-        goal.request.group_name = self._planning_group
-        goal.request.num_planning_attempts = PLANNING_ATTEMPTS
-        goal.request.allowed_planning_time = PLANNING_TIME
-        goal.planning_options.planning_scene_diff.is_diff = True
-        goal.planning_options.planning_scene_diff.robot_state.is_diff = True
-        goal.planning_options.plan_only = self._plan_only
-        goal.planning_options.look_around = True
-        goal.planning_options.replan = False
-        return goal
-
-    def _make_joint_goal(self, goal, positions, joints, tolerance=0.01):
-        c1 = Constraints()
-        for i in range(len(joints)):
-            c1.joint_constraints.append(JointConstraint())
-            c1.joint_constraints[i].joint_name = joints[i]
-            c1.joint_constraints[i].position = positions[i]
-            c1.joint_constraints[i].tolerance_above = tolerance
-            c1.joint_constraints[i].tolerance_below = tolerance
-            c1.joint_constraints[i].weight = 1.0
-        goal.request.goal_constraints.append(c1)
+        # options
         goal.request.planner_id = PLANNER
         goal.request.group_name = self._planning_group
         goal.request.num_planning_attempts = PLANNING_ATTEMPTS
