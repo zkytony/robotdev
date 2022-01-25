@@ -8,7 +8,7 @@
        with the motor skill specification-->
 
   <arg name="local" default="false"/>
-  <!-- <include file="$(find rbd_movo_perception)/launch/perception.launch" /> -->
+  <include file="$(find rbd_movo_perception)/launch/perception.launch" />
 
   <!-- movo group; Run the following on MOVO2-->
   <machine name="movo2" address="movo2" user="movo"
