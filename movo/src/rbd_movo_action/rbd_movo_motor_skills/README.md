@@ -342,3 +342,6 @@ you will be able to see the visualized OctoMap for the obstacles, which the moti
 should supposedly know how to avoid.
 
 ![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
+
+
+### Avoiding big weird motions.

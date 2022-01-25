@@ -25,7 +25,7 @@ class ArmPoseVerifier(Verifier):
 
     def _callback(self, m):
         for status_msg in m.status_list:
-            self.message = status_msg.text
+            self.message = "status {}: {}".format(status_msg.status, status_msg.text)
             if status_msg.status == GoalStatus.SUCCEEDED:
                 ok = self._check_arm_config_satisfaction()
                 if ok:
@@ -34,6 +34,8 @@ class ArmPoseVerifier(Verifier):
                     self.message = "Although Moveit! reports success, difference is larger than tolerance."
                     self.status = Verifier.NOT_DONE
                     return
+            elif status_msg.status == GoalStatus.ABORTED:
+                self.status = Verifier.NOT_DONE
 
     def _check_arm_config_satisfaction(self):
         """
