@@ -1,2 +1,2 @@
 #!/bin/bash
-rosrun topic_tools relay /kinect/sd/points /kinect/relay/points
+rosrun topic_tools relay /kinect2/sd/points /kinect2/relay/points
