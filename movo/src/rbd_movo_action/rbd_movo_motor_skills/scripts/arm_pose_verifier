@@ -16,6 +16,12 @@ from rbd_movo_motor_skills.utils.ros_utils import (
 class ArmPoseVerifier(Verifier):
     def __init__(self, name, cue, rate=10):
         super(ArmPoseVerifier, self).__init__(name, cue, rate=rate)
+        args = self.cue["args"]
+        self._side = args['side']
+        self._goal_spec = args["goal"]
+        self._tolerance = self._goal_spec.get("tolerance", 0.01)
+        self._ee_frame = "{}_ee_link".format(self._side)
+        self._base_frame = args.get("frame", "base_link")
         rospy.Subscriber("/move_group/status",
                          GoalStatusArray,
                          self._callback)
@@ -31,7 +37,10 @@ class ArmPoseVerifier(Verifier):
                 if ok:
                     self.status = Verifier.DONE
                 else:
-                    self.message = "Although Moveit! reports success, difference (>={:.5f}) is larger than tolerance.".format(smallest_diff)
+                    self.message =\
+                        "Although Moveit! reports success,"\
+                        "difference (>={:.5f}) is larger than tolerance ({})."\
+                        .format(smallest_diff, self._tolerance)
                     self.status = Verifier.NOT_DONE
                     return
             elif status_msg.status == GoalStatus.ABORTED:
@@ -42,52 +51,50 @@ class ArmPoseVerifier(Verifier):
         Checks whether the arm's current configuration
         satisfies what is in the 'cue'.
         """
-        args = self.cue["args"]
-        side = args['side']
-        tolerance = args.get("tolerance", 0.01)
-        goal_spec = args["goal"]
         smallest_diff = float('inf')
         ok = True
-        if goal_spec['type'] == "joints":
+        if self._goal_spec['type'] == "joints":
             actual_joint_state = rospy.wait_for_message(
-                "/movo/{}_arm/joint_states".format(side),
+                "/movo/{}_arm/joint_states".format(self._side),
                 JointState, timeout=15)
             actual_joint_dict = joint_state_dict(
                 actual_joint_state.position,
                 actual_joint_state.name
             )
             expected_joint_dict = joint_state_dict(
-                goal_spec['positions'],
-                goal_spec['joint_names']
+                self._goal_spec['positions'],
+                self._goal_spec['joint_names']
             )
             for n in expected_joint_dict:
                 if n in actual_joint_dict:
                     diff = abs(actual_joint_dict[n] - expected_joint_dict[n])
                     smallest_diff = min(diff, smallest_diff)
-                    if diff > tolerance:
+                    if diff > self._tolerance:
                         ok = False
                 else:
                     ok = False
 
-        elif goal_spec['type'] == 'pose' or goal_spec['type'] == 'ee':
+        elif self._goal_spec['type'] == 'pose' or self._goal_spec['type'] == 'ee':
             # Obtain tf transform from end effector to frame
-            ee_frame = "{}_ee_link".format(side)
-            base_frame = args.get("frame", "base_link")
-            trans = tf2_lookup_transform(self._tfbuffer, base_frame, ee_frame, rospy.Time(0))
+            trans = tf2_lookup_transform(
+                self._tfbuffer, self._base_frame, self._ee_frame, rospy.Time(0))
             if trans is None:
-                rospy.logerr("lookup transform from {} to {} failed".format(ee_frame, base_frame))
+                rospy.logerr("check goal satisfiaction: lookup transform from {} to {} failed".\
+                             format(self._ee_frame, self._base_frame))
                 ok = False  # lookup error
             else:
                 actual_pose = transform_to_tuple(trans.transform)
-                expected_pose = tuple(goal_spec['pose']['position']) + tuple(goal_spec['pose']['orientation'])
+                expected_pose = tuple(self._goal_spec['pose']['position'])\
+                    + tuple(self._goal_spec['pose']['orientation'])
 
                 for actual, expected in zip(actual_pose, expected_pose):
                     diff = abs(actual - expected)
                     smallest_diff = min(diff, smallest_diff)
-                    if abs(actual - expected) > tolerance:
+                    if abs(actual - expected) > self._tolerance:
                        ok = False
         else:
-            raise ValueError("Invalid arm config goal type: {}".format(goal_spec['type']))
+            raise ValueError("Invalid arm config goal type: {}"\
+                             .format(self._goal_spec['type']))
         return ok, smallest_diff
 
 
