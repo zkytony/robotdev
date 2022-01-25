@@ -10,7 +10,16 @@ import numpy as np
 from geometry_msgs.msg import PoseStamped
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
-from rbd_movo_motor_skills.utils.ros_utils import *
+from rbd_movo_motor_skills.utils.ros_utils import (
+    quat_diff_angle_relative,
+    to_degrees,
+    tf2_frame,
+    tf2_header,
+    tf2_frame_eq,
+    topic_exists,
+    pose_to_tuple,
+    euclidean_dist,
+)
 
 class ARTagPoseVerifier(Verifier):
     """
@@ -73,9 +82,9 @@ class ARTagPoseVerifier(Verifier):
             expected_q = expected_pose[3:]
             actual_q = actual_pose[3:]
             ## TODO: BUGGY
-            orien_diff = to_degrees(abs(quat_diff_angle(expected_q, actual_q)))
+            orien_diff = to_degrees(abs(quat_diff_angle_relative(expected_q, actual_q)))
             if orien_diff > tolerance_orien:
-                self.message = "orientation is off ({} > {})".format(orien_diff, tolerance_orien)
+                self.message = "orientation is off ({:.5} > {})".format(orien_diff, tolerance_orien)
                 return False
         elif "dist" in args:
             tolerance = args.get("tolerance", 0.1)
