@@ -99,13 +99,15 @@ def joints_constraints(positions, joints, tolerance=0.01):
         c1.joint_constraints[i].weight = 1.0
     return c1
 
-def pose_constraints_from_spec(spec):
+#, "{}_ee_link".format(self._side))
+#args.get("
+def pose_constraints_from_spec(spec, **kwargs):
     pose_spec = spec["pose"]
     tolerance = spec.get("tolerance", 0.01)
     # the frame that we want the position constraint to apply to (the end effector)
-    gripper_frame = spec.get("gripper_frame", "{}_ee_link".format(self._side))
+    gripper_frame = kwargs["gripper_frame"]
     # the frame with respect to which the pose is set
-    fixed_frame = args.get("frame", "base_link")
+    fixed_frame = kwargs.get("frame", "base_link")
     return pose_constraints(pose_spec, gripper_frame, fixed_frame, tolerance=tolerance)
 
 def joints_constraints_from_spec(spec):
@@ -114,15 +116,14 @@ def joints_constraints_from_spec(spec):
     tolerance = spec.get("tolerance", 0.01)
     return joints_constraints(positions, joints, tolerance=tolerance)
 
-def constraints_from_spec(spec):
+def constraints_from_spec(spec, **kwargs):
     constype = spec["type"]
     if constype not in {"ee", "joints", "pose"}:
-        raise ValueError("Invalid arm pose type: {}".format(self._type))
+        raise ValueError("Invalid arm pose type: {}".format(constype))
     if constype == "ee" or constype == "pose":
-        return pose_constraints_from_spec(spec)
+        return pose_constraints_from_spec(spec, **kwargs)
     else:
         return joints_constraints_from_spec(spec)
-
 
 class ArmPoseExecutor(Executor):
     """
@@ -193,6 +194,8 @@ class ArmPoseExecutor(Executor):
         self._side = side
         if "goal" not in args:
             raise ValueError("'goal' not specified in cue.")
+        self._fixed_frame = args.get("frame", "base_link")
+        self._gripper_frame = "{}_ee_link".format(side)
         self._planning_group = "{}_arm".format(side)
         self._plan_only = args.get("plan_only", False)
         self._planner_id = PLANNER
@@ -206,14 +209,17 @@ class ArmPoseExecutor(Executor):
         start_state = RobotState(joint_state=joint_state, is_diff=True)
         goal.request.start_state = start_state
 
+        # make this in case of pose constraints spec
+        kwargs = dict(gripper_frame=self._gripper_frame,
+                      frame=self._fixed_frame)
         # Add goal
-        cg = constraints_from_spec(args["goal"])
+        cg = constraints_from_spec(args["goal"], **kwargs)
         goal.request.goal_constraints.append(cg)
 
         # Add trajectory constraints
         trajectory_constraints = TrajectoryConstraints()
         for tspec in args.get("trajectory_constraints", []):
-            ct = constraints_from_spec(tspec)
+            ct = constraints_from_spec(tspec, **kwargs)
             trajectory_constraints.constraints.append(ct)
         goal.request.trajectory_constraints = trajectory_constraints
 
