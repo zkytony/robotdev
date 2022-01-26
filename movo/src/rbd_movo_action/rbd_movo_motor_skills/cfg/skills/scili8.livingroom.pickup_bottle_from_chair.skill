@@ -18,6 +18,7 @@ config:
     verifier: torso_command_verifier
     executor: torso_command_executor
 
+
 skill:
 
   - name: "Raise Torso Head Down"
@@ -70,7 +71,7 @@ skill:
             pose:
               position: [0.812, 0.466, 0.939]
               orientation: [-0.596, -0.426, -0.030, 0.680]
-            tolerance: 0.1
+            tolerance: 0.05
           path_constraints:
             - type: "joints"
               positions: [1.6199996926727103, 1.365087905242778, 0.6605017672271316, 1.4191538037969127]
@@ -88,46 +89,52 @@ skill:
             pose:
               position: [0.910, 0.207, 0.557]
               orientation: [0.037, 0.063, 0.069, 0.995]
-            tolerance: 0.1
+            tolerance: 0.02
           path_constraints:
             - type: "joints"
               positions: [1.6545633957222492, 1.362463093672396, 0.25839556832040556, 1.0250464425137547, -0.39044058793628267, -0.248610348816641]
               joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
               tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
+  - name: "Motion Plan to Prep 3"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.990, 0.197, 0.567]
+              orientation: [0.037, 0.063, 0.069, 0.995]
+            tolerance: 0.01
+          path_constraints:
+            - type: "joints"
+              positions: [1.6545633957222492, 1.362463093672396, 0.25839556832040556, 1.0250464425137547, -0.39044058793628267, -0.248610348816641]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
+              tolerance: [[-0.35, 0.35], [-0.35, 0.35], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
-  # - name: "Motion Plan Prep 2"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         side: left
-  #         frame: "base_link"
-  #         goal:
-  #           type: "pose"
-  #           pose:
-  #             position: [0.946, 0.232, 0.850]
-  #             orientation: [-0.202, -0.154, 0.000, 0.967]
-  #           tolerance: 0.1
-  #         path_constraints:
-  #           - type: "joints"
-  #             positions: [1.4514936341781812, 1.3207012656705364, 0.08206477635857468, 1.3611895700391201]
-  #             joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
-  #             tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
+  - name: "Close Gripper"
+    actuation_cues:
+      - type: Gripper
+        args:
+          side: 'left'
+          position: 0.2
 
-  # - name: "Motion Plan Prep Final"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         side: left
-  #         frame: "base_link"
-  #         goal:
-  #           type: "pose"
-  #           pose:
-  #             position: [0.916, 0.277, 0.558]
-  #             orientation: [-0.053, 0.139, 0.059, 0.987]
-  #           tolerance: 0.1
-  #         path_constraints:
-  #           - type: "joints"
-  #             positions: [1.3616803906280222, 1.375773040168394, 0.01891048064167755, 1.1149070903313174]
-  #             joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
-  #             tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
+  - name: "Lift Up"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.790, 0.497, 0.867]
+              orientation: [0.037, 0.063, 0.069, 0.995]
+            tolerance: 0.03
+          path_constraints:
+            - type: "joints"
+              positions: [1.6545633957222492, 1.362463093672396, 0.25839556832040556, 1.0250464425137547, -0.39044058793628267, -0.248610348816641]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
+              tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
