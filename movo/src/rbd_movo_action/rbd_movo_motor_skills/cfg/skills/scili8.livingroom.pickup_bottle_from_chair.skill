@@ -63,22 +63,12 @@ skill:
             pose:
               position: [0.812, 0.466, 0.939]
               orientation: [-0.596, -0.426, -0.030, 0.680]
-            # type: "pose"
-            # pose:
-            #   position: [0.923, 0.190, 0.712]
-            #   orientation: [-0.539, -0.255, 0.764, -0.247]
             tolerance: 0.1
           path_constraints:
             - type: "joints"
               positions: [1.6199996926727103, 1.365087905242778, 0.6605017672271316, 1.4191538037969127]
               joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
               tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
-
-          # path_constraints:
-          #   - type: "joints"
-          #     positions: [1.6199996926727103, 1.365087905242778, 0.6605017672271316, 1.4191538037969127]
-          #     joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
-          #     tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
   - name: "Open Gripper"
     actuation_cues:
@@ -87,79 +77,38 @@ skill:
           side: 'left'
           position: 1.0
 
+  - name: "Motion Plan Prep 2"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.946, 0.232, 0.850]
+              orientation: [-0.202, -0.154, 0.000, 0.967]
+            tolerance: 0.1
+          path_constraints:
+            - type: "joints"
+              positions: [1.4514936341781812, 1.3207012656705364, 0.08206477635857468, 1.3611895700391201]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
+              tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
-
-
-  # - name: "Tilt Head and Spot the Bottle"
-  #   actuation_cues:
-  #     - type: Head
-  #       args:
-  #         pan: -17
-  #         tilt: -17
-
-  #   perception_cues:
-  #     - type: ARTagPose
-  #       args:
-  #         type: pose
-  #         id: 4  # bottle
-  #         # pose: [-0.444114716351,
-  #         #        0.154784697667,
-  #         #        0.81607504338,
-  #         #        0.744150742156,
-  #         #        0.50341020957,
-  #         #        -0.0983436086975,
-  #         #        0.427956035683]
-  #         dist: 0.9
-  #         tolerance: 0.2
-  #         base_frame: kinect2_color_optical_frame  #base_link
-  #         # tolerance_posit: 0.08
-  #         # toleranec_orien: 10
-
-  # - name: "Move Arm"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         side: 'left'
-  #         goal:
-  #           type: 'joints'
-  #           positions: [1.1864148298127084, 1.1111560279359407, 0.5411745735283873, 1.4808118419866452, -0.0007140891956018969, 0.5444015258212348, 0.5067819785788856]
-  #           joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-  #         trajectory_constraints:
-  #           - type: 'joints'
-  #             positions: [1.1527388915125467, 1.0629514806249614, 0.5821766016712466, 1.4601403856054502, -0.03178293218841377, -0.18728813524036747, 1.6465392913578398]
-  #             joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-
-  #           -  type: 'joints'
-  #              positions: [1.1069955711019919, 1.3588529124986846, 0.2302100362130659, 2.5997501592600156, 0.0012469268723345195, -0.5312146173675985, 1.6796583626740649]
-  #              joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-
-  #           - type: 'joints'
-  #             positions: [1.1190424468719922, 1.3211153872200436, 0.6007377692046632, 1.901263725405085, 0.017108598331697422, -0.5333616578384204, 1.663900971136286]
-  #             joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-
-  # - name: "Extend Arm"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         side: 'left'
-  #         goal:
-  #           type: 'joints'
-  #           positions: [1.206187868800165, 0.9828180286889132, 0.5058844932915285, 1.3158862704196732, -0.04594637812129543, 0.6740194402881544, 0.1515035059890817]
-  #           joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-
-  # - name: "Close Gripper"
-  #   actuation_cues:
-  #     - type: Gripper
-  #       args:
-  #         side: 'left'
-  #         position: 0.05
-
-  # - name: "Lift Arm"
-  #   actuation_cues:
-  #     - type: ArmPose
-  #       args:
-  #         side: 'left'
-  #         goal:
-  #           type: 'joints'
-  #           positions: [1.171148392021883, 0.9313497774620418, 0.5245553830618555, 1.26966391390804, -0.09290911838310612, 0.4814382723812544, 0.10525984418872802]
-  #           joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+  - name: "Motion Plan Prep Final"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.862, 0.242, 0.597]
+              orientation: [-0.201, 0.070, 0.059, 0.975]
+            tolerance: 0.1
+          path_constraints:
+            - type: "joints"
+              positions: [1.5274512495249848, 1.4916514402554857, 0.1868031736058633, 1.1497865111280852]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint]
+              tolerance: [[-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
