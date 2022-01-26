@@ -377,10 +377,43 @@ message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among oth
 
      ![image](https://user-images.githubusercontent.com/7720184/150757773-1a0c8f7d-89eb-426f-9ca9-0fb1150b9d28.png)
 
+#### Filtering/Clearing up Point Cloud for OctoMap
 I encountered a problem due to noisy kinect that there are some
 points really close to the robot, which causes the motion
 planning to fail. I asked a [question on ROS Answers](https://answers.ros.org/question/395059/noisy-points-from-point-cloud-causes-moveit-to-fail/).
-**I think the only solution is to publish your own, filtered point cloud for Moveit! that cleans such things up.**
+
+The solution is to publish filtered point cloud and use
+that as the point cloud topic for OctoMap. Basically,
+run
+```
+roslaunch rbd_movo_perception process_pointcloud.launch
+```
+and then set the `point_cloud_topic` in `sensors.yaml` (for movo_7dof_moveit_configs)
+to be `kinect2/sd/filtered_points`.
+**THIS IS IN FACT WHAT YOU SHOULD DO ON THE REAL MOVO.**
+
+With this, you can leave the OctoMap layer running.
+If you can see points coming through `move_group/filtered_cloud` in RVIZ, then
+motion planning should now take the point cloud from depth camera into account.
+
+#### Temporarily Turn Off OctoMap Collision Checking
+If you have launched `process_pointcloud.launch` and configured `sensors.yaml`
+as described above, then move_group should take point cloud from
+your custom topic `kinect2/sd/filtered_points`. As long as you terminate
+this launch file, OctoMap collision checking should be terminated.
+
+To programmatically turn off Octomap collision checking:
+
+1. Configure `kinect2/sd/filtered_points` in `sensors.yaml` to something else, like
+   `kinect2/sd/filtered_points_relayed`
+
+2. Restart MOVO bringup system launch so that the new parameters are taken into account.
+
+3. Use a bash script to run `rosrun topic_tools relay kinect2/sd/filtered_points  kinect2/sd/filtered_points_relayed`.
+
+4. Use a Python Subprocess to start and stop that script. This is probably more efficient
+   that starting and stopping the `processed_pointcloud.launch` file programmatically.
+
 
 #### How to clear octomap
 (1) If you add an appropriate collision object, the octomap will be cleared in the vicinity of the object. You still have to allow the collision with the collision object of course.
@@ -389,6 +422,7 @@ planning to fail. I asked a [question on ROS Answers](https://answers.ros.org/qu
 (2) If you really want to disable octomap updates, the easiest way to do so is externally by writing a node that forwards point clouds to the topic move_group subscribes to only when required.
 
 [Reference](https://github.com/ros-planning/moveit/issues/1728#issuecomment-553882310).
+
 
 
 ### Avoiding big weird motions.
