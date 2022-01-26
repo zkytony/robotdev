@@ -23,7 +23,7 @@ for the definition of the skill file and how the framework works. Note that that
 
 Check out [these steps](cfg/skills/README.md) for creating a checkpoint that contains a goal arm configuration.
 
-### Brief Example
+## Brief Example to Load and Run a Skill
 After you have written a Skill file, you could create a `SkillManager` to load it. Once you call `.run()` of the SkillManager, the skill will begin to execute.
 As a simplest example (basically how stuff in `tests/` are written):
 ```python
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 ```
 Replace `scili8.livingroom.pickup_bottle_from_chair.skill` with your skill file (you should place it under `cfg/skills`).
 
-### What to Run
+## What to Run
 Before running the skill, make sure:
 1. MOVO system has started
 2. AR Tag detector is running. You can run `roslaunch rbd_movo_perception artag_tracker.launch` (Do it on MOVO)
