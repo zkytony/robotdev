@@ -264,6 +264,16 @@ ar_track_alvar. **NO THIS IS NOT USEFUL**
 
 Also, run `ar_track_alvar` directly on the robot! **THIS IS MORE USEFUL. YOU GET 2HZ**
 
+### Motion plan was found but it seems to be invalid (possibly due to postprocessing).
+This happens when the arm seems to be close to Point Cloud obstacles.
+
+According to [this discussion](https://groups.google.com/g/moveit-users/c/3ey_8A8mwsE):
+>It is likely the path computed is grazing obstacles, due to the collision checking resolution being to coarse.
+>You should open ompl_planning.yaml and change:
+>longest_valid_segment_fraction: 0.05
+>to something like
+>longest_valid_segment_fraction: 0.02
+
 
 ## Using Moveit! with MOVO
 
