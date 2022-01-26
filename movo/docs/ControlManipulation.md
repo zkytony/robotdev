@@ -33,7 +33,7 @@ A very nice overview of how Moveit! works ([source](bhttps://moveit.ros.org/docu
 
 <img src="https://moveit.ros.org/assets/images/diagrams/moveit_pipeline.png" width="500px"/>
 
-### Obtain feedback
+## Obtain Moveit! planning feedback
 
 You can get feedback of current plan status by subscribing to
 either `/move_group/feedback` or `/move_group/status`. You may get a
@@ -59,51 +59,16 @@ This message is of atype [actionlib_msgs/GoalStatusArray](http://docs.ros.org/en
 You can see from [GoalStatus](http://docs.ros.org/en/melodic/api/actionlib_msgs/html/msg/GoalStatus.html)
 message type that status 3 means "SUCCEEDED" (`GoalStatus.SUCCEEDED`), among other status values.
 
-### OctoMap collision avoidance
+## OctoMap collision avoidance
 
-1. First, edit "movo_7dof_moveit_config/launch/sensor_manager.launch.xml" and filling
-   the paramter "octomap_frame" with "base_link" (which is the parent frame for motion planning); Set to base_link when there is no navigation and motion is with respect to the robot's base frame.
-   ```xml
-   <param name="octomap_frame" type="string" value="base_link" />
-   ```
+Long story short:
 
-   **Note (01/25/22) that by default, the MOVO bringup system launch will starts the `move_group.launch`.**
-   You can find this by checking `movo2.launch` --(starts)-> `movo_bringup/manipulation/movo_moveit.launch` --(starts)-> `movo_moveit_planning_execution.launch` which starts `move_group.launch` under
-   the `movo_7dof_moveit_config` package. The reason by default movo bringup doesn;t
-   load the sensors is because of the following line in `move_group.launch`
-   ```
-   <rosparam command="delete" param="move_group/sensors" />
-   ```
-   I commented it out. I am not sure why Kinova has it there.
-
-
-2. Then, you need to launch another launch file to have this. That launch file should contain:
-     ```
-       <include file="$(find movo_7dof_moveit_config)/launch/move_group.launch">
-         <rosparam command="load" file="$(find movo_7dof_moveit_config)/config/sensors.yaml" />
-       </include>
-     ```
-     You can do `roslaunch rbd_movo_motor_skills manipulation_system.launch` to launch this.
-     It is preferred to do this on the robot to reduce the need to transmit depth data off the robot.
-
-     Note that make sure under `sensors.yaml`, you set the correct topic for point cloud:
-     ```yaml
-     sensors:
-       - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-         point_cloud_topic: /kinect2/sd/points
-         max_range: 2.0
-         point_subsample: 1
-         padding_offset: 0.05
-         padding_scale: 1.0
-         filtered_cloud_topic: filtered_cloud
-     ```
-     Basically Moveit! has made it really convenient to use Octomap for dynamic collision avoidance.
-     How practical!
-     Also, make sure you are editing the right `sensors.yaml` file. You might be
-     editing the one under `movo_moveit_config`, which is for the 6DOF arm.
-
-     **Note that after the fix (01/25/22), the above should not be necessary;**
-     **The octomap stuff and sensor configs should be loaded by default**
+1. Configure the  `point_cloud_topic` in "movo_7dof_moveit_config/config/sensors.yaml" to be where you want Moveit! to get point clouds. Doesn't have
+   to be the original (e.g. `/kinect/sd/points`), which can be really noisy. More often, you set it to your custom topic and you would publish filtered points to that topic. Note that if Moveit! doesn't receive any point cloud from this topic, the OctoMap layer will be non-existent.
+   
+   Besides changing the topic, the other parameters could be left as is.
+   
+2. Make sure this parameter file "sensors.yaml" is loaded when MOVO bring up system launch starts. By default it should be loaded. 
 
 3. If the setup is correct, you should be able to receive message if you do
      ```
@@ -141,7 +106,7 @@ With this, you can leave the OctoMap layer running.
 If you can see points coming through `move_group/filtered_cloud` in RVIZ, then
 motion planning should now take the point cloud from depth camera into account.
 
-#### Temporarily Turn Off OctoMap Collision Checking
+### Temporarily Turn Off OctoMap Collision Checking
 If you have launched `process_pointcloud.launch` and configured `sensors.yaml`
 as described above, then move_group should take point cloud from
 your custom topic `kinect2/sd/filtered_points`. As long as you terminate
@@ -160,7 +125,7 @@ To programmatically turn off Octomap collision checking:
    that starting and stopping the `processed_pointcloud.launch` file programmatically.
 
 
-#### How to clear octomap
+### How to clear octomap
 (1) If you add an appropriate collision object, the octomap will be cleared in the vicinity of the object. You still have to allow the collision with the collision object of course.
 `rosservice call /clear_octomap`
 
@@ -170,7 +135,7 @@ To programmatically turn off Octomap collision checking:
 
 
 
-### Avoiding big weird motions.
+## Avoiding big weird motions.
 
 TRY FIRST: INCREASE TOLERANCE.
 
@@ -248,6 +213,14 @@ Refer to [this Github issue](https://github.com/ros-planning/moveit/pull/793)
 
 SO I need to use Path Constraints, or just do waypoints.
 
+
+### More on Path Constraint
+Watch [this Youtube video](https://www.youtube.com/watch?v=qEketOee7_g&feature=emb_title) for a great explanation of what path constraint does. Because trajectory constraint is ignored by planners (as discussed above), if you want to set constraints beside the goal, your bet is path constraint (otherwise you would have to do waypoints).
+
+![image](https://user-images.githubusercontent.com/7720184/151100625-eaafce80-27b5-43c5-ad0a-a3e4d4c6c25e.png)
+
+A tip I figured out is you could first figure out a desirable arm configuration. Then you obtain its end effector pose as the goal. Then you also obtain its
+joint positions, which you can use as the path constraint. I added a [-60, 60] degree bound for the big joints (first 4), and I adjust them according to the use case. This has worked well so far. Check out notes on creating skills.
 
 ## Caveats
 You can control fingers individually with some effort:
