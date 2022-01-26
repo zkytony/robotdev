@@ -13,6 +13,53 @@ Go to the root of the workspace, i.e. `robotdev/movo`
 catkin_make -DCATKIN_WHITELIST_PACKAGES="rbd_movo_motor_skills"
 ```
 
+## Writing a Skill
+
+You can define a skill by creating a `.skill` file, which is essentially a YAML file.
+Look at an example [here general.left_arm_movement.skill](cfg/skills/https://github.com/zkytony/robotdev/blob/master/movo/src/rbd_movo_action/rbd_movo_motor_skills/cfg/skills/general.left_arm_movement.skill).
+
+Refer to the documentation at [motion_planning/framework.py](https://github.com/zkytony/robotdev/blob/master/shared/python/motion_planning/framework.py)
+for the definition of the skill file and how the framework works. Note that that framework is not specific to MOVO. 
+
+Check out [these steps](cfg/skills/README.md) for creating a checkpoint that contains a goal arm configuration.
+
+### Brief Example
+After you have written a Skill file, you could create a `SkillManager` to load it. Once you call `.run()` of the SkillManager, the skill will begin to execute.
+As a simplest example (basically how stuff in `tests/` are written):
+```python
+# test_framework_grasp_bottle.py 
+import rospy
+from rbd_movo_motor_skills.motion_planning.framework import SkillManager
+
+def test():
+    rospy.set_param("skill/pkg_base_dir", "../")
+    rospy.set_param("skill/pkg_name", "rbd_movo_motor_skills")
+    skill_file_path = "scili8.livingroom.pickup_bottle_from_chair.skill"
+    mgr = SkillManager(skill_file_path)
+    mgr.run()
+
+if __name__ == "__main__":
+    test()
+```
+Replace `scili8.livingroom.pickup_bottle_from_chair.skill` with your skill file (you should place it under `cfg/skills`).
+
+### What to Run
+Before running the skill, make sure:
+1. MOVO system has started
+2. AR Tag detector is running. You can run `roslaunch rbd_movo_perception artag_tracker.launch` (Do it on MOVO)
+3. Point cloud processing is running (necessary to enable Moveit! OctoMap collision avoidance to work properly): `roslaunch rbd_movo_perception process_pointcloud.launch`.
+4. Moveit! OctoMap collision avoidance is working (Open RVIZ, and visualize the topic `move_group/filtered_points`).
+
+If the above all pass, we can run a skill.
+Suppose you have written a script as in the example above. Then you will need to run:
+```
+python test_framework_grasp_bottle.py 
+```
+This will start the SkillManager which will monitor the process of skill execution.
+At any point, you can hit `Ctrl+C` which will terminate all processes.
+
+
+
 ## Using movo_pose_publisher:
 
 1. Move head. Example:
