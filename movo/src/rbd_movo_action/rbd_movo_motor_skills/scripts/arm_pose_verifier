@@ -31,17 +31,17 @@ class ArmPoseVerifier(Verifier):
 
     def _callback(self, m):
         for status_msg in m.status_list:
-            self.message = "status {}: {}".format(status_msg.status, status_msg.text)
+            self.message = "status {} (success: {}): {}"\
+                .format(status_msg.status, status_msg.status == GoalStatus.SUCCEEDED, status_msg.text)
             if status_msg.status == GoalStatus.SUCCEEDED:
                 # self.status = Verifier.DONE
                 largest_diff = self._check_arm_config_satisfaction()
                 if largest_diff < self._tolerance:
                     self.status = Verifier.DONE
                 else:
-                    self.message =\
-                        "Although Moveit! reports success, "\
-                        "difference (<={:.5f}) is larger than tolerance ({})."\
-                        .format(largest_diff, self._tolerance)
+                    rospy.logwarn("Although Moveit! reports success, "\
+                                   "difference (<={:.5f}) is larger than tolerance ({})."\
+                                   .format(largest_diff, self._tolerance))
                     self.status = Verifier.NOT_DONE
                     return
             elif status_msg.status == GoalStatus.ABORTED:
@@ -77,7 +77,7 @@ class ArmPoseVerifier(Verifier):
             if trans is None:
                 rospy.logerr("check goal satisfiaction: lookup transform from {} to {} failed".\
                              format(self._ee_frame, self._base_frame))
-                ok = False  # lookup error
+                largest_diff = float('inf')
             else:
                 actual_pose = transform_to_tuple(trans.transform)
                 expected_pose = tuple(self._goal_spec['pose']['position'])\
