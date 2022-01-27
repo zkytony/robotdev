@@ -136,7 +136,7 @@ At any point, you can hit `Ctrl+C` which will terminate all processes.
     So, if you want velocity control, you need to publish to those topics at >1hz.
     The example command they give worked:
       ```
-      rostopic pub /movo/left_arm/angular_vel_cmd movo_msgs/JacoAngularVelocityCmd6DOF '{header: auto, theta_wrist_3_joint: 45.0}' --rate=100
+      rostopic pub /movo/left_arm/angular_vel_cmd movo_msgs/JacoAngularVelocityCmd7DOF '{header: auto, theta_wrist_3_joint: 45.0}' --rate=100
       ```
      This actually publishes at 100Hz. I experimented and indeed, you want >1Hz.
      Otherwise, you are doing **position control** (the joint just moves
