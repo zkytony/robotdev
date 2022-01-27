@@ -14,7 +14,6 @@ from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from rbd_movo_motor_skills.config import GRIPPER_POSITION_MAX
 from rbd_movo_motor_skills.utils.ros_utils import remap
 
-
 class GripperCommandVerifier(Verifier):
     """
     Gripper state verifier. Although the gripper states
@@ -62,18 +61,18 @@ class GripperCommandVerifier(Verifier):
         if self._last_joint_message_time is None:
             self._last_gripper_joint_msg = gripper_joint_msg
             self._last_joint_message_time = stamp
-            return False
-        else:
-            if stamp - self._last_joint_message_time > rospy.Duration(1.0):
-                diff = np.array(gripper_joint_msg.position)\
-                    - np.array(self._last_gripper_joint_msg.position)
-                if np.max(np.abs(diff)) < 0.001:
-                    not_moving = True
-                self._last_gripper_joint_msg = gripper_joint_msg
-                self._last_joint_message_time = stamp
-                return not_moving
-            else:
-                return False
+            return False, False
+
+        not_moving = False
+        at_check_time = stamp - self._last_joint_message_time > rospy.Duration(0.5)
+        if at_check_time:
+            diff = np.array(gripper_joint_msg.position)\
+                - np.array(self._last_gripper_joint_msg.position)
+            if np.max(np.abs(diff)) < 0.0001:
+                not_moving = True
+            self._last_gripper_joint_msg = gripper_joint_msg
+            self._last_joint_message_time = stamp
+        return at_check_time, not_moving
 
     def _callback_command_goal(self, m):
         if m.result.reached_goal:
@@ -85,13 +84,15 @@ class GripperCommandVerifier(Verifier):
         self.status = Verifier.NOT_DONE
 
     def _callback_gripper_state(self, m):
-        not_moving = self._check_gripper_not_moving(m)
-        if not_moving:
-            self.message = "Although action goal not reached, gripper does not appear to be moving. Will Pass. "
-            self.status = Verifier.DONE
-            return
-        self.message = "Gripper command goal not reached"
-        self.status = Verifier.NOT_DONE
+        at_check_time, not_moving = self._check_gripper_not_moving(m)
+        if at_check_time:
+            if not_moving:
+                self.message = "Although action goal not reached, gripper does not appear to be moving. Will Pass. "
+                self.status = Verifier.DONE
+                return
+            else:
+                self.message = "Gripper command goal not reached"
+                self.status = Verifier.NOT_DONE
 
 if __name__ == "__main__":
     node_name = sys.argv[1]
