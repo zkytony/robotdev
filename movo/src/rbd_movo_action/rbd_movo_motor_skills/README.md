@@ -208,3 +208,5 @@ python test_framework_gripper_open.py
 Just keep trying until this skill successfully finishes. It should be
 a very quick skill to finish. So if it takes longer than 3 seconds,
 stop this skill, reset the Gripper opening position, and try again.
+
+**NOTE the gripper_verifier has been modifed to check if the gripper is moving at all. If not, then it will pass.**

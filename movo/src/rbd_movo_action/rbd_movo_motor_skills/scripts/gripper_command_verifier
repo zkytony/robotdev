@@ -3,11 +3,13 @@
 import sys
 import rospy
 import yaml
+import numpy as np
 
 from control_msgs.msg import (
     GripperCommandActionResult,
 )
 
+from sensor_msgs.msg import JointState
 from rbd_movo_motor_skills.motion_planning.framework import Verifier
 from rbd_movo_motor_skills.config import GRIPPER_POSITION_MAX
 from rbd_movo_motor_skills.utils.ros_utils import remap
@@ -40,14 +42,32 @@ class GripperCommandVerifier(Verifier):
     If the goal is successful, then the last feedback
     will have a 'reached_goal' field to be True.
     """
-    def __init__(self, name, cue, rate=10):
+    def __init__(self, name, cue, rate=10, accept_if_stop=False):
+        """If `accept_if_stop` is True, then we will check ourselves
+        whether the gripper has stopped moving. If so, then assume goal has reached."""
         super(GripperCommandVerifier, self).__init__(name, cue, rate=rate)
         side = cue['args']['side']
         self._spec_position = cue['args']['position']
+        self._side = side
+        self._last_gripper_joint_states = None
         rospy.Subscriber("/movo/{}_gripper_controller/gripper_cmd/result".format(side),
-                         GripperCommandActionResult, self._callback)
+                         GripperCommandActionResult, self._callback_command_goal)
+        if accept_if_stop:
+            rospy.Subscriber("/movo/{}_gripper/joint_states".format(side),
+                             JointState, self._callback_gripper_state)
 
-    def _callback(self, m):
+    def _check_gripper_not_moving(self, gripper_joint_states):
+        if self._last_gripper_joint_states is None:
+            self._last_gripper_joint_states = gripper_joint_states
+        else:
+            diff = np.array(gripper_joint_states.position)\
+                - np.array(self._last_gripper_joint_states.position)
+            self._last_gripper_joint_states = gripper_joint_states
+            if np.max(np.abs(diff)) < 0.01:
+                return True
+        return False
+
+    def _callback_command_goal(self, m):
         if m.result.reached_goal:
             position_in_spec = remap(m.result.position, 0., GRIPPER_POSITION_MAX, 0., 1.)
             self.message = "ok"
@@ -56,8 +76,17 @@ class GripperCommandVerifier(Verifier):
         self.message = "Gripper command goal not reached"
         self.status = Verifier.NOT_DONE
 
+    def _callback_gripper_state(self, m):
+        not_moving = self._check_gripper_not_moving(m)
+        if not_moving:
+            self.message = "Although action goal not reached, gripper does not appear to be moving. Will Pass. "
+            self.status = Verifier.DONE
+            return
+        self.message = "Gripper command goal not reached"
+        self.status = Verifier.NOT_DONE
+
 if __name__ == "__main__":
     node_name = sys.argv[1]
     cue = yaml.load(sys.argv[2])
-    verifier = GripperCommandVerifier(node_name, cue, rate=10)
+    verifier = GripperCommandVerifier(node_name, cue, rate=10, accept_if_stop=True)
     verifier.run()
