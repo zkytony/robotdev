@@ -1,0 +1,12 @@
+config:
+  Gripper:
+    verifier: gripper_command_verifier
+    executor: gripper_command_executor
+
+skill:
+  - name: "Close Gripper"
+    actuation_cues:
+      - type: Gripper
+        args:
+          side: 'left'
+          position: 0.0
