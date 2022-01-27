@@ -19,7 +19,7 @@ You can define a skill by creating a `.skill` file, which is essentially a YAML 
 Look at an example [here general.left_arm_movement.skill](cfg/skills/https://github.com/zkytony/robotdev/blob/master/movo/src/rbd_movo_action/rbd_movo_motor_skills/cfg/skills/general.left_arm_movement.skill).
 
 Refer to the documentation at [motion_planning/framework.py](https://github.com/zkytony/robotdev/blob/master/shared/python/motion_planning/framework.py)
-for the definition of the skill file and how the framework works. Note that that framework is not specific to MOVO. 
+for the definition of the skill file and how the framework works. Note that that framework is not specific to MOVO.
 
 Check out [these steps](cfg/skills/README.md) for creating a checkpoint that contains a goal arm configuration.
 
@@ -27,7 +27,7 @@ Check out [these steps](cfg/skills/README.md) for creating a checkpoint that con
 After you have written a Skill file, you could create a `SkillManager` to load it. Once you call `.run()` of the SkillManager, the skill will begin to execute.
 As a simplest example (basically how stuff in `tests/` are written):
 ```python
-# test_framework_grasp_bottle.py 
+# test_framework_grasp_bottle.py
 import rospy
 from rbd_movo_motor_skills.motion_planning.framework import SkillManager
 
@@ -53,7 +53,7 @@ Before running the skill, make sure:
 If the above all pass, we can run a skill.
 Suppose you have written a script as in the example above. Then you will need to run:
 ```
-python test_framework_grasp_bottle.py 
+python test_framework_grasp_bottle.py
 ```
 This will start the SkillManager which will monitor the process of skill execution.
 At any point, you can hit `Ctrl+C` which will terminate all processes.
@@ -189,3 +189,22 @@ According to [this discussion](https://groups.google.com/g/moveit-users/c/3ey_8A
 >to something like
 >longest_valid_segment_fraction: 0.02
 
+
+
+## Gripper Seems Open, but Gripper command verifier does not terminate
+
+The reason this happens is unclear. What happens is that the server for
+the action `GripperCommandAction` does not report the goal is success or reached
+even though the gripper is in the desired state. I have only observed this
+happening when opening the gripper.
+
+To deal with this, one nasty way is to reboot MOVO. A simpler way is
+to just set different values for `Open Gripper` (try something between 0.9 to 1.0)
+and repeatedly run the open gripper skill `general.left_arm.open_gripper.skill`. You
+can do that conveniently by running
+```
+python test_framework_gripper_open.py
+```
+Just keep trying until this skill successfully finishes. It should be
+a very quick skill to finish. So if it takes longer than 3 seconds,
+stop this skill, reset the Gripper opening position, and try again.
