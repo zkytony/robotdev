@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+#
+# This is used to (hopefully) force the gripper to move to a cartesian
+# pose. This uses MoveitCommander, which is underlying the samething as how the
+# other executor (arm_pose_executor) plans, but using a different interface.
+#
+# I was hoping to publish to /movo/left_arm/cartesian_vel_cmd but this
+# topic does not seem to be responding.
+import actionlib
+import rospy
+import yaml
+import sys
+from rbd_movo_motor_skills.motion_planning.framework import Executor
+from rbd_movo_motor_skills.config import PLANNER, PLANNING_ATTEMPTS, PLANNING_TIME
+from rbd_movo_motor_skills.arm_cartesian_control import ArmCartesianControl
+
+class ArmPoseCartesianCtlExecutor(Executor):
+    def __init__(self, name, cue, timeout=15):
+        super(ArmPoseCartesianCtlExecutor, self).__init__(name, cue)
+        self._ctl = ArmCartesianControl(side=self._side)
+
+    def make_goal(self, cue):
+        args = cue["args"]
+        self._side = args["side"]
+        if self._side != "left" and self._side != "right":
+            raise ValueError("Invalid arm side: {}".format(self._side))
+        if "goal" not in args:
+            raise ValueError("'goal' not specified in cue.")
+        self._goal_pose = (args["goal"]["position"], args["goal"]["orientation"])
+        return self._goal_pose
+
+    def _execute(self):
+        position, orientation = self._goal_pose
+        self._ctl.go_cartesian_pose(position, orientation)
+        self.status = "Waiting for moveit planning for goal"
+
+    def on_stop(self):
+        self.status = "To be stopped"
+        self._ctl.group.stop()
+
+if __name__ == "__main__":
+    node_name = sys.argv[1]
+    cue = yaml.load(sys.argv[2])
+    executor = ArmPoseCartesianCtlExecutor(node_name, cue)
+    executor.run()
