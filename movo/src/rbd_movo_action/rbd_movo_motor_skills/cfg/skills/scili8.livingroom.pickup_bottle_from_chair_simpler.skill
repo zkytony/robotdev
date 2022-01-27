@@ -58,7 +58,7 @@ skill:
       - type: Gripper
         args:
           side: 'left'
-          position: 0.97
+          position: 0.95
 
   - name: "Motion Plan to Prep"
     actuation_cues:
