@@ -69,7 +69,7 @@ skill:
           goal:
             type: "pose"
             pose:
-              position: [0.904, 0.171, 0.624]
+              position: [0.844, 0.171, 0.634]
               orientation: [-0.066, 0.033, -0.139, 0.988]
             tolerance: 0.03
           path_constraints:
