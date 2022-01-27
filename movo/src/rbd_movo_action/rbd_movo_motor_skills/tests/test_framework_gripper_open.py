@@ -4,7 +4,7 @@ from rbd_movo_motor_skills.motion_planning.framework import SkillManager
 def test():
     rospy.set_param("skill/pkg_base_dir", "../")
     rospy.set_param("skill/pkg_name", "rbd_movo_motor_skills")
-    skill_file_path = "scili8.livingroom.pickup_bottle_from_chair_simpler.skill"
+    skill_file_path = "general.left_arm.open_gripper.skill"
     mgr = SkillManager(skill_file_path)
     mgr.run()
 

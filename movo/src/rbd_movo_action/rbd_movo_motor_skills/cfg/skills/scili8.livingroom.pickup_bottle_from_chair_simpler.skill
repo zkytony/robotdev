@@ -1,0 +1,124 @@
+config:
+  ARTagPose:
+    verifier: ar_tag_pose_verifier
+    executor: "NA"   # not-applicable
+  Gripper:
+    verifier: gripper_command_verifier
+    executor: gripper_command_executor
+  ARTagPose:
+    verifier: ar_tag_pose_verifier
+    executor: "NA"   # not-applicable
+  Head:
+    verifier: head_command_verifier
+    executor: head_command_executor
+  ArmPose:
+    verifier: arm_pose_verifier
+    executor: arm_pose_executor
+  Torso:
+    verifier: torso_command_verifier
+    executor: torso_command_executor
+
+
+skill:
+
+  - name: "Raise Torso Head Down"
+    actuation_cues:
+      - type: Torso
+        args:
+          height: 0.35
+          vel: 0.02
+
+      - type: Head
+        args:
+          pan: 0
+          tilt: -38
+
+  - name: "Arm Bringup Settled Position"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: 'left'
+          goal:
+            type: 'joints'
+            positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
+            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
+
+  - name: "Detect AR Tag"
+    perception_cues:
+      - type: ARTagPose
+        args:
+          id: 4
+          base_frame: kinect2_color_optical_frame
+          pose: [-0.273, 0.143, 0.900, 0.721, 0.628, 0.140, -0.258]
+          tolerance_posit: 0.05
+          tolerance_orien: 65
+
+  - name: "Open Gripper"
+    actuation_cues:
+      - type: Gripper
+        args:
+          side: 'left'
+          position: 1.0
+
+  - name: "Motion Plan to Prep"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.899, 0.175, 0.598]
+              orientation: [-0.061, 0.081, -0.113, 0.988]
+            tolerance: 0.02
+          path_constraints:
+            - type: "joints"
+              positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
+              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
+
+  - name: "Push Gripper Forward"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.969, 0.175, 0.610]
+              orientation: [-0.061, 0.081, -0.113, 0.988]
+            tolerance: 0.02
+          path_constraints:
+            - type: "joints"
+              positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
+              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
+
+
+  - name: "Close Gripper"
+    actuation_cues:
+      - type: Gripper
+        args:
+          side: 'left'
+          position: 0.2
+
+
+  - name: "Lift Up"
+    actuation_cues:
+      - type: ArmPose
+        args:
+          side: left
+          frame: "base_link"
+          goal:
+            type: "pose"
+            pose:
+              position: [0.769, 0.475, 0.850]
+              orientation: [-0.061, 0.081, -0.113, 0.988]
+            tolerance: 0.02
+          path_constraints:
+            - type: "joints"
+              positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
+              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
