@@ -58,7 +58,7 @@ skill:
       - type: Gripper
         args:
           side: 'left'
-          position: 1.0
+          position: 0.97
 
   - name: "Motion Plan to Prep"
     actuation_cues:
@@ -71,12 +71,12 @@ skill:
             pose:
               position: [0.899, 0.175, 0.598]
               orientation: [-0.061, 0.081, -0.113, 0.988]
-            tolerance: 0.02
+            tolerance: 0.04
           path_constraints:
             - type: "joints"
               positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
-              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
-              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
+              tolerance: [[-1.05, 1.05], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
   - name: "Push Gripper Forward"
     actuation_cues:
@@ -93,8 +93,8 @@ skill:
           path_constraints:
             - type: "joints"
               positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
-              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
-              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
+              tolerance: [[-0.55, 0.55], [-0.55, 0.55], [-0.35, 0.35], [-0.35, 0.35], [-1.05, 1.05], [-1.05, 1.05]]
 
 
   - name: "Close Gripper"
@@ -120,5 +120,5 @@ skill:
           path_constraints:
             - type: "joints"
               positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
-              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint
-              tolerance: [[-0.35, 0.35], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05]]
+              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
+              tolerance: [[-0.65, 0.65], [-0.85, 0.85], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
