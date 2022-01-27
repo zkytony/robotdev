@@ -49,23 +49,31 @@ class GripperCommandVerifier(Verifier):
         side = cue['args']['side']
         self._spec_position = cue['args']['position']
         self._side = side
-        self._last_gripper_joint_states = None
         rospy.Subscriber("/movo/{}_gripper_controller/gripper_cmd/result".format(side),
                          GripperCommandActionResult, self._callback_command_goal)
         if accept_if_stop:
             rospy.Subscriber("/movo/{}_gripper/joint_states".format(side),
                              JointState, self._callback_gripper_state)
+            self._last_gripper_joint_msg = None
+            self._last_joint_message_time = None
 
-    def _check_gripper_not_moving(self, gripper_joint_states):
-        if self._last_gripper_joint_states is None:
-            self._last_gripper_joint_states = gripper_joint_states
+    def _check_gripper_not_moving(self, gripper_joint_msg):
+        stamp = gripper_joint_msg.header.stamp
+        if self._last_joint_message_time is None:
+            self._last_gripper_joint_msg = gripper_joint_msg
+            self._last_joint_message_time = stamp
+            return False
         else:
-            diff = np.array(gripper_joint_states.position)\
-                - np.array(self._last_gripper_joint_states.position)
-            self._last_gripper_joint_states = gripper_joint_states
-            if np.max(np.abs(diff)) < 0.01:
-                return True
-        return False
+            if stamp - self._last_joint_message_time > rospy.Duration(1.0):
+                diff = np.array(gripper_joint_msg.position)\
+                    - np.array(self._last_gripper_joint_msg.position)
+                if np.max(np.abs(diff)) < 0.001:
+                    not_moving = True
+                self._last_gripper_joint_msg = gripper_joint_msg
+                self._last_joint_message_time = stamp
+                return not_moving
+            else:
+                return False
 
     def _callback_command_goal(self, m):
         if m.result.reached_goal:
