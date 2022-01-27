@@ -82,7 +82,6 @@ class ARTagPoseVerifier(Verifier):
                 return False
             expected_q = expected_pose[3:]
             actual_q = actual_pose[3:]
-            ## TODO: BUGGY
             orien_diff = to_degrees(abs(quat_diff_angle_relative(expected_q, actual_q)))
             if orien_diff > tolerance_orien:
                 self.message = "orientation is off ({:.5} > {})".format(orien_diff, tolerance_orien)
@@ -121,6 +120,8 @@ class ARTagPoseVerifier(Verifier):
                     # something happened to tf. Perhaps we need to wait longer.
                     self.message = "tf transform listener exception occurred"
                     return
+                else:
+                    artag_pose_stamped = artag_pose_stamped_new
 
             # now, we check if the artag pose is what we'd like
             ok = self._check_pose(artag_id, artag_pose_stamped)

@@ -48,8 +48,8 @@ skill:
       - type: ARTagPose
         args:
           id: 4
-          base_frame: kinect2_color_optical_frame
-          pose: [-0.187, 0.149, 0.883, 0.794, 0.498, 0.139, -0.320]
+          base_frame: base_link
+          pose: [0.932, 0.199, 0.716, 0.712, -0.123, -0.689, 0.044]
           tolerance_posit: 0.08
           tolerance_orien: 65
 
@@ -76,7 +76,7 @@ skill:
             - type: "joints"
               positions: [1.328805664341811, 1.4154418898695602, -0.051592887165886836, 1.1832496628571487, -0.7587469782626437, -0.3456692547445788]
               joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
-              tolerance: [[-0.85, 0.85], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
+              tolerance: [[-0.25, 0.45], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
 
 
   - name: "Push Gripper Forward"
@@ -119,6 +119,6 @@ skill:
             tolerance: 0.02
           path_constraints:
             - type: "joints"
-              positions: [1.2104828818481899, 1.4145518614332557, -0.2699225617561094, 1.2254272103051698, -0.05579330806094429, -0.1578876357542197]
+              positions: [1.328805664341811, 1.4154418898695602, -0.051592887165886836, 1.1832496628571487, -0.7587469782626437, -0.3456692547445788]
               joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
               tolerance: [[-0.65, 0.65], [-0.85, 0.85], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
