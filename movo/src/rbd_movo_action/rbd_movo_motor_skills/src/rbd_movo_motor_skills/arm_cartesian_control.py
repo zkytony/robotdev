@@ -17,8 +17,7 @@ class ArmCartesianControl(object):
     Self made class used to control Movo in a friendly, non complicated way.
     """
     def __init__(self, side="left"):
-        super(Movo_movement, self).__init__()
-        rospy.init_node('Movo_movement', anonymous=True)
+        super(ArmCartesianControl, self).__init__()
         moveit_commander.roscpp_initialize(sys.argv)
         # We instantiate a robotCommander
         movo = moveit_commander.RobotCommander()
@@ -35,10 +34,10 @@ class ArmCartesianControl(object):
         qx, qy, qz, qw = orientation
 
         pose_goal = geometry_msgs.msg.Pose()
-        pose_goal.orientation.x = x
-        pose_goal.orientation.y = y
-        pose_goal.orientation.z = z
-        pose_goal.orientation.w = w
+        pose_goal.orientation.x = qx
+        pose_goal.orientation.y = qy
+        pose_goal.orientation.z = qz
+        pose_goal.orientation.w = qw
         pose_goal.position.x = x
         pose_goal.position.y = y
         pose_goal.position.z = z

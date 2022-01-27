@@ -26,7 +26,7 @@ class ArmPoseCartesianCtlExecutor(Executor):
             raise ValueError("Invalid arm side: {}".format(self._side))
         if "goal" not in args:
             raise ValueError("'goal' not specified in cue.")
-        self._goal_pose = (args["goal"]["position"], args["goal"]["orientation"])
+        self._goal_pose = (args["goal"]["pose"]["position"], args["goal"]["pose"]["orientation"])
         return self._goal_pose
 
     def _execute(self):
