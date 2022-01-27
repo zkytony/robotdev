@@ -166,6 +166,11 @@ This will get you the pose that matches the output of
 rostopic echo /ar_pose_marker
 ```
 
+For convenience of setting AR Tag pose in a skill, you may want to check the artag pose with respect to base_link:
+```
+rosrun tf tf_echo base_link ar_marker_4
+```
+
 ## Troubleshooting
 
 ### AR detector frequency too low (<1hz)

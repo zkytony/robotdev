@@ -60,6 +60,7 @@ def cartesian_vel(indices=[], new_vals=[]):
     # there are:
     #
     # x, y, z, theta_x, theta_y, theta_z
+    msg = JacoCartesianVelocityCmd()
     vals = [0] * 6
     if len(indices) > 0 and len(new_vals) > 0 and len(indices) == len(new_vals):
         for indx, i in enumerate(indices):
