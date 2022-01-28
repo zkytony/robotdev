@@ -49,7 +49,7 @@ The steps are, roughly:
 
      <img src='https://user-images.githubusercontent.com/7720184/140431642-81830481-ec90-4124-af16-bc440bd6492b.png' width="650px">
 
-8. Connect to Spot's WIFI. Tap the “3 bar” symbol on the top left corner then tap the entry for Spot's WiFI. Once connected, enter the user credentials. The credentials are written on a piece of paper taped to the left side of the desk next to the docking station. If you do not find it, please ask on the Slack channel #spot.
+8. Connect to Spot's WIFI. Tap the “3 bar” symbol on the top left corner then tap the entry for Spot's WiFI. Once connected, enter the user credentials. The credentials are written on a piece of paper taped to the left side of the desk next to the docking station and [in this google doc](https://docs.google.com/document/d/1Bw8M7-g7vHD6bsaYLfeVnYna9jk_0E7pdnKKdDD2Mg0/edit?usp=sharing). If you do not find it, please ask on the Slack channel #spot. 
 
      ![wifi](https://user-images.githubusercontent.com/7720184/140433462-ea493192-ebef-41aa-965c-d1b81fc8f74a.png)
 
