@@ -24,64 +24,7 @@ config:
 
 skill:
 
-  - name: "Raise Torso Head Down"
-    actuation_cues:
-      - type: Torso
-        args:
-          height: 0.35
-          vel: 0.02
-
-      - type: Head
-        args:
-          pan: -6
-          tilt: -38
-
-  - name: "Arm Bringup Settled Position"
-    actuation_cues:
-      - type: ArmPose
-        args:
-          side: 'left'
-          goal:
-            type: 'joints'
-            positions: [1.6437552227542724, 1.4068856859193537, -0.35984449556825737, 2.6100757674384707, -0.03409591880406637, -0.5345739287666245, 1.6976176558011247]
-            joint_names: ["left_shoulder_pan_joint", "left_shoulder_lift_joint", "left_arm_half_joint", "left_elbow_joint", "left_wrist_spherical_1_joint", "left_wrist_spherical_2_joint", "left_wrist_3_joint"]
-
-  - name: "Detect AR Tag"
-    perception_cues:
-      - type: ARTagPose
-        args:
-          id: 4
-          base_frame: base_link
-          pose: [0.942, 0.148, 0.822, -0.680, -0.008, 0.729, 0.080]
-          tolerance_posit: 0.06
-          tolerance_orien: 65
-
-  - name: "Open Gripper"
-    actuation_cues:
-      - type: Gripper
-        args:
-          side: 'left'
-          position: 1.0
-
-  - name: "Motion Plan to Prep"
-    actuation_cues:
-      - type: ArmPose
-        args:
-          side: left
-          frame: "base_link"
-          goal:
-            type: "pose"
-            pose:
-              position: [0.844, 0.171, 0.579]
-              orientation: [-0.066, 0.033, -0.139, 0.988]
-            tolerance: 0.01
-          path_constraints:
-            - type: "joints"
-              positions: [1.328805664341811, 1.4154418898695602, -0.051592887165886836, 1.1832496628571487, -0.7587469782626437, -0.3456692547445788]
-              joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
-              tolerance: [[-0.55, 0.45], [-0.55, 0.55], [-1.35, 0.45], [-1.05, 1.05], [-1.05, 1.05], [-1.05, 1.05]]
-
-  - name: "Push Gripper Forward"
+  - name: "Move Arm Back"
     actuation_cues:
       - type: ArmPose
         args:
@@ -99,12 +42,12 @@ skill:
               joint_names: [left_shoulder_pan_joint, left_shoulder_lift_joint, left_arm_half_joint, left_elbow_joint, left_wrist_spherical_1_joint, left_wrist_spherical_2_joint]
               tolerance: [[-0.1, 0.1], [-0.1, 0.1], [-0.1, 0.1], [-0.1, 0.1], [-0.1, 0.1], [-0.1, 0.1]]
 
-  - name: "Close Gripper"
+  - name: "Open Gripper"
     actuation_cues:
       - type: Gripper
         args:
           side: 'left'
-          position: 0.1
+          position: 1.0
 
 
   - name: "Lift Up"
