@@ -28,4 +28,14 @@ with Spot.
 Well, typical computers have only one wireless network interface.
 That means, if you connect to Spot, you will relinquish your usual
 WiFi. Or, you can either plug in ethernet to your computer and
-connect to Spot's wifi; Or you could buy an external wifi car.d
+connect to Spot's wifi; Or you could buy an external wifi car.
+
+If you want to connect to Spot's WiFi,
+select "spot-BD-XXXXX" on the list of available WiFis;
+Note that XXXXX should be specific to the Spot you want
+to connect to. Then enter the WiFi Password.
+
+You can then visit [https://192.168.80.3](https://192.168.80.3)
+which will take you to a log-in page:
+
+<img src="https://i.imgur.com/cdi4C66.png" width="500px">
