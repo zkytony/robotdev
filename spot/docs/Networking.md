@@ -39,3 +39,18 @@ You can then visit [https://192.168.80.3](https://192.168.80.3)
 which will take you to a log-in page:
 
 <img src="https://i.imgur.com/cdi4C66.png" width="500px">
+
+
+## Have Spot join external WiFi network
+
+Read the [documentation here on "Connecting Spot to a Shared WiFi Network"](https://support.bostondynamics.com/s/article/Spot-network-setup).
+
+
+
+It appears from [this discussion](https://support.bostondynamics.com/s/question/0D54X00006K0GrDSAV/spot-network-connection-via-wifi)
+that Spot currently only connects to 2.4GHz WiFi, which matches the [manual](https://www.bostondynamics.com/sites/default/files/inline-files/spot-information-for-use-en.pdf),
+which says "Connectivity is WiFi 2.4Ghz b/g/n and Gigabit Ethernet".
+
+
+## Ethernet
+A wired connection should be used for updating robot software, accessing logs, and modifying network settings.
