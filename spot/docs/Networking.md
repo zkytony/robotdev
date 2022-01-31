@@ -1,9 +1,15 @@
 # Networking on Spot
 
+**Useful references**:
+
+ - [SPOT SYSTEM ADMINISTRATION (PDF)](https://www.bostondynamics.com/sites/default/files/inline-files/spot-system-administration.pdf)
+
+ - [Spot Network Setup](https://support.bostondynamics.com/s/article/Spot-network-setup)
+
+
 The primary networking capability when using Spot by default WiFi.
 One could either join Spot's WiFi access point. Or, Spot can be
 a client to an external WiFi network.
-
 
 Spot API mainly use the **gRPC** (google Remote Procedural Call)
 protocol; A gRPC is a specification of a service interface
@@ -22,6 +28,16 @@ This is illustrated by the figure below:
 Spot has a [detailed documentation](https://dev.bostondynamics.com/docs/concepts/networking) for how to use gRPC and Protobuf
 with Spot.
 
+
+## Some common interfaces
+
+1. The log-in page:
+
+    <img src="https://i.imgur.com/cdi4C66.png" width="500px">
+
+2. The home-page for user:
+
+    <img src="https://i.imgur.com/sTww4U4.png" width="500px">
 
 
 ## Ethernet
@@ -53,9 +69,7 @@ Note that XXXXX should be specific to the Spot you want
 to connect to. Then enter the WiFi Password.
 
 You can then visit [https://192.168.80.3](https://192.168.80.3)
-which will take you to a log-in page:
-
-<img src="https://i.imgur.com/cdi4C66.png" width="500px">
+which will take you to a log-in page.
 
 
 ## Have Spot join external WiFi network
