@@ -40,7 +40,7 @@ with Spot.
     <img src="https://i.imgur.com/sTww4U4.png" width="500px">
 
 3. The home-page for admin. It is the same as user's except for the username
-   and there are a couple additional capabilities.
+   and there are a couple additional capabilities (User Management and Software Update).
 
     <img src="https://i.imgur.com/YrFRVLL.png" width="500px">
 
@@ -63,6 +63,41 @@ and modifying network settings.
 
 
 
+## Connect Spot to external WiFi network (e.g. RLAB)
+
+Recently, Spot has supported 5GHz WiFi (see [this discussion](https://support.bostondynamics.com/s/question/0D54X00006K0GrDSAV/spot-network-connection-via-wifi)).
+
+The steps are in the [documentation here on "Connecting Spot to a Shared WiFi Network"](https://support.bostondynamics.com/s/article/Spot-network-setup).
+Basically:
+
+1. Connect Spot with your PC via ethernet.
+
+2. Log in as admin.
+
+3. Go to "Network Setup"->WiFi.
+
+4. Select "client" for WiFi Network Type. (By default, it is "Access Point")
+
+5. Enter the following:
+
+    - Network Name: RLAB
+    - Password: (RLAB Password)
+    - Frequency Band: All
+    - Enable DHCP: FALSE
+    - IPv4 address: Enter the static IP you want Spot to have on the RLAB network. It must not already be used. For Spot XXXX012, I set it to `138.16.161.12`.
+    - Route Prefix: 24
+    - Stored Default Route: 0.0.0.0
+
+    Then click "APPLY." If successful, you should see a green message at the top, like this:
+
+    <img src="https://i.imgur.com/wpFr8OF.png" width="350px">
+
+    (Note that the MAC address should be detected automatically after you hit APPLY)
+
+It appears from [this discussion](https://support.bostondynamics.com/s/question/0D54X00006K0GrDSAV/spot-network-connection-via-wifi)
+that Spot currently only connects to 2.4GHz WiFi, which matches the [manual](https://www.bostondynamics.com/sites/default/files/inline-files/spot-information-for-use-en.pdf),
+which says "Connectivity is WiFi 2.4Ghz b/g/n and Gigabit Ethernet".
+
 ## Join Spot's WiFi network from your computer
 
 Well, typical computers have only one wireless network interface.
@@ -77,13 +112,3 @@ to connect to. Then enter the WiFi Password.
 
 You can then visit [https://192.168.80.3](https://192.168.80.3)
 which will take you to a log-in page.
-
-
-## Have Spot join external WiFi network
-
-Read the [documentation here on "Connecting Spot to a Shared WiFi Network"](https://support.bostondynamics.com/s/article/Spot-network-setup).
-
-
-It appears from [this discussion](https://support.bostondynamics.com/s/question/0D54X00006K0GrDSAV/spot-network-connection-via-wifi)
-that Spot currently only connects to 2.4GHz WiFi, which matches the [manual](https://www.bostondynamics.com/sites/default/files/inline-files/spot-information-for-use-en.pdf),
-which says "Connectivity is WiFi 2.4Ghz b/g/n and Gigabit Ethernet".
