@@ -39,6 +39,13 @@ with Spot.
 
     <img src="https://i.imgur.com/sTww4U4.png" width="500px">
 
+3. The home-page for admin. It is the same as user's except for the username
+   and there are a couple additional capabilities.
+
+    <img src="https://i.imgur.com/YrFRVLL.png" width="500px">
+
+
+
 
 ## Ethernet
 The detailed steps are documented in [the Ethernet section of this page](https://support.bostondynamics.com/s/article/Spot-network-setup).
