@@ -23,6 +23,23 @@ Spot has a [detailed documentation](https://dev.bostondynamics.com/docs/concepts
 with Spot.
 
 
+
+## Ethernet
+The detailed steps are documented in [the Ethernet section of this page](https://support.bostondynamics.com/s/article/Spot-network-setup).
+
+A wired connection should be used for updating robot software, accessing logs,
+and modifying network settings.
+
+1. Connect spot with your computer using an ethernet.
+
+2. Add a manual wired connection (see [this guide](https://linuxconfig.org/how-to-configure-static-ip-address-on-ubuntu-18-10-cosmic-cuttlefish-linux#:~:text=Ubuntu%20Desktop,-The%20simplest%20approach&text=Click%20on%20the%20top%20right,netmask%2C%20gateway%20and%20DNS%20settings.))
+   with an IP range 10.0.0.X (netmask 255.255.0.0).
+
+3. Once added, visit [https://10.0.0.3/](https://10.0.0.3/), the default IP for Spot. You will see a log in page. Enter default username and password.
+
+
+
+
 ## Join Spot's WiFi network from your computer
 
 Well, typical computers have only one wireless network interface.
@@ -46,11 +63,6 @@ which will take you to a log-in page:
 Read the [documentation here on "Connecting Spot to a Shared WiFi Network"](https://support.bostondynamics.com/s/article/Spot-network-setup).
 
 
-
 It appears from [this discussion](https://support.bostondynamics.com/s/question/0D54X00006K0GrDSAV/spot-network-connection-via-wifi)
 that Spot currently only connects to 2.4GHz WiFi, which matches the [manual](https://www.bostondynamics.com/sites/default/files/inline-files/spot-information-for-use-en.pdf),
 which says "Connectivity is WiFi 2.4Ghz b/g/n and Gigabit Ethernet".
-
-
-## Ethernet
-A wired connection should be used for updating robot software, accessing logs, and modifying network settings.
