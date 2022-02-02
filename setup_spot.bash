@@ -37,7 +37,7 @@ fi
 
 # We have only tested Spot stack with Ubuntu 20.04.
 if ! ubuntu_version_equal 20.04; then
-    echo "MOVO development requires Ubuntu 16.04 and ROS kinetic. Abort."
+    echo "SPOT development requires Ubuntu 16.04 and ROS kinetic. Abort."
     return 1
 fi
 
@@ -60,15 +60,26 @@ repo_root=$PWD
 # before.
 source ${SPOT_PATH}/venv/spot/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
+source $repo_root/${SPOT_PATH}/devel/setup.bash
+export PYTHONPATH=$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}
 
 if first_time_build spot; then
     pip uninstall em
     pip install empy catkin-pkg rospkg defusedxml
+    pip install pyqt5
+    pip install PySide2
+    pip install bosdyn-client bosdyn-mission bosdyn-api bosdyn-core
     # other necessary packages
     pip install numpy
+    pip install pydot
+    pip install graphviz
     # rosdep install dependencies
     rosdep update
     rosdep install --from-paths src --ignore-src -y
+
+    # other ROS utlities
+    sudo apt-get install ros-noetic-rqt-graph
+    sudo apt-get install ros-noetic-rqt-tf-tree
 fi
 
 # catkin make and end.
@@ -77,4 +88,5 @@ if first_time_build spot; then
 else
     echo -e "If you want to build the spot project, run 'build_spot'"
 fi
+
 cd $repo_root
