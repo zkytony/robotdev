@@ -127,6 +127,59 @@ It appears from [this discussion](https://support.bostondynamics.com/s/question/
 that Spot currently only connects to 2.4GHz WiFi, which matches the [manual](https://www.bostondynamics.com/sites/default/files/inline-files/spot-information-for-use-en.pdf),
 which says "Connectivity is WiFi 2.4Ghz b/g/n and Gigabit Ethernet".
 
+
+### How to revert back to using Spot's own broadcasted WiFi network again
+
+1. Before you make any changes in the admin page in browser,
+   make sure that:
+
+   - Spot is in a secure position (e.g. docked)
+
+   - Spot motor is shutdown. Mechanical motor lock is engaged (red LED button does not light).
+
+   - You are connected to Spot using an ethernet cable. The ethernet connection works.
+
+2. Do the following through the ethernet connection (i.e. visit https://10.0.0.3 )
+
+   1. Go to Network Setup; Go to WiFi tab.
+
+   2. Select "Access Point" as WiFi Network Type. Press "APPLY". Once successful, you
+      should see a green notification at the top:
+
+      <img src="https://i.imgur.com/8FvTx8V.png" width="400px">
+
+   3. On the controller, if the controller was NOT previously connected to Spot,
+      then you can simply join Spot's broadcasted network in the Sign-in page
+      (aka. Select Network page).
+
+      If the controller was previously connected, you will notice network error
+      (red WiFi icon):
+
+       <img src="https://i.imgur.com/uiSF5xl.jpg" width="300px">
+
+      You should:
+
+      1. press the three bars ≡ on the top left, select Disconnect.
+
+      2. Press "Sign Out"
+
+         <img src="https://i.imgur.com/07zSDNf.jpg" width="300px">
+
+      3. Then, in the Sign-in page (aka. Select Network page), select
+         the Spot-broadcasted network `spot-BD-XXXXX`). Sign in,
+         and the rest should be the same as you enter the familiar
+         interface.
+
+         <img src="https://i.imgur.com/7d9M1m8.png" width="250px">
+         <img src="https://i.imgur.com/6rSjZYv.jpg" width="250px">
+
+
+
+
+
+
+
+
 ## Join Spot's WiFi network from your computer
 
 Well, typical computers have only one wireless network interface.
