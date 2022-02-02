@@ -20,5 +20,21 @@ to be usable with minor fixes. ROS Noetic on Ubuntu 20.04 works.
    
 * Refer to [this article for Spot Driver usage](https://www.clearpathrobotics.com/assets/guides/melodic/spot-ros/ros_usage.html). Spot driver is the
   main functionality of this suite of Spot ROS packages. It allows you to communicate with Spot and receive its sensor data, and control the body pose.
+
+  When you first get started, run:
+  ```
+  roslaunch rbd_spot_robot driver.launch
+  ```
+  (this basically runs `spot_driver driver.launch` but with arguments such as username and password filled)
   
+  Then run RVIZ:
+  ```
+  roslaunch spot_viz view_robot.launch
+  ```
+  You get something like:
+  
+  <img src="https://user-images.githubusercontent.com/7720184/152255159-e666b6ef-4038-41e6-b77e-72e4dc1cca78.png" width="500px"/>
+
+
   TODO: how to control the arm? (That is not the standard of Spot; would this Spot ROS stack still work?)
+
