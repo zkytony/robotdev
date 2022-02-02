@@ -12,8 +12,13 @@ SPOT_RLAB_IP="138.16.161.12"
 function build_spot
 {
     cd $repo_root/${SPOT_PATH}
-    if catkin_make; then
-        # cmake build is successful. Mark
+
+    if catkin_make\
+        --cmake-args\
+        -DCMAKE_BUILD_TYPE=Release\
+        -DPYTHON_EXECUTABLE=/usr/bin/python3\
+        -DPYTHON_INCLUDE_DIR=/usr/include/python3.8\
+        -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so; then
         echo "SPOT SETUP DONE." >> src/.DONE_SETUP
     else
         rm src/.DONE_SETUP
