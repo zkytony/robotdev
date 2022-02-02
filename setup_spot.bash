@@ -61,6 +61,9 @@ if first_time_build spot; then
     pip install empy catkin-pkg rospkg defusedxml
     # other necessary packages
     pip install numpy
+    # rosdep install dependencies
+    rosdep update
+    rosdep install --from-paths src --ignore-src -y
 fi
 
 # catkin make and end.
