@@ -145,6 +145,18 @@ Read the figure below:
 
 ![docking](https://user-images.githubusercontent.com/7720184/140441618-c57f4f41-acbe-4847-81f8-5aaa1762afeb.png)
 
+#### Issue: Spot doesn't dock completely
+Jasmin (Yanqi) observed this. This is her email:
+>After starting self-docking mode, the robot moves to the docking station sits and immediately stands up, moves forward then backs into the docking station again. >The process repeats 3 times, then the control pad shows a self-docking fail message. 
+>
+>Please see a video of the complete process at this link. 
+
+First of all, Max tried recalibrate the joints and cameras. It can be done easily by: click the three bars, click "Utilities" and then you should find an option.
+But that didn't help.
+
+Max found a way to force the docking which works around this issue. Basically, first do automatic docking. As the robot is about to lower down its body onto the
+vertical bars of the dock, press "X" (for Sit) and hold it. That will force abort the Docking process when Spot has in fact lnserted itself into the vertical bars, and will not go back up again (because the Docking process has terminated).
+
 
 ### Shut-down procedure
 Essentially, reverse the steps in  "Disengage Motor Lockout button" in the start-up procedure.
