@@ -6,8 +6,10 @@ SPOT_PATH="spot"
 # to your remote computer via ethernet.
 # Reference: https://support.bostondynamics.com/s/article/Spot-network-setup
 #            (section Ethernet)
+# The following config is for the Spot 12070012
 SPOT_ETH_IP="10.0.0.3"
 SPOT_RLAB_IP="138.16.161.12"
+SPOT_WIFI_IP="192.168.80.3"
 
 function build_spot
 {
@@ -23,6 +25,16 @@ function build_spot
     else
         rm src/.DONE_SETUP
     fi
+}
+
+function pingspot
+{
+    ping $SPOT_WIFI_IP
+}
+
+function pingspoteth
+{
+    ping $SPOT_ETH_IP
 }
 
 # Add a few alias for pinging spot.
