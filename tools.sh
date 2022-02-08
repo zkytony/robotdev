@@ -228,3 +228,17 @@ function is_flag {
         fi
     fi
 }
+
+
+function ping_success {
+    # usage: ping_success <IP>
+    # Tries to ping the given IP address (first argument)
+    # returns true if success
+    res=$(timeout 0.5 ping -c1 $1)
+    # If successful, res will not be empty
+    if [ -n "$res" ]; then
+        true && return
+    else
+        false
+    fi
+}

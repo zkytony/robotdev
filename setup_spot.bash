@@ -1,15 +1,62 @@
+# Run this script by source setup_movo.bash
+if [[ ! $PWD = *robotdev ]]; then
+    echo "You must be in the root directory of the robotdev repository."
+    return 1
+else
+    . "./tools.sh"
+fi
+
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
 SPOT_PATH="spot"
 
-# The default IP address of Spot when it is connected
-# to your remote computer via ethernet.
-# Reference: https://support.bostondynamics.com/s/article/Spot-network-setup
-#            (section Ethernet)
-# The following config is for the Spot 12070012
+# Set the ID of the Spot you are working on. Either
+# 12 (stands for 12070012) or 2 (stands for 12210002)
+SPOT_ID="12"
+if [ $SPOT_ID != "12" ] && [ $SPOT_ID != "2" ]; then
+    echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
+    return 1
+fi
+
+# Configure the IP addresses for different network connections
 SPOT_ETH_IP="10.0.0.3"
-SPOT_RLAB_IP="138.16.161.12"
 SPOT_WIFI_IP="192.168.80.3"
+SPOT_RLAB_IP="138.16.161.${SPOT_ID}"
+
+# Detect your Spot connection.
+function detect_spot_connection
+{
+    # Detects the spot connection by pinging.
+    # Sets two variables, 'spot_conn' and 'spot_ip'
+    echo -e "Pinging Spot WiFi IP $SPOT_WIFI_IP..."
+    if ping_success $SPOT_WIFI_IP; then
+        echo -e "OK"
+        spot_conn="spot"
+        spot_ip=$SPOT_WIFI_IP
+        true && return
+    fi
+
+    echo -e "Pinging Spot Ethernet IP $SPOT_ETH_IP..."
+    if ping_success $SPOT_ETH_IP; then
+        echo -e "OK"
+        spot_conn="ethernet"
+        spot_ip=$SPOT_ETH_IP
+        true && return
+    fi
+
+    echo -e "Pinging Spot RLAB IP $SPOT_RLAB_IP..."
+    if ping_success $SPOT_RLAB_IP; then
+        echo -e "OK"
+        spot_conn="rlab"
+        spot_ip=$SPOT_RLAB_IP
+        true && return
+    fi
+
+    echo "Cannot connect to Spot"
+    spot_conn=""
+    spot_ip=""
+    false
+}
 
 function build_spot
 {
@@ -27,25 +74,8 @@ function build_spot
     fi
 }
 
-function pingspot
-{
-    ping $SPOT_WIFI_IP
-}
-
-function pingspoteth
-{
-    ping $SPOT_ETH_IP
-}
-
 # Add a few alias for pinging spot.
 #------------- Main Logic  ----------------
-
-# Run this script by source setup_movo.bash
-if [[ ! $PWD = *robotdev ]]; then
-    echo "You must be in the root directory of the robotdev repository."
-else
-    . "./tools.sh"
-fi
 
 # We have only tested Spot stack with Ubuntu 20.04.
 if ! ubuntu_version_equal 20.04; then
@@ -68,7 +98,7 @@ fi
 repo_root=$PWD
 
 # activate virtualenv; Note that this is the only
-# functionality of this script if turtlebot has been setup
+# functionality of this script if spot has been setup
 # before.
 source ${SPOT_PATH}/venv/spot/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
@@ -92,6 +122,10 @@ if first_time_build spot; then
     # other ROS utlities
     sudo apt-get install ros-noetic-rqt-graph
     sudo apt-get install ros-noetic-rqt-tf-tree
+
+    # Mapping library
+    sudo apt install ros-noetic-rtabmap-ros
+    sudo apt-get install ros-noetic-octomap-rviz-plugins
 fi
 
 # catkin make and end.
@@ -101,4 +135,28 @@ else
     echo -e "If you want to build the spot project, run 'build_spot'"
 fi
 
+if confirm "Are you working on the real robot ?"; then
+
+    # Check if the environment variable SPOT_IP is set.
+    # If not, then try to detect spot connection and set it.
+    if [ -z $SPOT_IP ]; then
+       if detect_spot_connection; then
+           export SPOT_IP=${spot_ip}
+           export SPOT_CONN=${spot_conn}
+       fi
+    fi
+
+    # If Spot is connected, then SPOT_IP should be set.
+    if [ -z $SPOT_IP ]; then
+        echo -e "Unable to connect to spot."
+    else
+        if ping_success $SPOT_IP; then
+            echo -e "Spot connected! IP: ${SPOT_IP}; Method: ${SPOT_CONN}"
+        else
+            echo -e "Spot connection lost."
+            export SPOT_IP=""
+            export SPOT_CONN=""
+        fi
+    fi
+fi
 cd $repo_root
