@@ -73,7 +73,7 @@ function build_spot
         -DCMAKE_BUILD_TYPE=Release\
         -DPYTHON_EXECUTABLE=/usr/bin/python3\
         -DPYTHON_INCLUDE_DIR=/usr/include/python3.8\
-        -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so; then
+        -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so $1; then
         echo "SPOT SETUP DONE." >> src/.DONE_SETUP
     else
         rm src/.DONE_SETUP
@@ -115,9 +115,8 @@ fi
 # functionality of this script if spot has been setup
 # before.
 source ${SPOT_PATH}/venv/spot/bin/activate
-export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
-source $repo_root/${SPOT_PATH}/devel/setup.bash
-export PYTHONPATH=$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}
+
+useros  # so that catkin_make is available for build_ros_ws
 
 if first_time_build spot; then
     pip uninstall em
@@ -125,10 +124,12 @@ if first_time_build spot; then
     pip install pyqt5
     pip install PySide2
     pip install bosdyn-client bosdyn-mission bosdyn-api bosdyn-core
+    pip install rosdep
     # other necessary packages
     pip install numpy
     pip install pydot
     pip install graphviz
+    pip install opencv-python
     # rosdep install dependencies
     rosdep update
     rosdep install --from-paths src --ignore-src -y
@@ -141,6 +142,10 @@ if first_time_build spot; then
     sudo apt install ros-noetic-rtabmap-ros
     sudo apt-get install ros-noetic-octomap-rviz-plugins
 fi
+
+export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
+source $repo_root/${SPOT_PATH}/devel/setup.bash
+# export PYTHONPATH=$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}
 
 # catkin make and end.
 if first_time_build spot; then
