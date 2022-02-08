@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="username" default="user" />
-  <arg name="password" default="97qp5bwpwf2c" />
+  <arg name="password" default="$(env SPOT_USER_PASSWORD)" />
   <arg name="network" default="$(env SPOT_CONN)"/>
   <arg name="hostname" default="$(env SPOT_IP)"/>
   <arg name="estop_timeout" default="9.0"/>

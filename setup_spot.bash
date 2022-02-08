@@ -5,6 +5,7 @@ if [[ ! $PWD = *robotdev ]]; then
 else
     . "./tools.sh"
 fi
+repo_root=$PWD
 
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
@@ -23,6 +24,11 @@ SPOT_ETH_IP="10.0.0.3"
 SPOT_WIFI_IP="192.168.80.3"
 SPOT_RLAB_IP="138.16.161.${SPOT_ID}"
 
+#------------- FUNCTIONS  ----------------
+# Always assume at the start of a function,
+# or any if clause, the working directory is
+# the root directory of the repository.
+
 # Detect your Spot connection.
 function detect_spot_connection
 {
@@ -31,7 +37,7 @@ function detect_spot_connection
     echo -e "Pinging Spot WiFi IP $SPOT_WIFI_IP..."
     if ping_success $SPOT_WIFI_IP; then
         echo -e "OK"
-        spot_conn="spot"
+        spot_conn="spot wifi"
         spot_ip=$SPOT_WIFI_IP
         true && return
     fi
@@ -95,7 +101,6 @@ if [ ! -d "${SPOT_PATH}/venv/spot" ]; then
     virtualenv -p python3 venv/spot
     cd ..
 fi
-repo_root=$PWD
 
 # activate virtualenv; Note that this is the only
 # functionality of this script if spot has been setup
@@ -158,5 +163,8 @@ if confirm "Are you working on the real robot ?"; then
             export SPOT_CONN=""
         fi
     fi
+
+    # Load the spot passwords
+    source $repo_root/.spot_passwd
 fi
 cd $repo_root
