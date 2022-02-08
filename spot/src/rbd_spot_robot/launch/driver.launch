@@ -1,8 +1,9 @@
 <launch>
+
   <arg name="username" default="user" />
   <arg name="password" default="97qp5bwpwf2c" />
-  <arg name="hostname" default="192.168.80.3" />  <!-- Spot Host WiFi -->
-  <!-- <arg name="hostname" default="10.0.0.3" />  <!-\- Spot Ethernet -\-> -->
+  <arg name="network" default="$(env SPOT_CONN)"/>
+  <arg name="hostname" default="$(env SPOT_IP)"/>
   <arg name="estop_timeout" default="9.0"/>
 
   <include file="$(find spot_driver)/launch/driver.launch">
