@@ -80,6 +80,15 @@ function build_spot
     fi
 }
 
+function ping_spot
+{
+    if [ -z $SPOT_IP ]; then
+        echo -e "It appears that Spot is not connected"
+    else
+        ping $SPOT_IP
+    fi
+}
+
 # Add a few alias for pinging spot.
 #------------- Main Logic  ----------------
 
@@ -141,7 +150,6 @@ else
 fi
 
 if confirm "Are you working on the real robot ?"; then
-
     # Check if the environment variable SPOT_IP is set.
     # If not, then try to detect spot connection and set it.
     if [ -z $SPOT_IP ]; then
