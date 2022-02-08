@@ -1,0 +1,14 @@
+# Place this file at the root directory of robotdev.
+# This file contains Spot credentials
+if [ $SPOT_ID = "12" ]; then
+    export SPOT_USER_PASSWORD="97qp5bwpwf2c"
+    export SPOT_WIFI_PASSWORD="353c438kyfos"
+    export SPOT_ADMIN_PASSWORD="o4zuk2fz2rdk"
+elif [ $SPOT_ID = "2" ]; then
+    export SPOT_USER_PASSWORD="dungnydsc8su"
+    export SPOT_WIFI_PASSWORD="i2xqd7k9rzj"
+    export SPOT_ADMIN_PASSWORD="qf75j5tn79es"
+else
+    echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
+    return 1
+fi
