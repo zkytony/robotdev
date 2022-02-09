@@ -101,3 +101,36 @@ or force take the control from the script, do `lease_client.take()` instead of `
 
 Note that when you RELEASE CONTROL, if the robot is standing, it will sit down. And the LED lights will be rainbow colors.
 Once you take back control with the controller (or when you are running the hello_spot script that needs control), the LED lights will turn green again. (When the hello_spot script finishes running, control is released again and the lights turn rainbow again).
+
+### Robot is estopped
+
+This may happen after you E-Stop the robot and then try to take back control.
+
+You are able to take control, but the controller will show a red "(ERROR)" on the top right.
+
+Also, when you run hello_spot.py, you get the error message:
+```
+$ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
+2022-02-09 15:16:23,047 - ERROR - Hello, Spot! threw an exception: Assertio
+nError('Robot is estopped. Please use an external E-Stop client, such as th
+e estop SDK example, to configure E-Stop.')
+```
+Solution: Press the green "Release" on the EStop GUI. If the "(ERROR)" on the top-right of controller doesn't go away, try to run hello_spot.py again. You will get pass the error above, but you may get a new error (see below).
+
+
+### Stand (ID 5689) no longer processing 
+
+This happened after Spot was first E-Stopped, then I released the E-Stop, then I try to run the hello_spot.py again. The Spot won't stand up. Controller keeps showing `(ERROR)` on top right.
+
+```
+$ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
+2022-02-09 15:19:26,187 - INFO - Starting lease check-in
+2022-02-09 15:19:26,192 - INFO - Powering on robot... This may take several
+ seconds.
+2022-02-09 15:19:34,369 - INFO - Robot powered on.
+2022-02-09 15:19:34,369 - INFO - Commanding robot to stand...
+2022-02-09 15:19:34,400 - INFO - Lease check-in stopped
+2022-02-09 15:19:34,405 - ERROR - Hello, Spot! threw an exception: CommandFailedError('Stand (ID 5689) no longer processing (now STATUS_COMMAND_OVERRIDDEN)')
+```
+
+Kaiyu
