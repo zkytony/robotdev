@@ -10,6 +10,7 @@ repo_root=$PWD
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
 SPOT_PATH="spot"
+SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
 
 # Set the ID of the Spot you are working on. Either
 # 12 (stands for 12070012) or 2 (stands for 12210002)
@@ -65,7 +66,7 @@ function detect_spot_connection
 
 function build_spot
 {
-    cd $repo_root/${SPOT_PATH}
+    cd $repo_root/${SPOT_ROS_PATH}
 
     if catkin_make\
         --cmake-args\
@@ -106,8 +107,8 @@ fi  # so that catkin_make is available for build_ros_ws
 
 # Creates spot workspace.
 # create the spot workspace directory
-if [ ! -d "${SPOT_PATH}/src" ]; then
-    mkdir -p ${SPOT_PATH}/src
+if [ ! -d "${SPOT_ROS_PATH}/src" ]; then
+    mkdir -p ${SPOT_ROS_PATH}/src
 fi
 
 # create a dedicated virtualenv for spot workspace
@@ -122,7 +123,7 @@ fi
 # before.
 source ${SPOT_PATH}/venv/spot/bin/activate
 
-if first_time_build spot; then
+if first_time_build $SPOT_ROS_PATH; then
     pip uninstall em
     pip install empy catkin-pkg rospkg defusedxml
     pip install pyqt5
@@ -152,18 +153,22 @@ if first_time_build spot; then
     # Mapping library
     sudo apt install ros-noetic-rtabmap-ros
     sudo apt-get install ros-noetic-octomap-rviz-plugins
+
+    # Install the Full Spot SDK
+    # reference: https://dev.bostondynamics.com/docs/python/quickstart#get-a-copy-of-the-full-sdk-distribution-from-github
+    # cd $repo_root/$SPOT_PATH/
 fi
 
 # catkin make and end.
-if first_time_build spot; then
+if first_time_build $SPOT_ROS_PATH; then
     build_spot
 else
     echo -e "If you want to build the spot project, run 'build_spot'"
 fi
 
-export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
+export ROS_PACKAGE_PATH=$repo_root/${SPOT_ROS_PATH}/src/:${ROS_PACKAGE_PATH}
 export PYTHONPATH=""
-source $repo_root/${SPOT_PATH}/devel/setup.bash
+source $repo_root/${SPOT_ROS_PATH}/devel/setup.bash
 # We'd like to use packages in the virtualenv, what's already on /usr/lib,
 # and in the workspace (done by above step). NOTE: Using /usr/lib is
 # necessary so that PyKDL can be imported (it could only be installed
@@ -195,4 +200,4 @@ if confirm "Are you working on the real robot ?"; then
     # Load the spot passwords
     source $repo_root/.spot_passwd
 fi
-cd $repo_root
+cd $repo_root/$SPOT_PATH

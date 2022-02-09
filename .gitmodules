@@ -10,3 +10,6 @@
 [submodule "spot/src/geometry2"]
 	path = spot/src/geometry2
 	url = https://github.com/ros/geometry2
+[submodule "spot/spot-sdk"]
+	path = spot/spot-sdk
+	url = https://github.com/boston-dynamics/spot-sdk.git
