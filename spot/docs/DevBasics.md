@@ -25,6 +25,12 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
 
 ## Install the Full Spot SDK
 
+1. Clone the repo (or add it as submodule). This is about 160MB.
+  ```
+  git clone https://github.com/boston-dynamics/spot-sdk.git
+  ```
+2.  [Run the Hello Spot example](https://dev.bostondynamics.com/docs/python/quickstart#run-hello-spot-let-s-see-the-robot-move)
+    You need to do `pip install -r requirements.txt` specifically for that example. Note that you should be inside your spot virtualenv (created by `setup_spot.bash`).
 
 ## Obtain Spot ID
 ```
