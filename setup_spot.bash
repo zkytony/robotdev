@@ -98,12 +98,16 @@ if ! ubuntu_version_equal 20.04; then
     return 1
 fi
 
+# need to use ros for the following commands
+if ! useros; then
+    echo "Cannot use ROS. Abort."
+    exit 1
+fi  # so that catkin_make is available for build_ros_ws
+
 # Creates spot workspace.
 # create the spot workspace directory
 if [ ! -d "${SPOT_PATH}/src" ]; then
-
     mkdir -p ${SPOT_PATH}/src
-
 fi
 
 # create a dedicated virtualenv for spot workspace
@@ -118,8 +122,6 @@ fi
 # before.
 source ${SPOT_PATH}/venv/spot/bin/activate
 
-useros  # so that catkin_make is available for build_ros_ws
-
 if first_time_build spot; then
     pip uninstall em
     pip install empy catkin-pkg rospkg defusedxml
@@ -132,6 +134,7 @@ if first_time_build spot; then
     pip install pydot
     pip install graphviz
     pip install opencv-python
+
     # rosdep install dependencies
     rosdep update
     rosdep install --from-paths src --ignore-src -y
@@ -151,15 +154,6 @@ if first_time_build spot; then
     sudo apt-get install ros-noetic-octomap-rviz-plugins
 fi
 
-export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
-export PYTHONPATH=""
-source $repo_root/${SPOT_PATH}/devel/setup.bash
-# We'd like to use packages in the virtualenv, what's already on /usr/lib,
-# and in the workspace (done by above step). NOTE: Using /usr/lib is
-# necessary so that PyKDL can be imported (it could only be installed
-# via sudo apt-get install python3-pykdl, for some unknown reason).
-export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:/usr/lib/python3/dist-packages:${PYTHONPATH}"
-
 # catkin make and end.
 if first_time_build spot; then
     build_spot
@@ -167,6 +161,14 @@ else
     echo -e "If you want to build the spot project, run 'build_spot'"
 fi
 
+export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
+export PYTHONPATH=""
+source $repo_root/${SPOT_PATH}/devel/setup.bash
+# We'd like to use packages in the virtualenv, what's already on /usr/lib,
+# and in the workspace (done by above step). NOTE: Using /usr/lib is
+# necessary so that PyKDL can be imported (it could only be installed
+# via sudo apt-get install python3-pykdl, for some unknown reason).
+export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}:/usr/lib/python3/dist-packages"
 if confirm "Are you working on the real robot ?"; then
     # Check if the environment variable SPOT_IP is set.
     # If not, then try to detect spot connection and set it.
