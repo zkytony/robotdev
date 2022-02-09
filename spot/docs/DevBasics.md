@@ -67,7 +67,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
     ```
 
     Here is a scene after Spot "glide stopped" after EStop is pressed:
-    <img src="https://i.imgur.com/9myKjho.jpg" width="550px">
+    <img src="https://i.imgur.com/9myKjho.jpg" width="550px"/>
     
     
     
@@ -116,6 +116,10 @@ nError('Robot is estopped. Please use an external E-Stop client, such as th
 e estop SDK example, to configure E-Stop.')
 ```
 Solution: Press the green "Release" on the EStop GUI. If the "(ERROR)" on the top-right of controller doesn't go away, try to run hello_spot.py again. You will get pass the error above, but you may get a new error (see below).
+
+Here is a photo of the controller when the ERROR happened. The "WIFI" sign is flashing yellow.
+
+<img src="https://i.imgur.com/VWq2LVk.jpg" width="400px"/>
 
 
 ### Stand (ID 5689) no longer processing 
