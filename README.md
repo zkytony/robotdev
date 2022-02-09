@@ -5,8 +5,8 @@ My repository for robot-related development.
 
 ## Structure
 
-Each robot gets a corresponding directory.  The directory is a designated ROS
-workspace for that robot. The robot-specific code is maintained in
+Each robot gets a corresponding directory.  The directory is typically (at least contains)
+a designated ROS workspace for that robot. The robot-specific code is maintained in
 submodules (i.e. other repositories). This repository serves as the
 hub for all the robot-related development efforts.
 

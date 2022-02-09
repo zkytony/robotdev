@@ -5,11 +5,11 @@
 	path = movo/src/kinova-movo
 	url = git@github.com:zkytony/kinova-movo.git
 [submodule "spot/src/spot_ros"]
-	path = spot/src/spot_ros
+	path = spot/ros_ws/src/spot_ros/spot_ros
 	url = https://github.com/clearpathrobotics/spot_ros.git
-[submodule "spot/src/geometry2"]
-	path = spot/src/geometry2
-	url = https://github.com/ros/geometry2
 [submodule "spot/spot-sdk"]
 	path = spot/spot-sdk
 	url = https://github.com/boston-dynamics/spot-sdk.git
+[submodule "spot/ros_ws/src/geometry2"]
+	path = spot/ros_ws/src/geometry2
+	url = https://github.com/ros/geometry2
