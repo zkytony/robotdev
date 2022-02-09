@@ -44,4 +44,21 @@ spot-BD-12070012     000060189461B2000097            spot (V3)
  Software: 2.3.8 (b821228e2997 2021-08-09 17:35:08)
   Installed: 2021-08-09 19:27:31
 ```
+
 [reference](https://dev.bostondynamics.com/docs/python/quickstart#request-spot-robot-s-id)
+
+## Troubleshooting
+
+### Resource AlreadyClaimedError()
+
+When running the hello_spot.py script, I get:
+```
+$ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SP
+OT_IP
+2022-02-09 14:55:20,001 - ERROR - Hello, Spot! threw an exception: Resource
+AlreadyClaimedError()
+```
+
+[This BD support thread](https://support.bostondynamics.com/s/question/0D54X00006UNIReSAP/get-resourcealreadyclaimederror-when-trying-to-run-the-hellospotpy-example-code) talks about the exact same issue.
+The problem seems to be the controller is "Taking Control" of the robot. So you need to either "RELEASE CONTROL" from the controller,
+or force take the control from the script, do `lease_client.take()` instead of `lease_client.acquire()` as the support suggests.
