@@ -18,6 +18,17 @@ build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
 ```
 
 
+## Choreographer
+
+Note that the `choreographer` is a symbolic link
+to the executable of the Choreographer Linux
+downloaded from [Boston Dynamics Support Center](https://support.bostondynamics.com/s/downloads).
+The Choreographer version tested is 3.0.
+
+Read [this documentation](https://support.bostondynamics.com/s/article/How-to-Install-Choreographer) for more info
+about how to install the Choreographer.
+
+
 ## Troubleshooting
 
 ### Weird issue: rostopic echo doesn't work but rostopic hz works
