@@ -57,6 +57,22 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
     and you see the robot move accordingly, and you see a picture taken from the front-left camera.
     
 
+3. Run estop in a separate shell. Press Estop any time during the hello_spot script. "EStop is your friend." --- BD Documentation.
+ 
+    Steps to run E-Stop:
+    ```
+    cd ~/spot-sdk/python/examples/estop
+    python3 -m pip install -r requirements.txt
+    $ python3 estop_gui.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
+    ```
+
+    Here is a scene after Spot "glide stopped" after EStop is pressed:
+    <img src="https://i.imgur.com/9myKjho.jpg" width="550px">
+    
+    
+    
+    
+
 ## Obtain Spot ID
 ```
 $ python3 -m bosdyn.client 192.168.80.3 id
