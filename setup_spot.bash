@@ -28,7 +28,6 @@ SPOT_RLAB_IP="138.16.161.${SPOT_ID}"
 # Always assume at the start of a function,
 # or any if clause, the working directory is
 # the root directory of the repository.
-
 # Detect your Spot connection.
 function detect_spot_connection
 {
@@ -73,7 +72,8 @@ function build_spot
         -DCMAKE_BUILD_TYPE=Release\
         -DPYTHON_EXECUTABLE=/usr/bin/python3\
         -DPYTHON_INCLUDE_DIR=/usr/include/python3.8\
-        -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so $1; then
+        -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so\
+        $1; then
         echo "SPOT SETUP DONE." >> src/.DONE_SETUP
     else
         rm src/.DONE_SETUP
@@ -101,7 +101,9 @@ fi
 # Creates spot workspace.
 # create the spot workspace directory
 if [ ! -d "${SPOT_PATH}/src" ]; then
+
     mkdir -p ${SPOT_PATH}/src
+
 fi
 
 # create a dedicated virtualenv for spot workspace
@@ -134,9 +136,15 @@ if first_time_build spot; then
     rosdep update
     rosdep install --from-paths src --ignore-src -y
 
-    # other ROS utlities
+    # install pykdl, needed by tf2_geometry_msgs
+    sudo apt-get install python3-pykdl
+
+    # other ROS utlities/packages
     sudo apt-get install ros-noetic-rqt-graph
     sudo apt-get install ros-noetic-rqt-tf-tree
+    sudo apt-get install ros-noetic-navigation
+    sudo apt-get install ros-noetic-gmapping
+    sudo apt-get install ros-noetic-kdl-parser-py
 
     # Mapping library
     sudo apt install ros-noetic-rtabmap-ros
@@ -144,8 +152,13 @@ if first_time_build spot; then
 fi
 
 export ROS_PACKAGE_PATH=$repo_root/${SPOT_PATH}/src/:${ROS_PACKAGE_PATH}
+export PYTHONPATH=""
 source $repo_root/${SPOT_PATH}/devel/setup.bash
-# export PYTHONPATH=$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}
+# We'd like to use packages in the virtualenv, what's already on /usr/lib,
+# and in the workspace (done by above step). NOTE: Using /usr/lib is
+# necessary so that PyKDL can be imported (it could only be installed
+# via sudo apt-get install python3-pykdl, for some unknown reason).
+export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:/usr/lib/python3/dist-packages:${PYTHONPATH}"
 
 # catkin make and end.
 if first_time_build spot; then
