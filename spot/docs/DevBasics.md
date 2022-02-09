@@ -36,6 +36,26 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
     ```
     python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
     ```
+    Note that you need to release control from your controller otherwise you get a `ResourceAlreadyClaimedError`.
+    If successful, you get output:
+    ```
+    $ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SP
+    OT_IP
+    2022-02-09 14:59:54,893 - INFO - Starting lease check-in
+    2022-02-09 14:59:54,904 - INFO - Powering on robot... This may take several
+     seconds.
+    2022-02-09 15:00:03,090 - INFO - Robot powered on.
+    2022-02-09 15:00:03,091 - INFO - Commanding robot to stand...
+    2022-02-09 15:00:04,641 - INFO - Robot standing.
+    2022-02-09 15:00:07,650 - INFO - Robot standing twisted.
+    2022-02-09 15:00:10,665 - INFO - Robot standing tall.
+    2022-02-09 15:00:16,765 - INFO - Added comment "HelloSpot tutorial user com
+    ment." to robot log.
+    2022-02-09 15:00:25,808 - INFO - Robot safely powered off.
+    2022-02-09 15:00:25,808 - INFO - Lease check-in stopped
+    ```
+    and you see the robot move accordingly, and you see a picture taken from the front-left camera.
+    
 
 ## Obtain Spot ID
 ```
@@ -62,3 +82,5 @@ AlreadyClaimedError()
 [This BD support thread](https://support.bostondynamics.com/s/question/0D54X00006UNIReSAP/get-resourcealreadyclaimederror-when-trying-to-run-the-hellospotpy-example-code) talks about the exact same issue.
 The problem seems to be the controller is "Taking Control" of the robot. So you need to either "RELEASE CONTROL" from the controller,
 or force take the control from the script, do `lease_client.take()` instead of `lease_client.acquire()` as the support suggests.
+
+Note that when you RELEASE CONTROL, if the robot is standing, it will sit down. And the LED lights will be rainbow colors.
