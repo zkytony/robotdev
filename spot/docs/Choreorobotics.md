@@ -8,3 +8,4 @@ To install choreographer,
 >both python 3 and the bosdyn-choreography-protos and bosdyn-choreography-client wheels must be installed. 
 >Follow the instructions at https://dev.bostondynamics.com/docs/python/quickstart to install the Choreography SDK.
 
+See [my notes on installing the Spot Python SDK](./DevBasics.md)
