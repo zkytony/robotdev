@@ -18,16 +18,6 @@ function build_turtlebot
     fi
 }
 
-function first_time_build
-{
-    if [ ! -e "${TURTLEBOT_PATH}/src/.DONE_SETUP" ]; then
-        # has not successfully setup
-        true && return
-    else
-        false
-    fi
-}
-
 #------------- Main Logic  ----------------
 # Run this script by source setup_turtlebot.bash
 if [[ ! $PWD = *robotdev ]]; then
@@ -62,7 +52,7 @@ fi
 source ${TURTLEBOT_PATH}/venv/turtlebot/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/${TURTLEBOT_PATH}/src/turtlebot3_simulations:${ROS_PACKAGE_PATH}
 
-if first_time_build; then
+if first_time_build turtlebot; then
     # ros python packages
     pip uninstall em
     pip install empy catkin-pkg rospkg defusedxml
@@ -87,7 +77,7 @@ if [ ! -d "${TURTLEBOT_PATH}/src/turtlebot3_simulations" ]; then
 fi
 
 # catkin make and end.
-if first_time_build; then
+if first_time_build turtlebot; then
     build_turtlebot
 else
     echo -e "If you want to build the turtlebot project, run 'build_turtlebot'"
