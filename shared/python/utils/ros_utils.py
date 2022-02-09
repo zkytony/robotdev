@@ -229,5 +229,6 @@ def convert(msg):
     raise ValueError("Cannot handle message type {}".format(msg))
 
 def _convert_imgmsg(msg):
-    cv2_image = cv_bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    bridge = cv_bridge.CvBridge()
+    cv2_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
     return cv2_image
