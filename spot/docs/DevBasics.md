@@ -31,6 +31,11 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
   ```
 2.  [Run the Hello Spot example](https://dev.bostondynamics.com/docs/python/quickstart#run-hello-spot-let-s-see-the-robot-move)
     You need to do `pip install -r requirements.txt` specifically for that example. Note that you should be inside your spot virtualenv (created by `setup_spot.bash`).
+    
+    Note that with our setup, you can run the hello_spot.py script by:
+    ```
+    python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
+    ```
 
 ## Obtain Spot ID
 ```
