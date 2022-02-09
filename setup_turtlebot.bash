@@ -68,7 +68,9 @@ if first_time_build; then
     pip install empy catkin-pkg rospkg defusedxml
     # other necessary packages
     pip install numpy
+    sudo apt install libignition-physics2-dev
     if ubuntu_version_equal 20.04; then
+        sudo apt-get install ros-noetic-gazebo-ros
         sudo apt-get install ros-noetic-turtlebot3-msgs
         sudo apt-get install ros-noetic-turtlebot3
     else
