@@ -23,6 +23,8 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
   
 3. Verify. `pip list | grep bosdyn`. Everything is so far version `3.0.3`.
 
+## Install the Full Spot SDK
+
 
 ## Obtain Spot ID
 ```
