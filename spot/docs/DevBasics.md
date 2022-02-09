@@ -137,4 +137,5 @@ $ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
 2022-02-09 15:19:34,405 - ERROR - Hello, Spot! threw an exception: CommandFailedError('Stand (ID 5689) no longer processing (now STATUS_COMMAND_OVERRIDDEN)')
 ```
 
-Kaiyu
+This may in fact be a sign that the RPCs running on Spot are terminated after E-Stop. Something similar happens on MOVO.
+One way to resolve this is to just reboot Spot. I have also reached out to BD support.
