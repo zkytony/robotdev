@@ -79,8 +79,6 @@ if ! ubuntu_version_equal 16.04; then
     return 1
 fi
 
-useros  # so that catkin_make is available for build_ros_ws
-
 if first_time_build movo; then
     pip install netifaces
     pip install pathlib
@@ -89,6 +87,7 @@ if first_time_build movo; then
     build_ros_ws $MOVO_PATH
 fi
 
+useros
 export ROS_PACKAGE_PATH=$repo_root/${MOVO_PATH}/src/:${ROS_PACKAGE_PATH}
 source $repo_root/${MOVO_PATH}/devel/setup.bash
 if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI, packet forwarding etc) ?"; then
