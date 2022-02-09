@@ -84,4 +84,4 @@ The problem seems to be the controller is "Taking Control" of the robot. So you 
 or force take the control from the script, do `lease_client.take()` instead of `lease_client.acquire()` as the support suggests.
 
 Note that when you RELEASE CONTROL, if the robot is standing, it will sit down. And the LED lights will be rainbow colors.
-Once you take back control with the controller, the LED lights will turn green again.
+Once you take back control with the controller (or when you are running the hello_spot script that needs control), the LED lights will turn green again. (When the hello_spot script finishes running, control is released again and the lights turn rainbow again).
