@@ -218,3 +218,16 @@ def to_radians(th):
 
 def remap(oldval, oldmin, oldmax, newmin, newmax):
     return (((oldval - oldmin) * (newmax - newmin)) / (oldmax - oldmin)) + newmin
+
+
+### Sensor Messages ###
+import sensor_msgs.msg as sensor_msgs
+import cv_bridge
+def convert(msg):
+    if isinstance(msg, sensor_msgs.Image):
+        return _convert_imgmsg(msg)
+    raise ValueError("Cannot handle message type {}".format(msg))
+
+def _convert_imgmsg(msg):
+    cv2_image = cv_bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    return cv2_image
