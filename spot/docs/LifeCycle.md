@@ -186,6 +186,7 @@ Use the charger to charge the battery, like this:
 
 <img src='https://user-images.githubusercontent.com/7720184/140426599-99732dd3-e9f7-4810-a5c2-3ff9c8f09359.png' width='550px'>
 
+[Watch this videp.](https://www.youtube.com/watch?v=vg7Cdjj75IU&ab_channel=BostonDynamicsSupport)
 
 # Appendix 1: Spot Controller
 Spot is controlled by an android app running on
