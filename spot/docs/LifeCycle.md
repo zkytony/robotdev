@@ -49,7 +49,7 @@ The steps are, roughly:
 
      <img src='https://user-images.githubusercontent.com/7720184/140431642-81830481-ec90-4124-af16-bc440bd6492b.png' width="650px">
 
-8. Connect to Spot's WIFI. Tap the “3 bar” symbol on the top left corner then tap the entry for Spot's WiFI. Once connected, enter the user credentials. The credentials are written on a piece of paper taped to the left side of the desk next to the docking station and [in this google doc](https://docs.google.com/document/d/1Bw8M7-g7vHD6bsaYLfeVnYna9jk_0E7pdnKKdDD2Mg0/edit?usp=sharing). If you do not find it, please ask on the Slack channel #spot. 
+8. Connect to Spot's WIFI. Tap the “3 bar” symbol on the top left corner then tap the entry for Spot's WiFI. Once connected, enter the user credentials. The credentials are written on a piece of paper taped to the left side of the desk next to the docking station and [in this google doc](https://docs.google.com/document/d/1Bw8M7-g7vHD6bsaYLfeVnYna9jk_0E7pdnKKdDD2Mg0/edit?usp=sharing). If you do not find it, please ask on the Slack channel #spot.
 
      ![wifi](https://user-images.githubusercontent.com/7720184/140433462-ea493192-ebef-41aa-965c-d1b81fc8f74a.png)
 
@@ -147,9 +147,9 @@ Read the figure below:
 
 #### Issue: Spot doesn't dock completely
 Jasmin (Yanqi) observed this. This is her email:
->After starting self-docking mode, the robot moves to the docking station sits and immediately stands up, moves forward then backs into the docking station again. >The process repeats 3 times, then the control pad shows a self-docking fail message. 
+>After starting self-docking mode, the robot moves to the docking station sits and immediately stands up, moves forward then backs into the docking station again. >The process repeats 3 times, then the control pad shows a self-docking fail message.
 >
->Please see a video of the complete process at this link. 
+>Please see a video of the complete process at this link.
 
 First of all, Max tried recalibrate the joints and cameras. It can be done easily by: click the three bars, click "Utilities" and then you should find an option.
 But that didn't help.
@@ -228,3 +228,21 @@ it is standing.
 - Only move joints with motors in lockout
 mode or while Spot is powered off.
 - Be careful to avoid pinch points
+
+
+# Troubleshooting
+
+## Extreme Motor Vibration
+
+**Experience 1 (02/10/2022 ~9:15AM)**: When I try to undock Spot, I accidentally pressed the "Walk" button (A)
+while Spot is docked (I am not sure why I could get into that interface when Spot is docked).
+Then, Spot stood up above the dock, and I tried to joystick it
+out of the Docker (during which spot front-right leg hit dock pillar).
+
+Then, suddenly there is extreme noise (very unpleasant) from the back of
+Spot. The operation was still fine. We then pressed "X" to sit the Spot (during
+which time the whole back of Spot is vibrating extremely fast), and then
+immediately press the power button to shut down the robot (need to withstand the
+vibration).
+
+We then rebooted the robot, and everything seemed to be fine again. We did not do calibration again.
