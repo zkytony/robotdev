@@ -8,7 +8,7 @@ class SpotSDKClient:
     """Assume source setup_spot.bash is successful."""
     def __init__(self, name='client'):
         self.name = name
-        self.logger = logging.getLogger('rosout')
+        self._logger = logging.getLogger('rosout')
         rospy.loginfo("Starting Spot SDK Client for {}".format(self.name))
 
         try:

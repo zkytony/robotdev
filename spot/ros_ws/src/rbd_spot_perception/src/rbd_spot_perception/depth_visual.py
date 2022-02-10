@@ -13,41 +13,75 @@ import sys
 import bosdyn.client
 import bosdyn.client.util
 from bosdyn.client.image import ImageClient, build_image_request
+from bosdyn.client.async_tasks import AsyncTasks
 from bosdyn.api import image_pb2
 
+from spot_driver.spot_wrapper import AsyncImageService, SpotWrapper
+
+import rospy
 import cv2
 import numpy as np
 import os
+import time
 
 from rbd_spot_robot.spot_sdk_client import SpotSDKClient
 
 ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
 
 class DepthVisualPublisher(SpotSDKClient):
-    def __init__(self):
+    def __init__(self, config={}):
         super(DepthVisualPublisher, self).__init__(name="depth_visual")
-        depth_visual_sources = [f"{side}_depth_in_visual_frame"
-                                for side in ALL_SIDES]
-        fisheye_sources = [f"{side}_fisheye_image"
-                           for side in ALL_SIDES]
 
-        self._depth_visual_image_requests = []
-        self._fisheye_image_requests = []
 
-        for source in depth_visual_sources:
-            self._depth_visual_image_requests.append(
+        image_sources = []
+        for side in ALL_SIDES:
+            image_sources.append(f"{side}_depth_in_visual_frame")
+            image_sources.append(f"{side}_fisheye_image")
+
+        self._image_requests = []
+
+        for source in image_sources:
+            self._image_requests.append(
                 build_image_request(source, image_format=image_pb2.Image.FORMAT_RAW))
 
-        for source in fisheye_sources:
-            self._fisheye_image_requests.append(
-                build_image_request(source, image_format=image_pb2.Image.FORMAT_RAW))
+        print(self._image_requests)
 
+        self._image_client = self._robot.ensure_client(ImageClient.default_service_name)
+        self._rates = config.get("rates", {})
+        self._image_task = AsyncImageService(
+            self._image_client,
+            self._logger,
+            5.0,
+            self.DepthVisualCB,
+            self._image_requests)
+
+        self._async_tasks = AsyncTasks([self._image_task])
+
+
+    @property
+    def images(self):
+        """Return latest proto from the _front_image_task"""
+        return self._image_task.proto
+
+    def DepthVisualCB(self, results):
+        print("HHHHHHHHHHHHHHHHHELLO")
+
+    def updateTasks(self):
+        """Loop through all periodic tasks and update their data if needed."""
+        try:
+            self._async_tasks.update()
+        except Exception as e:
+            print(f"Update tasks failed with error: {str(e)}")
 
 
 if __name__ == "__main__":
-    DepthVisualPublisher()
-    # if not main(sys.argv[1:]):
-    #     sys.exit(1)
+    rospy.init_node("HELLO")
+    p = DepthVisualPublisher()
+    while not rospy.is_shutdown():
+        p.updateTasks()
+
+
+
 
 
 
