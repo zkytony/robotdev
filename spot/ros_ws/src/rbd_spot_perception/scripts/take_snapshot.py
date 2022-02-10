@@ -2,6 +2,7 @@
 
 import cv2
 import rospy
+import pickle
 import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 from rbd_spot_robot.utils import ros_utils
@@ -55,6 +56,8 @@ class SnapShotter:
             img = ros_utils.convert(fisheye_img)
             print(f"Saving fisheye image from {side}")
             cv2.imwrite(f"fisheye_{timestamp}_{side}.png", img)
+            with open(f"fisheye_{timestamp}_{side}_caminfo.pkl", "wb") as f:
+                pickle.dump(caminfo, f)
 
     def _depth_callback(self, depth_img, caminfo):
         side = caminfo.header.frame_id.split("_")[0]
@@ -68,6 +71,8 @@ class SnapShotter:
             img = ros_utils.convert(depth_img)
             print(f"Saving depth image from {side}")
             cv2.imwrite(f"depth_{timestamp}_{side}.png", img)
+            with open(f"depth_{timestamp}_{side}_caminfo.pkl", "wb") as f:
+                pickle.dump(caminfo, f)
 
 if __name__ == "__main__":
     rospy.init_node("test_node")
