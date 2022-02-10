@@ -11,11 +11,10 @@ catkin_package()
 
 catkin_python_setup()
 
-install(
-  PROGRAMS
-  scripts/take_snapshot.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# install(
+#   PROGRAMS
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}

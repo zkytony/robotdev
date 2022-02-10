@@ -20,7 +20,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
   pip install --upgrade bosdyn-client bosdyn-mission bosdyn-choreography-client
   ```
   (These should already been installed if you had setup Spot with ROS).
-  
+
 3. Verify. `pip list | grep bosdyn`. Everything is so far version `3.0.3`.
 
 ## Install the Full Spot SDK
@@ -31,7 +31,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
   ```
 2.  [Run the Hello Spot example](https://dev.bostondynamics.com/docs/python/quickstart#run-hello-spot-let-s-see-the-robot-move)
     You need to do `pip install -r requirements.txt` specifically for that example. Note that you should be inside your spot virtualenv (created by `setup_spot.bash`).
-    
+
     Note that with our setup, you can run the hello_spot.py script by:
     ```
     python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
@@ -55,10 +55,10 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
     2022-02-09 15:00:25,808 - INFO - Lease check-in stopped
     ```
     and you see the robot move accordingly, and you see a picture taken from the front-left camera.
-    
+
 
 3. Run estop in a separate shell. Press Estop any time during the hello_spot script. "EStop is your friend." --- BD Documentation.
- 
+
     Steps to run E-Stop:
     ```
     cd ~/spot-sdk/python/examples/estop
@@ -68,10 +68,25 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
 
     Here is a scene after Spot "glide stopped" after EStop is pressed:
     <img src="https://i.imgur.com/9myKjho.jpg" width="550px"/>
-    
-    
-    
-    
+
+
+## Getting Started with Spot SDK
+
+Useful resources:
+
+* [Python Examples for Spot SDK](https://dev.bostondynamics.com/python/examples/readme)
+
+   * [Arm Examples](https://dev.bostondynamics.com/python/examples/docs/arm_examples)
+
+
+**Note on requirements.txt for each example:**
+In the remainder of this document, when we mention examples provided by Boston
+Dynamics for Spot SDK, "`[N]`" means no additional packages were installed when
+running `pip install -r requirements.txt` (assuming you had successfully set up this
+repository by running `setup_spot.sh`).
+
+If there is additional packages to be installed, they will be noted as `[pkg1, pkg2, ...]`.
+
 
 ## Obtain Spot ID
 ```
@@ -82,6 +97,18 @@ spot-BD-12070012     000060189461B2000097            spot (V3)
 ```
 
 [reference](https://dev.bostondynamics.com/docs/python/quickstart#request-spot-robot-s-id)
+
+
+## Arm Control
+
+Look at [these examples](https://dev.bostondynamics.com/python/examples/docs/arm_examples)
+
+Experience with different examples:
+
+- Arm Simple `[N]`: the robot stands up, and the arm starts moving. The end effector rotates. The arm did a simple extension. That's it.
+
+- Arm Stow and Unstow `[N]`: the robot stands up. The arm extends (stow). Then returns (unstow).
+
 
 ## Troubleshooting
 
@@ -122,7 +149,7 @@ Here is a photo of the controller when the ERROR happened. The "WIFI" sign is fl
 <img src="https://i.imgur.com/VWq2LVk.jpg" width="400px"/>
 
 
-### Stand (ID 5689) no longer processing 
+### Stand (ID 5689) no longer processing
 
 This happened after Spot was first E-Stopped, then I released the E-Stop, then I try to run the hello_spot.py again. The Spot won't stand up. Controller keeps showing `(ERROR)` on top right.
 
