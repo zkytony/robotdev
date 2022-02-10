@@ -17,7 +17,8 @@ from bosdyn.client.async_tasks import AsyncTasks
 from bosdyn.api import image_pb2
 
 from spot_driver.spot_wrapper import AsyncImageService, SpotWrapper
-
+from spot_driver.ros_helpers import *
+from sensor_msgs.msg import Image, CameraInfo
 import rospy
 import cv2
 import numpy as np
@@ -26,8 +27,8 @@ import time
 
 from rbd_spot_robot.spot_sdk_client import SpotSDKClient
 
-ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
-
+#ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
+ALL_SIDES = ["frontleft"]
 class DepthVisualPublisher(SpotSDKClient):
     def __init__(self, config={}):
         super(DepthVisualPublisher, self).__init__(name="depth_visual")
@@ -44,8 +45,6 @@ class DepthVisualPublisher(SpotSDKClient):
             self._image_requests.append(
                 build_image_request(source, image_format=image_pb2.Image.FORMAT_RAW))
 
-        print(self._image_requests)
-
         self._image_client = self._robot.ensure_client(ImageClient.default_service_name)
         self._rates = config.get("rates", {})
         self._image_task = AsyncImageService(
@@ -57,6 +56,9 @@ class DepthVisualPublisher(SpotSDKClient):
 
         self._async_tasks = AsyncTasks([self._image_task])
 
+        self._pub_caminfo = rospy.Publisher('/spot/dddd/camera_info', CameraInfo, queue_size=10)
+        self._pub_img = rospy.Publisher('/spot/dddd/depth_on_vis', Image, queue_size=10)
+        self.spot_wrapper = SpotWrapper(self._username, self._password, self._hostname, self._logger, rospy.get_param("~estop_timeout", 9.0), rospy.get_param("~rates", {}), {})
 
     @property
     def images(self):
@@ -64,7 +66,13 @@ class DepthVisualPublisher(SpotSDKClient):
         return self._image_task.proto
 
     def DepthVisualCB(self, results):
-        print("HHHHHHHHHHHHHHHHHELLO")
+        data = self.images
+        if data:
+            image_msg0, camera_info_msg0 = getImageMsg(data[0], self.spot_wrapper)
+            self._pub_img.publish(image_msg0)
+            self._pub_caminfo.publish(camera_info_msg0)
+            print("publish")
+
 
     def updateTasks(self):
         """Loop through all periodic tasks and update their data if needed."""
