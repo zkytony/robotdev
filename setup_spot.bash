@@ -95,7 +95,7 @@ function ping_spot
 
 # We have only tested Spot stack with Ubuntu 20.04.
 if ! ubuntu_version_equal 20.04; then
-    echo "SPOT development requires Ubuntu 16.04 and ROS kinetic. Abort."
+    echo "SPOT development requires Ubuntu 20.04 and ROS noetic. Abort."
     return 1
 fi
 
