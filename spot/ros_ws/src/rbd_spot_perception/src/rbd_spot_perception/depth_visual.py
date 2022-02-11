@@ -18,21 +18,89 @@ from bosdyn.api import image_pb2
 
 from spot_driver.spot_wrapper import AsyncImageService, SpotWrapper
 from spot_driver.ros_helpers import *
-from sensor_msgs.msg import Image, CameraInfo
+
 import rospy
+from sensor_msgs import point_cloud2
+from sensor_msgs.msg import Image, CameraInfo, PointCloud2, PointField
+from std_msgs.msg import Header
+
 import cv2
 import numpy as np
 import os
 import time
+import struct
+from tqdm import tqdm
 
 from rbd_spot_robot.spot_sdk_client import SpotSDKClient
+
+def get_intrinsics(P):
+    return dict(fx=P[0],
+                fy=P[5],
+                cx=P[2],
+                cy=P[6])
+
+
+def make_cloud(depth_visual, fisheye, caminfo):
+    """
+    Args:
+        depth_visual (sensor_msgs.Image)
+        fisheye (sensor_msgs.Image)
+        caminfo (CameraInfo)
+
+    Note:
+        depth_visual should have the same camera info as fisheye;
+        They also have the same dimension
+    """
+    points = []
+    h, w = depth_visual.height, depth_visual.width
+    for i in range(len(depth_visual.data)):
+        if i % 2 == 1:
+            continue
+
+        u = (i // 2) % w
+        v = (i // 2) / w
+
+        # depth is represented as 16-bit unsigned integer.
+        # because sensor_msg.Image's data field is 8-bits,
+        # we need to get two bytes to create a 16-bit integer.
+        # Credit: Jasmine
+        b1 = depth_visual.data[i]
+        b2 = depth_visual.data[i+1]
+
+        if depth_visual.is_bigendian:
+            depth = b1*256 + b2
+        else:
+            depth = b1 + b2*256
+
+        grayscale = fisheye.data[i//2]
+        I = get_intrinsics(caminfo.P)
+        z = depth / 1000.0
+        x = (u - I['cx']) * z / I['fx']
+        y = (v - I['cy']) * z / I['fy']
+
+        mono_rgb = struct.unpack('I', struct.pack('BBBB', grayscale, grayscale, grayscale, 255))[0]
+        pt = [x, y, z, mono_rgb]
+        points.append(pt)
+
+    fields = [PointField('x', 0, PointField.FLOAT32, 1),
+              PointField('y', 4, PointField.FLOAT32, 1),
+              PointField('z', 8, PointField.FLOAT32, 1),
+              PointField('rgb', 12, PointField.UINT32, 1),
+              # PointField('rgba', 12, PointField.UINT32, 1),
+              ]
+
+    header = Header()
+    header.stamp = caminfo.header.stamp
+    header.frame_id = caminfo.header.frame_id
+    pc2 = point_cloud2.create_cloud(header, fields, points)
+    return pc2
+
 
 #ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
 ALL_SIDES = ["frontleft"]
 class DepthVisualPublisher(SpotSDKClient):
     def __init__(self, config={}):
         super(DepthVisualPublisher, self).__init__(name="depth_visual")
-
 
         image_sources = []
         for side in ALL_SIDES:
@@ -56,8 +124,12 @@ class DepthVisualPublisher(SpotSDKClient):
 
         self._async_tasks = AsyncTasks([self._image_task])
 
-        self._pub_caminfo = rospy.Publisher('/spot/dddd/camera_info', CameraInfo, queue_size=10)
-        self._pub_img = rospy.Publisher('/spot/dddd/depth_on_vis', Image, queue_size=10)
+        # self._pub_caminfo = rospy.Publisher('/spot/dddd/camera_info', CameraInfo, queue_size=10)
+        # self._pub_img = rospy.Publisher('/spot/dddd/depth_on_vis', Image, queue_size=10)
+
+        self._pcpub = rospy.Publisher('/spot/dddd/point_cloud2',
+                                      PointCloud2, queue_size=2)
+
         self.spot_wrapper = SpotWrapper(self._username, self._password, self._hostname, self._logger, rospy.get_param("~estop_timeout", 9.0), rospy.get_param("~rates", {}), {})
 
     @property
@@ -69,10 +141,10 @@ class DepthVisualPublisher(SpotSDKClient):
         data = self.images
         if data:
             image_msg0, camera_info_msg0 = getImageMsg(data[0], self.spot_wrapper)
-            self._pub_img.publish(image_msg0)
-            self._pub_caminfo.publish(camera_info_msg0)
+            image_msg1, camera_info_msg1 = getImageMsg(data[1], self.spot_wrapper)
+            pc2 = make_cloud(image_msg0, image_msg1, camera_info_msg0)
             print("publish")
-
+            self._pcpub.publish(pc2)
 
     def updateTasks(self):
         """Loop through all periodic tasks and update their data if needed."""
@@ -81,94 +153,10 @@ class DepthVisualPublisher(SpotSDKClient):
         except Exception as e:
             print(f"Update tasks failed with error: {str(e)}")
 
-
 if __name__ == "__main__":
     rospy.init_node("HELLO")
     p = DepthVisualPublisher()
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         p.updateTasks()
-
-
-
-
-
-
-
-
-# def main(argv):
-#     # Parse args
-#     parser = argparse.ArgumentParser()
-#     bosdyn.client.util.add_common_arguments(parser)
-#     parser.add_argument('--to-depth', help='Convert to the depth frame. Default is convert to visual.',
-#                         action='store_true')
-#     parser.add_argument('--camera', help='Camera to acquire image from.', default='frontleft',\
-#                         choices=['frontleft', 'frontright', 'left', 'right', 'back',
-#                         ])
-#     parser.add_argument('--auto-rotate', help='rotate right and front images to be upright',
-#                         action='store_true')
-#     options = parser.parse_args(argv)
-
-#     if options.to_depth:
-#         sources = [ options.camera + '_depth', options.camera + '_visual_in_depth_frame' ]
-#     else:
-#         sources = [ options.camera + '_depth_in_visual_frame', options.camera + '_fisheye_image' ]
-
-
-#     # Create robot object with an image client.
-#     sdk = bosdyn.client.create_standard_sdk('image_depth_plus_visual')
-#     robot = sdk.create_robot(options.hostname)
-#     robot.authenticate(options.username, options.password)
-#     image_client = robot.ensure_client(ImageClient.default_service_name)
-
-#     # Capture and save images to disk
-#     image_responses = image_client.get_image_from_sources(sources)
-
-#     # Image responses are in the same order as the requests.
-#     # Convert to opencv images.
-
-#     if len(image_responses) < 2:
-#         print('Error: failed to get images.')
-#         return False
-
-#     # Depth is a raw bytestream
-#     cv_depth = np.frombuffer(image_responses[0].shot.image.data, dtype=np.uint16)
-#     cv_depth = cv_depth.reshape(image_responses[0].shot.image.rows,
-#                                 image_responses[0].shot.image.cols)
-
-#     # Visual is a JPEG
-#     cv_visual = cv2.imdecode(np.frombuffer(image_responses[1].shot.image.data, dtype=np.uint8), -1)
-
-#     # Convert the visual image from a single channel to RGB so we can add color
-#     visual_rgb = cv2.cvtColor(cv2.cvtColor(cv_visual, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB) if len(cv_visual.shape) == 3 else cv2.cvtColor(cv_visual, cv2.COLOR_GRAY2RGB)
-
-
-#     # Map depth ranges to color
-
-#     # cv2.applyColorMap() only supports 8-bit; convert from 16-bit to 8-bit and do scaling
-#     min_val = np.min(cv_depth)
-#     max_val = np.max(cv_depth)
-#     depth_range = max_val - min_val
-#     depth8 = (255.0 / depth_range * (cv_depth - min_val)).astype('uint8')
-#     depth8_rgb = cv2.cvtColor(depth8, cv2.COLOR_GRAY2RGB)
-#     depth_color = cv2.applyColorMap(depth8_rgb, cv2.COLORMAP_JET)
-
-#     # Add the two images together.
-#     out = cv2.addWeighted(visual_rgb, 0.5, depth_color, 0.5, 0)
-
-#     if options.auto_rotate:
-#         if image_responses[0].source.name[0:5] == "front":
-#             out = cv2.rotate(out, cv2.ROTATE_90_CLOCKWISE)
-
-#         elif image_responses[0].source.name[0:5] == "right":
-#             out = cv2.rotate(out, cv2.ROTATE_180)
-
-#     # Write the image out.
-#     filename = options.camera + ".jpg"
-#     cv2.imwrite(filename, out)
-
-#     return True
-
-
-# if __name__ == "__main__":
-#     if not main(sys.argv[1:]):
-#         sys.exit(1)
+        rate.sleep()

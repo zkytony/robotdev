@@ -166,3 +166,9 @@ $ python3 hello_spot.py --username user --password $SPOT_USER_PASSWORD $SPOT_IP
 
 This may in fact be a sign that the RPCs running on Spot are terminated after E-Stop. Something similar happens on MOVO.
 One way to resolve this is to just reboot Spot. I have also reached out to BD support.
+
+
+### No Exception Printed
+When using `AsyncImageService` and `AsyncTasks` from Spot ROS and Spot SDK,
+exceptions won't terminate the program and exception messages are not printed.
+TODO: WHAT TO DO?
