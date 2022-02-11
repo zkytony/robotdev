@@ -82,21 +82,10 @@ def make_cloud(depth_visual, fisheye, caminfo):
         pt = [x, y, z, mono_rgb]
         points.append(pt)
 
-    fields = [PointField('x', 0, PointField.FLOAT32, 1),
-              PointField('y', 4, PointField.FLOAT32, 1),
-              PointField('z', 8, PointField.FLOAT32, 1),
-              PointField('rgb', 12, PointField.UINT32, 1),
-              # PointField('rgba', 12, PointField.UINT32, 1),
-              ]
-
-    header = Header()
-    header.stamp = caminfo.header.stamp
-    header.frame_id = caminfo.header.frame_id
-    pc2 = point_cloud2.create_cloud(header, fields, points)
-    return pc2
+    return points
 
 
-#ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
+# ALL_SIDES = ["frontleft", "frontright"]#, "left", "right", "back"]
 ALL_SIDES = ["frontleft"]
 class DepthVisualPublisher(SpotSDKClient):
     def __init__(self, config={}):
@@ -123,13 +112,10 @@ class DepthVisualPublisher(SpotSDKClient):
             self._image_requests)
 
         self._async_tasks = AsyncTasks([self._image_task])
-
-        # self._pub_caminfo = rospy.Publisher('/spot/dddd/camera_info', CameraInfo, queue_size=10)
-        # self._pub_img = rospy.Publisher('/spot/dddd/depth_on_vis', Image, queue_size=10)
-
         self._pcpub = rospy.Publisher('/spot/dddd/point_cloud2',
                                       PointCloud2, queue_size=2)
 
+        # REQUIRED BY getImageMsg
         self.spot_wrapper = SpotWrapper(self._username, self._password, self._hostname, self._logger, rospy.get_param("~estop_timeout", 9.0), rospy.get_param("~rates", {}), {})
 
     @property
@@ -140,9 +126,19 @@ class DepthVisualPublisher(SpotSDKClient):
     def DepthVisualCB(self, results):
         data = self.images
         if data:
-            image_msg0, camera_info_msg0 = getImageMsg(data[0], self.spot_wrapper)
-            image_msg1, camera_info_msg1 = getImageMsg(data[1], self.spot_wrapper)
-            pc2 = make_cloud(image_msg0, image_msg1, camera_info_msg0)
+            all_points = []
+
+            depth_visual_msg, caminfo = getImageMsg(data[0], self.spot_wrapper)
+            fisheye_msg, caminfo = getImageMsg(data[1], self.spot_wrapper)
+            points = make_cloud(depth_visual_msg, fisheye_msg, caminfo)
+            fields = [PointField('x', 0, PointField.FLOAT32, 1),
+                      PointField('y', 4, PointField.FLOAT32, 1),
+                      PointField('z', 8, PointField.FLOAT32, 1),
+                      PointField('rgb', 12, PointField.UINT32, 1)]
+            header = Header()
+            header.stamp = caminfo.header.stamp
+            header.frame_id = caminfo.header.frame_id
+            pc2 = point_cloud2.create_cloud(header, fields, points)
             print("publish")
             self._pcpub.publish(pc2)
 
