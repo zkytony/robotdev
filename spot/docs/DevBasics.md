@@ -171,4 +171,25 @@ One way to resolve this is to just reboot Spot. I have also reached out to BD su
 ### No Exception Printed
 When using `AsyncImageService` and `AsyncTasks` from Spot ROS and Spot SDK,
 exceptions won't terminate the program and exception messages are not printed.
-TODO: WHAT TO DO?
+
+
+**Investigation:**
+The callback function passed into `AsyncImageService`, when called, will not throw the
+error message when there is an exception.
+
+
+**SOLUTION:** The `SpotWrapper` (and the `SpotSDKClient`) has a logger.
+Use that logger to log the error message in the callback function. That
+is the only way. For example:
+```python
+def DepthVisualCB(self, results):
+    try:
+        raise ValueError("HELLO")
+    except Exception as e:
+        self._logger.error("Error during callback: {}".format(e)
+```
+This will show up as:
+```
+...
+[ERROR] [1644629373.765228]: Error during callback: HELLO
+```
