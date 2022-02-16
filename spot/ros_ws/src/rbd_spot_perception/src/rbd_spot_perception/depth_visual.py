@@ -103,6 +103,7 @@ class DepthVisualPublisher(SpotSDKClientWithTF):
 
         if camera not in ALL_SIDES:
             raise ValueError(f"Unrecognized camera {camera}")
+        self.camera = camera
 
         image_sources = [f"{camera}_depth_in_visual_frame",
                          f"{camera}_fisheye_image"]
@@ -158,8 +159,8 @@ class DepthVisualPublisher(SpotSDKClientWithTF):
                 header.frame_id = caminfo.header.frame_id
                 pc2 = point_cloud2.create_cloud(header, fields, points)
                 self.populate_camera_static_transforms(data[0], self.spot_wrapper)
-                print("publish")
                 self._pcpub.publish(pc2)
+                print(f"publish {self.camera}")
             except Exception as e:
                 self._logger.error("Error during callback: {}".format(e))
 
