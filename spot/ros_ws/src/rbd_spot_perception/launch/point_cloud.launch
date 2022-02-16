@@ -1,0 +1,28 @@
+<launch>
+
+  <!-- <node pkg="rbd_spot_perception" type="depth_visual.py" -->
+  <!--       name="frontleft_depth_visual" ns="spot" output="screen" -->
+  <!--       args="frontleft"> -->
+  <!-- </node> -->
+
+  <!-- <node pkg="rbd_spot_perception" type="depth_visual.py" -->
+  <!--       name="frontright_depth_visual" ns="spot" output="screen" -->
+  <!--       args="frontright"> -->
+  <!-- </node> -->
+
+  <node pkg="rbd_spot_perception" type="depth_visual.py"
+        name="left_depth_visual" ns="spot" output="screen"
+        args="left">
+  </node>
+
+  <!-- <node pkg="rbd_spot_perception" type="depth_visual.py" -->
+  <!--       name="right_depth_visual" ns="spot" output="screen" -->
+  <!--       args="right"> -->
+  <!-- </node> -->
+
+  <!-- <node pkg="rbd_spot_perception" type="depth_visual.py" -->
+  <!--       name="back_depth_visual" ns="spot" output="screen" -->
+  <!--       args="back"> -->
+  <!-- </node> -->
+
+</launch>
