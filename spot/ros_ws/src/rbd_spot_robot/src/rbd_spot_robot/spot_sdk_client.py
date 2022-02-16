@@ -11,13 +11,13 @@ class SpotSDKClient:
 
     This can be seen as a more high-level version of SpotWrapper
     by Spot ROS."""
-    def __init__(self, name='client'):
+    def __init__(self, sdk_name, name='client'):
         self.name = name
         self._logger = logging.getLogger('rosout')
         rospy.loginfo("Starting Spot SDK Client for {}".format(self.name))
 
         try:
-            self._sdk = create_standard_sdk('DepthVisualPublisher')
+            self._sdk = create_standard_sdk(sdk_name)
         except Exception as e:
             self._logger.error("Error creating SDK object: %s", e)
             self._valid = False
@@ -39,8 +39,8 @@ class SpotSDKClient:
 
 
 class SpotSDKClientWithTF(SpotSDKClient):
-    def __init__(self, name='client'):
-        super(SpotSDKClientWithTF, self).__init__(name=name)
+    def __init__(self, sdk_name, name='client'):
+        super(SpotSDKClientWithTF, self).__init__(sdk_name, name=name)
 
         # NOTE: THE FOLLOWING is BORROWED from spot_driver/spot_ros.py
         self.camera_static_transform_broadcaster = tf2_ros.StaticTransformBroadcaster()

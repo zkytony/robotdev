@@ -99,7 +99,7 @@ class DepthVisualPublisher(SpotSDKClientWithTF):
             max_query_rate (float): Maximum rate (Hz) to query Spot SDK service fo
                  the images.
         """
-        super(DepthVisualPublisher, self).__init__(name="depth_visual")
+        super(DepthVisualPublisher, self).__init__('DepthVisualPublisher', name="depth_visual")
 
         if camera not in ALL_SIDES:
             raise ValueError(f"Unrecognized camera {camera}")
