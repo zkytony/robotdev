@@ -200,4 +200,4 @@ if confirm "Are you working on the real robot ?"; then
     # Load the spot passwords
     source $repo_root/.spot_passwd
 fi
-cd $repo_root/$SPOT_PATH
+cd $repo_root
