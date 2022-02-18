@@ -99,7 +99,9 @@ If there is additional packages to be installed, they will be noted as `[pkg1, p
 
 2. What is the output returned by a service?
 
+    Protobuf.
 
+    Read [Boston Dynamics API Protobuf Guidelines](https://dev.bostondynamics.com/docs/protos/style_guide).
 
 
 
