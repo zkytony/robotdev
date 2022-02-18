@@ -1,5 +1,3 @@
-# Software Development with Spot
-
 Official [Spot SDK docs](https://dev.bostondynamics.com/).
 
 The Spot API follows a client-server model. Client applications
@@ -10,7 +8,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
 ![spot sdk viz](https://d33wubrfki0l68.cloudfront.net/f34bcc5ff400782c699351096b289ed9f943164a/32716/_images/api_top_level.png)
 
 
-## Install the Spot Python SDK
+# Install the Spot Python SDK
 
 [Main reference](https://dev.bostondynamics.com/docs/python/quickstart#system-setup).
 
@@ -23,7 +21,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
 
 3. Verify. `pip list | grep bosdyn`. Everything is so far version `3.0.3`.
 
-## Install the Full Spot SDK
+# Install the Full Spot SDK
 
 1. Clone the repo (or add it as submodule). This is about 160MB.
   ```
@@ -70,7 +68,7 @@ The Spot services can be categorized into "core", "robot" and "autonomy" as foll
     <img src="https://i.imgur.com/9myKjho.jpg" width="550px"/>
 
 
-## Getting Started with Spot SDK
+# Getting Started with Spot SDK
 
 Useful resources:
 
@@ -88,7 +86,24 @@ repository by running `setup_spot.sh`).
 If there is additional packages to be installed, they will be noted as `[pkg1, pkg2, ...]`.
 
 
-## Obtain Spot ID
+# Basic Understandings about the Spot SDK
+
+1. Where to find all the services?
+
+    For every service, Spot SDK provides a "Client" object. Look through
+    the files under `bosdyn/client`. Or you can read [the documentation
+    page for the Python Client](https://dev.bostondynamics.com/python/bosdyn-client/src/bosdyn/client/readme).
+
+    Directly reading their code is your friend.
+
+
+2. What is the output returned by a service?
+
+
+
+
+
+# Obtain Spot ID
 ```
 $ python3 -m bosdyn.client 192.168.80.3 id
 spot-BD-12070012     000060189461B2000097            spot (V3)
@@ -99,7 +114,7 @@ spot-BD-12070012     000060189461B2000097            spot (V3)
 [reference](https://dev.bostondynamics.com/docs/python/quickstart#request-spot-robot-s-id)
 
 
-## Arm Control
+# Arm Control
 
 Look at [these examples](https://dev.bostondynamics.com/python/examples/docs/arm_examples)
 
@@ -110,9 +125,9 @@ Experience with different examples:
 - Arm Stow and Unstow `[N]`: the robot stands up. The arm extends (stow). Then returns (unstow).
 
 
-## Troubleshooting
+# Troubleshooting
 
-### Resource AlreadyClaimedError()
+## Resource AlreadyClaimedError()
 
 When running the hello_spot.py script, I get:
 ```
@@ -129,7 +144,7 @@ or force take the control from the script, do `lease_client.take()` instead of `
 Note that when you RELEASE CONTROL, if the robot is standing, it will sit down. And the LED lights will be rainbow colors.
 Once you take back control with the controller (or when you are running the hello_spot script that needs control), the LED lights will turn green again. (When the hello_spot script finishes running, control is released again and the lights turn rainbow again).
 
-### Robot is estopped
+## Robot is estopped
 
 This may happen after you E-Stop the robot and then try to take back control.
 
@@ -149,7 +164,7 @@ Here is a photo of the controller when the ERROR happened. The "WIFI" sign is fl
 <img src="https://i.imgur.com/VWq2LVk.jpg" width="400px"/>
 
 
-### Stand (ID 5689) no longer processing
+## Stand (ID 5689) no longer processing
 
 This happened after Spot was first E-Stopped, then I released the E-Stop, then I try to run the hello_spot.py again. The Spot won't stand up. Controller keeps showing `(ERROR)` on top right.
 
@@ -168,7 +183,7 @@ This may in fact be a sign that the RPCs running on Spot are terminated after E-
 One way to resolve this is to just reboot Spot. I have also reached out to BD support.
 
 
-### No Exception Printed
+## No Exception Printed
 When using `AsyncImageService` and `AsyncTasks` from Spot ROS and Spot SDK,
 exceptions won't terminate the program and exception messages are not printed.
 
@@ -194,7 +209,7 @@ This will show up as:
 [ERROR] [1644629373.765228]: Error during callback: HELLO
 ```
 
-### Could not find version for vtk
+## Could not find version for vtk
 
 I keep getting this error when running `python3 -m pip install -r requirements.txt`
 in Spot SDK examples (e.g. `visualizer/basic_streaming_visualizer.py`)
