@@ -1,3 +1,9 @@
+#####################################
+# NO LONGER WORKS! BECAUSE
+# I HAVE CHANGED THE INTERFACE
+# OF SpotSDKClient. The logic
+# of projection still works of course
+#####################################
 #!/usr/bin/env python
 # Copyright (c) 2021 Boston Dynamics, Inc.  All rights reserved.
 #
