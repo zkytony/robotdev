@@ -9,7 +9,7 @@ import tf2_ros
 from spot_driver.ros_helpers import populateTransformStamped
 
 
-@dataclass(init=True, frozen=True, eq=False)
+@dataclass(init=True)
 class SpotSDKConn:
     """Establishes connection with Spot SDK and
     creates standard objects every program that
@@ -22,23 +22,23 @@ class SpotSDKConn:
     logto: str = "rosout"
 
     def __post_init__(self):
-        logger = logging.getLogger(self.logto)
+        self.logger = logging.getLogger(self.logto)
         try:
             sdk = create_standard_sdk(self.sdk_name)
         except Exception as e:
-            logger.error("Error creating SDK object: %s", e)
+            self.logger.error("Error creating SDK object: %s", e)
             return
 
-        robot = sdk.create_robot(self.hostname)
+        self.robot = sdk.create_robot(self.hostname)
         try:
-            robot.authenticate(self.username, self.password)
-            robot.start_time_sync()
+            self.robot.authenticate(self.username, self.password)
+            self.robot.start_time_sync()
         except RpcError as err:
-            logger.error("Failed to communicate with robot: %s", err)
+            self.logger.error("Failed to communicate with robot: %s", err)
             return
 
     def ensure_client(self, service_name):
-        self.robot.ensure_client(service_name)
+        return self.robot.ensure_client(service_name)
 
 
 # class SpotSDKClientWithTF(SpotSDKClient):

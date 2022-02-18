@@ -21,7 +21,8 @@ def main():
     sources = args.sources
     if len(sources) == 1 and sources[0] == "list":
         # list sources; blocking call
-        pprint(image_client.list_image_sources())
+        import pdb; pdb.set_trace()
+        result = image_client.list_image_sources()
         return
 
 
