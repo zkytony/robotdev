@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 # Stream images through Spot
+#
+# Usage examples:
+#
+# rosrun rbd_spot_perception stream_image.py list
 
 import argparse
 from rbd_spot_robot import SpotSDKConn
 import bosdyn.client as bdc
 from pprint import pprint
 
+
 def image_callback():
     pass
+
+def extract_source_names(sources_result):
+    """
+    Args:
+        sources_result (list of ListImageSources)
+    """
 
 
 def main():
@@ -21,9 +32,7 @@ def main():
     sources = args.sources
     if len(sources) == 1 and sources[0] == "list":
         # list sources; blocking call
-        import pdb; pdb.set_trace()
-        result = image_client.list_image_sources()
-        return
+        print(image_client.list_image_sources())
 
 
 if __name__ == "__main__":

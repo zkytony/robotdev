@@ -11,6 +11,15 @@
   You need to have a basic understanding of how Google Protobuf works. Check out [this official tutorial](https://developers.google.com/protocol-buffers/docs/pythontutorial#why-use-protocol-buffers).
 
 
+# How to Find Out the Format (Schema) of a gRPC Protobuf in Spot SDK?
+
+[This page lists all the protos that make up Boston Dynamics's Public API](https://dev.bostondynamics.com/protos/bosdyn/api/readme).
+For example, you will find `image.proto`, `estop.proto`, etc. **This Reference is SUPER useful.**
+
+Each `.proto` file defines services and corresponding message types.
+
+Note that you can find the corresponding generated Python file as `<proto_name>_pb2.py` under `bosdyn/api`.
+For example, `image_pb2.py`.
 
 
 ## Appendix
