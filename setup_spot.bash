@@ -135,6 +135,7 @@ if first_time_build $SPOT_ROS_PATH; then
     pip install pydot
     pip install graphviz
     pip install opencv-python
+    pip install pandas
 
     # rosdep install dependencies
     rosdep update
