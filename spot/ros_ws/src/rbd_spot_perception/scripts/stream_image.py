@@ -34,6 +34,16 @@ def extract_source_names(sources_result):
                                key=lambda tup: tup[1]),  # sort by image type
                                columns=["name", "type"])
 
+def stream_get_image(image_client, requests):
+    try:
+        while True:
+            _start_time = time.time()
+            response = image_client.get_image(requests)
+            _used_time = time.time() - _start_time
+            yield response, _used_time
+    except KeyboardInterrupt:
+        print("Bye.")
+
 def main():
     parser = argparse.ArgumentParser("stream image")
     parser.add_argument("sources", nargs="+", help="image sources; or 'list'")
@@ -55,7 +65,6 @@ def main():
         df = extract_source_names(sources_result)
         print(df)
     else:
-        # Stream the image through specified sources
         requests = []
         for source in sources:
             fmt = None
@@ -63,10 +72,10 @@ def main():
                 fmt = image_pb2.Image.Format.Value(formats.index(args.format))
             req = build_image_request(source, quality_percent=args.quality, image_format=fmt)
             requests.append(req)
-        _start_time = time.time()
-        response = image_client.get_image(requests)
-        _used_time = time.time() - _start_time
-        print("GetImage took %.3fs" % _used_time)
+
+        # Stream the image through specified sources
+        for response, time_taken in stream_get_image(image_client, requests):
+            print(time_taken)
 
 
 if __name__ == "__main__":
