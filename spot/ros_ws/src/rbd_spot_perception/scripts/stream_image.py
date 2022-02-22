@@ -78,7 +78,7 @@ def publish_image_response(publishers, response, conn):
         response (GetImageResponse): The message returned by GetImage service.
     """
     # publish the image with local timestamp
-    for image_response in response.image_responses:
+    for image_response in response:
         local_time = conn.spot_time_to_local(
             image_response.shot.acquisition_time)
         image_msg, camera_info_msg =\
@@ -148,14 +148,14 @@ def main():
                     sensor_msgs.msg.Image, queue_size=10),
                 "camera_info": rospy.Publisher(
                     f"/spot/stream_image/{source}/camera_info",
-                    sensor_msgs.msg.Image, queue_size=10)
+                    sensor_msgs.msg.CameraInfo, queue_size=10)
             }
 
     # Stream the image through specified sources
     for response, time_taken in stream_get_image(image_client, requests):
         print(time_taken)
         if args.pub:
-            publish_image_response(publishers, response)
+            publish_image_response(publishers, response, conn)
 
 
 if __name__ == "__main__":
