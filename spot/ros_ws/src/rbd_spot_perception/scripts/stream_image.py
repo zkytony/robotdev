@@ -48,8 +48,9 @@ def check_sources_valid(sources, sources_df):
     """
     bad_sources = []
     ok = True
-    for source_name in args.sources:
-        if not sources_df['name'].str.contains(source_name):
+    for source_name in sources:
+        names = sources_df['name']  # pandas.Series
+        if len(names[names == source_name]) == 0:
             bad_sources.append(source_name)
             ok = False
     return ok, bad_sources
@@ -109,7 +110,7 @@ def main():
     print("ListImageSources took %.3fs" % _used_time)
     sources_df = extract_source_names(sources_result)
     print("Available image sources:")
-    print(sources_df)
+    print(sources_df, "\n")
 
     if args.sources is None or len(args.sources) == 0:
         # nothing to do.
