@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass, field
 
 from bosdyn.client import create_standard_sdk, ResponseError, RpcError
+from google.protobuf.timestamp_pb2 import Timestamp
 
 import rospy
 import logging
@@ -39,6 +40,27 @@ class SpotSDKConn:
 
     def ensure_client(self, service_name):
         return self.robot.ensure_client(service_name)
+
+    @property
+    def clock_skew(self):
+        return self._robot.time_sync.endpoint.clock_skew
+
+    def spot_time_to_local(self, spot_timestamp):
+        """
+        Args:
+            spot_timestamp (google.protobuf.Timestamp): timestamp in Spot clock
+        Returns:
+            google.protobuf.Timestamp
+        """
+        seconds = spot_timestamp.seconds - self.clock_skew.seconds
+        nanos = spot_timestamp.nanos - self.clock_skew.nanos
+        if nanos < 0:
+           nanos = nanos + 1000000000  # 10 digits
+           seconds = seconds - 1
+        if seconds < 0:
+            seconds = 0
+            nanos = 0
+        return Timestamp(seconds=seconds, nanos=nanos)
 
 
 # class SpotSDKClientWithTF(SpotSDKClient):
