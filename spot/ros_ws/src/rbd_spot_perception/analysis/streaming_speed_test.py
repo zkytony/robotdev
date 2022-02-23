@@ -1,11 +1,14 @@
 # run spot SDK image streaming and record frequency
 # for a few different combinations of image sources.
 import os
+import sys
 import time
 import numpy as np
-import rbd_spot
-import pandas as pd
 from datetime import datetime
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+import rbd_spot
 
 QUALITY=75
 FORMAT=None
@@ -80,7 +83,7 @@ def test_cases():
             single_depth]
 
 
-def main():
+def run_test():
     print("Connecting to spot...")
     conn = rbd_spot.SpotSDKConn(sdk_name="StreamImageClient")
     print(f"Connected! ip: {conn.hostname}; type: {conn.conn_type}")
@@ -97,9 +100,55 @@ def main():
 
     df = pd.DataFrame(rows,
                       columns=["conn_type", "quality", "format", "test_case", "response_time"])
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S)")
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     result_file_name = f"streamingtimes_{conn.conn_type}_q{QUALITY}_f{FORMAT}_{timestamp}.csv"
     df.to_csv(os.path.join("results", result_file_name))
 
+
+def plot_results(files_to_load):
+    """plot results;
+    We actually make the plotting code adapt to the non-optimal
+    data frame schema produced by run_test, to save time / avoid
+    rerunning the test."""
+    def _test_name(test_case):
+        if test_case.startswith("All"):
+            num = 5
+        if test_case.startswith("Two"):
+            num = 2
+        if test_case.startswith("Single"):
+            num = 1
+        if "Visual" in test_case:
+            typ = "depth_visual"
+        else:
+            typ = "depth"
+        return f"{typ}({num})"
+
+    allres = []
+    for filepath in files_to_load:
+        allres.append(pd.read_csv(filepath))
+    df = pd.concat(allres, axis=0)
+
+    # We will add a column for whether the image source is 'depth' or 'depth visual'
+    test_case_names = [_test_name(row['test_case'])
+                   for _, row in df.iterrows()]
+    df['test_case'] = test_case_names
+    sns.boxplot(data=df,
+                x="test_case",
+                y="response_time",
+                hue="conn_type")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    main()
+    mode = "plot"
+    if len(sys.argv) > 1:
+        mode = sys.argv[1]
+
+    if mode == "test":
+        run_test()
+    elif mode == "plot":
+        plot_results(["./results/streamingtimes_spot_wifi_q75_fNone_20220223145741.csv"])
+    else:
+        print('unknown mode', mode)
