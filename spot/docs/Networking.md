@@ -194,3 +194,15 @@ to connect to. Then enter the WiFi Password.
 
 You can then visit [https://192.168.80.3](https://192.168.80.3)
 which will take you to a log-in page.
+
+
+## Performance of different networks
+
+I ran an experiment. I stream the depth or depth_visual images from 5, 2, or 1 cameras
+for 30 seconds and record the average response time. I compare between
+using Spot's WiFi, ethernet, and RLAB. Results below:
+
+![plot](https://i.imgur.com/nzfbAEW.png)
+
+Deemer had sad using RLAB wouldn't make too much of a difference. But
+it does make a difference!
