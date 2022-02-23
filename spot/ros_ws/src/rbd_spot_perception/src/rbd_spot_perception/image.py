@@ -3,6 +3,7 @@
 
 import time
 import rospy
+import sensor_msgs
 
 from bosdyn.api import image_pb2
 from bosdyn.client.image import ImageClient, build_image_request
@@ -56,6 +57,28 @@ def ros_publish_image_result(conn, get_image_result, publishers):
         publishers[source_name]['image'].publish(image_msg)
         publishers[source_name]['camera_info'].publish(camera_info_msg)
         rospy.loginfo(f"Published image response from {source_name}")
+
+
+def ros_create_publishers(sources, name_space="stream_image"):
+    """
+    Returns a dictionary of publishers for given sources.
+
+    Args:
+        sources (list): List of source names
+    Returns:
+        dict
+    """
+    publishers = {}
+    for source in sources:
+        publishers[source] = {
+            "image": rospy.Publisher(
+                f"/spot/{name_space}/{source}/image",
+                sensor_msgs.msg.Image, queue_size=10),
+            "camera_info": rospy.Publisher(
+                f"/spot/{name_space}/{source}/camera_info",
+                sensor_msgs.msg.CameraInfo, queue_size=10)
+        }
+    return publishers
 
 
 def create_client(conn):

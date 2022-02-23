@@ -9,7 +9,7 @@ import time
 import argparse
 
 import rospy
-import sensor_msgs
+
 
 import rbd_spot
 import pandas as pd
@@ -49,16 +49,7 @@ def main():
     # maps from source name to a publisher.
     if args.pub:
         rospy.init_node("stream_image")
-        publishers = {}
-        for source in args.sources:
-            publishers[source] = {
-                "image": rospy.Publisher(
-                    f"/spot/stream_image/{source}/image",
-                    sensor_msgs.msg.Image, queue_size=10),
-                "camera_info": rospy.Publisher(
-                    f"/spot/stream_image/{source}/camera_info",
-                    sensor_msgs.msg.CameraInfo, queue_size=10)
-            }
+        publishers = rbd_spot.image.ros_create_publishers(args.sources)
 
     # We want to stream the image sources, publish as ROS message if necessary
     # First, build requests
