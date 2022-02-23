@@ -91,7 +91,7 @@ def main():
         all_times = test_case.run(conn, image_client,
                                   quality=QUALITY,
                                   fmt=FORMAT,
-                                  duration=1)
+                                  duration=30)
         for time in all_times:
             rows.append([conn.conn_type, QUALITY, FORMAT, test_case.name, time])
 
