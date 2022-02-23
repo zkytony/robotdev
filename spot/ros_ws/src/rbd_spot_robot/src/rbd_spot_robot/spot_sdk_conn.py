@@ -17,7 +17,7 @@ class SpotSDKConn:
     hostname: str = os.environ['SPOT_IP']
     username: str = "user"
     password: str = os.environ['SPOT_USER_PASSWORD']
-    conn_type: str = os.environ['SPOT_CONN']
+    conn_type: str = os.environ['SPOT_CONN'].replace(" ", "_")
     logto: str = "rosout"
 
     def __post_init__(self):

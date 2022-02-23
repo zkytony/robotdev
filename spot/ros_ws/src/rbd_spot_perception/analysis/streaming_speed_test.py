@@ -96,7 +96,7 @@ def main():
 
     df = pd.DataFrame(rows,
                       columns=["conn_type", "quality", "format", "test_case", "response_time"])
-    df.to_csv(os.path.join("results", f"streamingtimes-{conn.conn_type}_{QUALITY}_{FORMAT}.csv"))
+    df.to_csv(os.path.join("results", f"streamingtimes-{conn.conn_type}_q{QUALITY}_f{FORMAT}.csv"))
 
 if __name__ == "__main__":
     main()
