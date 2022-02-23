@@ -5,6 +5,7 @@ import time
 import numpy as np
 import rbd_spot
 import pandas as pd
+from datetime import datetime
 
 QUALITY=75
 FORMAT=None
@@ -90,13 +91,15 @@ def main():
         all_times = test_case.run(conn, image_client,
                                   quality=QUALITY,
                                   fmt=FORMAT,
-                                  duration=30)
+                                  duration=1)
         for time in all_times:
             rows.append([conn.conn_type, QUALITY, FORMAT, test_case.name, time])
 
     df = pd.DataFrame(rows,
                       columns=["conn_type", "quality", "format", "test_case", "response_time"])
-    df.to_csv(os.path.join("results", f"streamingtimes-{conn.conn_type}_q{QUALITY}_f{FORMAT}.csv"))
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S)")
+    result_file_name = f"streamingtimes_{conn.conn_type}_q{QUALITY}_f{FORMAT}_{timestamp}.csv"
+    df.to_csv(os.path.join("results", result_file_name))
 
 if __name__ == "__main__":
     main()
