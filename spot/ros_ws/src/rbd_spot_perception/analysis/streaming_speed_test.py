@@ -62,7 +62,7 @@ def test_cases():
     )
 
     two_sides_depth = TestCase(
-        "AllSidesDepth",
+        "TwoSidesDepth",
         ["frontleft_depth",
          "left_depth"]
     )
