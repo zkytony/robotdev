@@ -24,6 +24,7 @@ def main():
     parser.add_argument("-f", "--format", type=str,
                         help="format", choices=formats)
     parser.add_argument("-p", "--pub", action="store_true", help="publish as ROS messages")
+    parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
     args = parser.parse_args()
 
     conn = rbd_spot.SpotSDKConn(sdk_name="StreamImageClient")
@@ -58,10 +59,14 @@ def main():
 
     # Stream the image through specified sources
     try:
+        _start_time = time.time()
         for result, time_taken in rbd_spot.image.getImageStream(image_client, image_requests):
             print(time_taken)
             if args.pub:
                 rbd_spot.image.ros_publish_image_result(conn, result, publishers)
+            _used_time = time.time() - _start_time
+            if args.timeout and _used_time > args.timeout:
+                break
 
     except KeyboardInterrupt:
         print("Bye.")

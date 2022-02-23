@@ -34,9 +34,9 @@ def getImageStream(image_client, requests):
     get_image request with `requests`."""
     while True:
         _start_time = time.time()
-        response = image_client.get_image(requests)
+        result = image_client.get_image(requests)
         _used_time = time.time() - _start_time
-        yield response, _used_time
+        yield result, _used_time
 
 
 def ros_publish_image_result(conn, get_image_result, publishers):
