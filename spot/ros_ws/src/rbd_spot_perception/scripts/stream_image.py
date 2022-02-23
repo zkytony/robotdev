@@ -10,7 +10,6 @@ import argparse
 
 import rospy
 
-
 import rbd_spot
 import pandas as pd
 

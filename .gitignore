@@ -69,3 +69,5 @@ DONE_SETUP
 
 thirdparty/libfreenect2  # its own repo
 thirdparty/
+
+spot/ros_ws/src/rbd_spot_perception/analysis/results
