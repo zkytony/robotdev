@@ -149,6 +149,7 @@ if __name__ == "__main__":
     if mode == "test":
         run_test()
     elif mode == "plot":
-        plot_results(["./results/streamingtimes_spot_wifi_q75_fNone_20220223145741.csv"])
+        plot_results(["./results/streamingtimes_spot_wifi_q75_fNone_20220223145741.csv",
+                      "./results/streamingtimes_ethernet_q75_fNone_20220223152706.csv"])
     else:
         print('unknown mode', mode)
