@@ -132,12 +132,17 @@ def plot_results(files_to_load):
     test_case_names = [_test_name(row['test_case'])
                    for _, row in df.iterrows()]
     df['test_case'] = test_case_names
-    sns.boxplot(data=df,
-                x="test_case",
-                y="response_time",
-                hue="conn_type")
-    plt.xticks(rotation=45)
+    g = sns.boxplot(data=df,
+                    x="test_case",
+                    y="response_time",
+                    hue="conn_type")
+
+    plt.yticks(np.arange(round(min(df['response_time'])), round(max(df['response_time'])+0.5), 0.5))
+    plt.ylabel("response time per request (s)")
+    plt.xlabel("image type (No. cameras)")
+    plt.xticks(rotation=30)
     plt.tight_layout()
+    plt.grid()
     plt.show()
 
 
@@ -150,6 +155,7 @@ if __name__ == "__main__":
         run_test()
     elif mode == "plot":
         plot_results(["./results/streamingtimes_spot_wifi_q75_fNone_20220223145741.csv",
-                      "./results/streamingtimes_ethernet_q75_fNone_20220223152706.csv"])
+                      "./results/streamingtimes_ethernet_q75_fNone_20220223152706.csv",
+                      "./results/streamingtimes_rlab_q75_fNone_20220223154635.csv"])
     else:
         print('unknown mode', mode)
