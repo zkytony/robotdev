@@ -61,3 +61,11 @@ In `PYTHONPATH`, `/usr/lib/python3/dist-packages` CANNOT appear before `${PYTHON
 which after sourcing the `devel/setup.bash` contains workspace-level python configurations;
 That is supposed to overwrite the system's default which is in `/usr/lib/python3/dist-packages`.
 Note that `/usr/lib/python3/dist-packages` is added only so that `PyKDL` can be imported (in order to resolve [this issue](https://answers.ros.org/question/380142/how-to-install-tf2_geometry_msgs-dependency-pykdl/?answer=395887#post-id-395887).)
+
+
+### XX camera communication error
+You may see this on the controller as one of the fault messages (from the top).
+For example, "right camera communication error."
+If that happens, then you will not be able to run GetImage gRPC for that camera.
+
+Try to restart the robot.
