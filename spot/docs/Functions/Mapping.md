@@ -21,3 +21,5 @@ configurations, **ORB-SLAM3 is as robust as the best systems available in the**
 There is no other choice than ORB_SLAM3.
 
 Cartographer is not considered because it does not provide RGBD SLAM.
+
+**UPDATE 02/23/2022 10:50PM:** ORB_SLAM3 is very difficult to build and the code base is not maintained.
