@@ -23,3 +23,7 @@ There is no other choice than ORB_SLAM3.
 Cartographer is not considered because it does not provide RGBD SLAM.
 
 **UPDATE 02/23/2022 10:50PM:** ORB_SLAM3 is very difficult to build and the code base is not maintained.
+There does not seem to be [active support for ROS](https://github.com/UZ-SLAMLab/ORB_SLAM3/issues/480)
+and the authors have basically left the repository hanging.
+
+**I think to build complicated software like this, you need to use docker. Docker is the way to for "one effort and release stress forever".**
