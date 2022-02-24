@@ -8,12 +8,14 @@
 # /author: Kaiyu Zheng
 FROM ros:noetic
 
+# do this to avoid hanging
+ENV DEBIAN_FRONTEND=noninteractive
 # Install software
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y emacs
 RUN apt-get install -y sudo
-RUN apt-get install -y python-pip
+RUN apt-get install -y python3-pip
 RUN apt-get install -y net-tools
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y gdb
