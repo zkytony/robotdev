@@ -1,32 +1,38 @@
 # Spot
 
-# Activate spot workspace:
-```
-# at robotdev root directory:
-$ source setup_spot.bash
-```
-
-
 ## Build
 
-Similar to MOVO, we use Docker for Spot too (but we are using
-Ubuntu 20.04 with ROS noetic). First, build the docker image:
-```
-source docker/build.noetic.sh
-```
-TODO FINISH THIS
+1. Similar to MOVO, we use Docker for Spot too (but we are using
+   Ubuntu 20.04 with ROS noetic). First, build the docker image:
+   ```
+   source docker/build.noetic.sh
+   ```
+   This command will run for a while. If it is successful,
+   the process should end with a message "Successfully tagged robotdev:noetic".
 
 
-To build spot, don't run `catkin_make`. Instead,
-after sourcing `setup_spot.bash`, run:
+  After you finish building the docker image, start a container
+  by running the following (still from the root of the directory):
+  ```
+  source docker/run.noetic.sh --gui
+  ```
+  This will drop you into a bash shell. You should be able to run GUI applications too.
 
-```
-$ build_spot
-```
-If you want to build specific package(s), run
-```
-build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
-```
+2. Now, setup the spot workspace:
+   ```
+   # at robotdev root directory:
+   source setup_spot.bash
+   ```
+   This will build the ROS packages for Spot too. To build spot, don't run `catkin_make`. Instead,
+   after sourcing `setup_spot.bash`, run:
+
+   ```
+   $ build_spot
+   ```
+   If you want to build specific package(s), run
+   ```
+   build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
+   ```
 
 
 ## Choreographer

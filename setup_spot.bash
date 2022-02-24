@@ -175,6 +175,7 @@ source $repo_root/${SPOT_ROS_PATH}/devel/setup.bash
 # necessary so that PyKDL can be imported (it could only be installed
 # via sudo apt-get install python3-pykdl, for some unknown reason).
 export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot/lib/python3.8/site-packages:${PYTHONPATH}:/usr/lib/python3/dist-packages"
+echo -e "alias dospot='cd ~/repo/robotdev/; source setup_spot.bash'" >> ~/.bashrc
 if confirm "Are you working on the real robot ?"; then
     # Check if the environment variable SPOT_IP is set.
     # If not, then try to detect spot connection and set it.
