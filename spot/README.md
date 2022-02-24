@@ -23,7 +23,8 @@
    # at robotdev root directory:
    source setup_spot.bash
    ```
-   This will build the ROS packages for Spot too. To build spot, don't run `catkin_make`. Instead,
+   This will build the ROS packages for Spot too.
+   If you JUST want to build spot, don't run `catkin_make`. Instead,
    after sourcing `setup_spot.bash`, run:
 
    ```
@@ -34,6 +35,7 @@
    build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
    ```
 
+3. Install Open3D.
 
 ## Choreographer
 

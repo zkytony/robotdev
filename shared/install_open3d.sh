@@ -12,9 +12,10 @@ else
 fi
 repo_root=$PWD
 
-if not in_venv; then
+if ! in_venv; then
     echo "You must activate the robot-specific virtualenv."
     return 1
+fi
 
 OPEN3D_INSTALL_PATH=$repo_root/thirdparty/Open3D/install
 
@@ -33,7 +34,8 @@ make -j$(nproc)
 make install
 
 # install python package
-pip install cmake    # from open3d docs https://github.com/isl-org/Open3D/blob/master/docs/arm.rst
+# from open3d docs https://github.com/isl-org/Open3D/blob/master/docs/arm.rst
+pip install cmake
 make install-pip-package
 make python-package
 make pip-package
