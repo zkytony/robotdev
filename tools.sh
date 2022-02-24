@@ -242,3 +242,13 @@ function ping_success {
         false
     fi
 }
+
+function in_venv {
+    # returns true if you are in virtualenv.
+    if [[ "$VIRTUAL_ENV" != "" ]]
+    then
+        true && return
+    else
+        false
+    fi
+}

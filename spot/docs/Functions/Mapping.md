@@ -27,3 +27,7 @@ There does not seem to be [active support for ROS](https://github.com/UZ-SLAMLab
 and the authors have basically left the repository hanging.
 
 **I think to build complicated software like this, you need to use docker. Docker is the way to for "one effort and release stress forever".**
+
+The question is: do you want to use docker for ORB_SLAM3 or RTABMap?
+
+**THE ANSWER IS: NEITHER. We will use Open3D.**
