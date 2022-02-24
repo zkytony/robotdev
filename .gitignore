@@ -68,6 +68,8 @@ movo/src/kinova-movo/DONE_SETUP
 DONE_SETUP
 
 thirdparty/libfreenect2  # its own repo
+thirdparty/ORB_SLAM3
 thirdparty/
+
 
 spot/ros_ws/src/rbd_spot_perception/analysis/results
