@@ -8,6 +8,12 @@
 # /author: Kaiyu Zheng
 FROM ros:noetic
 
+# initialize rosdep
+RUN apt-get install -y python-rosdep python-rosinstall\
+    python-rosinstall-generator python-wstool build-essential
+RUN rosdep init
+RUN rosdep update
+
 # do this to avoid hanging
 ENV DEBIAN_FRONTEND=noninteractive
 # Install software
@@ -23,7 +29,12 @@ RUN apt-get install -y mlocate
 RUN apt-get install -y openssh-client openssh-server
 RUN apt-get install -y ros-noetic-desktop-full
 RUN apt-get install -y ros-noetic-rviz-imu-plugin
-
+RUN apt-get install -y ros-noetic-navigation
+RUN apt-get install -y ros-noetic-ros-control ros-noetic-ros-controllers
+RUN apt-get install -y ros-noetic-interactive-marker-twist-server
+RUN apt-get install -y ros-noetic-joy
+RUN apt-get install -y ros-noetic-twist-mux
+RUN apt-get install -y ros-noetic-teleop-twist-joy
 
 # create a user
 ARG hostuser=kaiyu
