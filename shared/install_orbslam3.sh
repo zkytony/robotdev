@@ -12,8 +12,11 @@ repo_root=$PWD
 
 if [ ! -d "thirdparty/ORB_SLAM3" ]; then
     cd thirdparty
-    # clone
+    # clone; we try the code from earlier (because the latest one
+    # doesn't have ROS working; documentation is wrong)
     git clone https://github.com/UZ-SLAMLab/ORB_SLAM3.git ORB_SLAM3
+    git checkout 578500b836ea05be40d6188b815bb0ddbcdc75f1
+    git checkout -b betav0.4
     cd ..
 fi
 
@@ -36,8 +39,14 @@ if [ ! -d "thirdparty/ORB_SLAM3/build" ]; then
     # says that you need to change the C++ version to C++14 in CMakeLists.txt
     # The fix is to run 'sed -i 's/++11/++14/g' CMakeLists.txt' and then
     # rerun ./build.sh.
-    # The compilation time for ORB_SLAM3 is quite long.
+    # The compilation time for ORB_SLAM3 is quite long. Nevertheless, the
+    # build is successful!
     cd thirdparty/ORB_SLAM3
     chmod a+x build.sh
     ./build.sh
+
+    # build ROS
+    echo -e "BUILDING for ROS"
+    mv Examples_old/ROS Examples
+    ./build_ros
 fi
