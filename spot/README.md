@@ -1,10 +1,21 @@
 # Spot
 
-Activate spot workspace:
+# Activate spot workspace:
 ```
 # at robotdev root directory:
 $ source setup_spot.bash
 ```
+
+
+## Build
+
+Similar to MOVO, we use Docker for Spot too (but we are using
+Ubuntu 20.04 with ROS noetic). First, build the docker image:
+```
+source docker/build.noetic.sh
+```
+TODO FINISH THIS
+
 
 To build spot, don't run `catkin_make`. Instead,
 after sourcing `setup_spot.bash`, run:

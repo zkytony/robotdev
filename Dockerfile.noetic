@@ -1,0 +1,47 @@
+# This image allows you to have a Ubuntu 20.04 + ROS Noetic setup.
+# You can mount the path to the 'robotdev' repository in your host
+# machine to the same path in the container. We ask you to use the
+# same username in the container as in your host machine. This
+# simplifies the maintenance of the 'robotdev' repository.
+# This setup relies on the nice ros:noetic image provided
+# on Docker Hub.
+# /author: Kaiyu Zheng
+FROM ros:noetic
+
+# Install software
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends apt-utils
+RUN apt-get install -y emacs
+RUN apt-get install -y sudo
+RUN apt-get install -y python-pip
+RUN apt-get install -y net-tools
+RUN apt-get install -y iputils-ping
+RUN apt-get install -y gdb
+RUN apt-get install -y mlocate
+RUN apt-get install -y openssh-client openssh-server
+RUN apt-get install -y ros-noetic-desktop-full
+RUN apt-get install -y ros-noetic-rviz-imu-plugin
+
+
+# create a user
+ARG hostuser=kaiyu
+
+RUN adduser --disabled-password --gecos '' $hostuser
+RUN adduser $hostuser sudo
+# Ensure sudo group users are not asked for a p3assword when using sudo command
+# by ammending sudoers file
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
+/etc/sudoers
+
+USER $hostuser
+WORKDIR /home/$hostuser
+ENV HOME=/home/$hostuser
+RUN mkdir $HOME/repo
+
+# Different shell color
+RUN echo "export PS1='\e[33;1m\u@\h:\e[31m\w\e[0m\$ '" >> $HOME/.bashrc
+
+# print some info on start
+RUN echo "echo -e 'Welcome! You are now in a docker container ().'" >> $HOME/.bashrc
+RUN echo "echo -e \"Docker ID: $(basename $(cat /proc/1/cpuset))\"" >> $HOME/.bashrc
+CMD ["bash"]
