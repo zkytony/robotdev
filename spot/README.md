@@ -11,12 +11,12 @@
    the process should end with a message "Successfully tagged robotdev:noetic".
 
 
-  After you finish building the docker image, start a container
-  by running the following (still from the root of the directory):
-  ```
-  source docker/run.noetic.sh --gui
-  ```
-  This will drop you into a bash shell. You should be able to run GUI applications too.
+   After you finish building the docker image, start a container
+   by running the following (still from the root of the directory):
+   ```
+   source docker/run.noetic.sh --gui
+   ```
+   This will drop you into a bash shell. You should be able to run GUI applications too.
 
 2. Now, setup the spot workspace:
    ```
@@ -26,7 +26,6 @@
    This will build the ROS packages for Spot too.
    If you JUST want to build spot, don't run `catkin_make`. Instead,
    after sourcing `setup_spot.bash`, run:
-
    ```
    $ build_spot
    ```
