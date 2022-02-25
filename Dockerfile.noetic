@@ -8,12 +8,6 @@
 # /author: Kaiyu Zheng
 FROM ros:noetic
 
-# initialize rosdep
-RUN apt-get install -y python-rosdep python-rosinstall\
-    python-rosinstall-generator python-wstool build-essential
-RUN rosdep init
-RUN rosdep update
-
 # do this to avoid hanging
 ENV DEBIAN_FRONTEND=noninteractive
 # Install software
