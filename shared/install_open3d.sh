@@ -36,6 +36,8 @@ make install
 # install python package
 # from open3d docs https://github.com/isl-org/Open3D/blob/master/docs/arm.rst
 pip install cmake
+# see: https://github.com/isl-org/Open3D/issues/2824#issuecomment-971425612
+pip install --upgrade pip
 make install-pip-package
 make python-package
 make pip-package
