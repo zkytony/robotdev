@@ -44,6 +44,9 @@
    is successfully build, the final message is "[100%] Built target pip-package"
    and you should be able to do `import open3d` without error in a Python shell.
 
+   Troubleshooting: If you get an error like "CMake 3.19.2 or higher is required.
+   You are running version 3.16.3," you should first install the latest CMake
+   by running `source shared/install_cmake.sh`
 
 
 
