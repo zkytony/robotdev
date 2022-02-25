@@ -155,9 +155,11 @@ if first_time_build $SPOT_ROS_PATH; then
     sudo apt install ros-noetic-rtabmap-ros
     sudo apt-get install ros-noetic-octomap-rviz-plugins
 
-    # Install the Full Spot SDK
-    # reference: https://dev.bostondynamics.com/docs/python/quickstart#get-a-copy-of-the-full-sdk-distribution-from-github
-    # cd $repo_root/$SPOT_PATH/
+    # Uninstall PyQt5 and PyQt5-sip in pip, so that
+    # rqt_* GUI software work.
+    # reference: https://github.com/ros-visualization/rqt_graph/issues/51#issuecomment-782062642
+    pip uninstall PyQt5
+    pip uninstall PyQt5-sip
 fi
 
 # catkin make and end.
