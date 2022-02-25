@@ -160,6 +160,10 @@ if first_time_build $SPOT_ROS_PATH; then
     # reference: https://github.com/ros-visualization/rqt_graph/issues/51#issuecomment-782062642
     pip uninstall PyQt5
     pip uninstall PyQt5-sip
+
+    # Downgrade yaml so that rqt_* stuff runs
+    # reference: https://stackoverflow.com/a/69565230/2893053
+    !pip install pyyaml==5.4.1
 fi
 
 # catkin make and end.
