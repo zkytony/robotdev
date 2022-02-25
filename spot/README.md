@@ -35,7 +35,18 @@
    build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
    ```
 
-3. Install Open3D.
+3. Install Open3D. Run the installation script from repository root:
+   **Note:** You SHOULD run this command with spot virtualenv activated.
+   ```
+   source shared/install_open3d.sh
+   ```
+   This installation process could take 10 minutes. This will build
+   both the C++ package and the Python package. If the Python package
+   is successfully build, the final message is "[100%] Built target pip-package"
+   and you should be able to do `import open3d` without error in a Python shell.
+
+
+
 
 ## Choreographer
 
