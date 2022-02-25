@@ -10,6 +10,8 @@ from bosdyn.client.image import ImageClient, build_image_request
 
 import spot_driver.ros_helpers
 
+# Note that if you don't specify image format (None) when
+# sending GetImageRequest, the response will be in JPEG format.
 IMAGE_FORMATS = ["UNKNOWN", "JPEG", "RAW", "RLE"]
 
 
@@ -110,11 +112,11 @@ def check_sources_valid(sources, sources_result):
             ok = False
     return ok, bad_sources
 
-def build_image_requests(sources, quality=75, fmt=None):
+def build_image_requests(sources, quality=75, fmt="RAW"):
     """Create requests.
-    fmt (None or str): If not None, must be one of IMAGE_FORMATS."""
+    fmt (str): must be one of IMAGE_FORMATS."""
     if fmt is not None and type(fmt) == str:
-        fmt = image_pb2.Image.Format.Value(IMAGE_FORMATS.index(fmt))
+        fmt = image_pb2.Image.Format.Value(f"FORMAT_{fmt}")
 
     requests = []
     for source in sources:

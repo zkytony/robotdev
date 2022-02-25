@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-q", "--quality", type=int,
                         help="image quality [0-100]", default=75)
     formats = ["UNKNOWN", "JPEG", "RAW", "RLE"]
-    parser.add_argument("-f", "--format", type=str,
+    parser.add_argument("-f", "--format", type=str, default="RAW",
                         help="format", choices=formats)
     parser.add_argument("-p", "--pub", action="store_true", help="publish as ROS messages")
     parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
