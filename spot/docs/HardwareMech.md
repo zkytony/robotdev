@@ -21,3 +21,5 @@
    * fl.hx refers to the front left hip X (actuator('s reading))
    * fl.hy refers to the front left hip Y (actuator('s reading))
    * fl.kn refers to the front left knee (actuator('s reading))
+
+([Here are some specs](https://support.bostondynamics.com/s/article/Robot-specifications)).

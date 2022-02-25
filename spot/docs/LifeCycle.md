@@ -5,6 +5,8 @@ Useful reference: https://www.generationrobots.com/media/spot-boston-dynamics/sp
 
 Youtube Videos: https://www.youtube.com/playlist?list=PLwQV1NIf0wR7WJcQWjRzpFcM-TbQkpu0r
 
+Our Safety Protocols: https://sites.google.com/a/brown.edu/brown-robotics-wiki/robots/spot?authuser=1
+
 ## Spot Serial Number and Wifi Password
 Before inserting battery into Spot for the first time, take a picture of the label at inside the Battery Slot on Spot. It contains important information:
 
