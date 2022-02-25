@@ -3,7 +3,6 @@
 # Note:
 #  - you should activate the desired robot python virtualenv (e.g. spot)
 #    before you run this script.
-# Run this script by source setup_movo.bash
 if [[ ! $PWD = *robotdev ]]; then
     echo "You must be in the root directory of the robotdev repository."
     return 1
