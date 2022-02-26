@@ -457,3 +457,5 @@ Another reason to support this is the problem is that I added the line `pip inst
 *THE ABOVE issue with pathlib is NOT THE PROBLEM.* The Github post said `pathlib` is part of the standard libary after Python 3.4 (so you shouldn't install it yourself separately). But before that, you could. So, installing pathlib for Python 2.7 itself is not a problem.
 
 I realized the issue could most likely be in `setup.py` of `rbd_movo_motor_skills`. Instead of saying `packages=find_packages()` you should do `packages=['rbd_movo_motor_skills']`. I tried building a new docker container and inside it, just create an empty ROS workspace again and a basic ROS packkage with the understood way to set it up to make it python-importable. However, when I used `find_packages()`, I saw the exact same symptoms - the package is not built inside `devel`. But after I changed it to explicitly listing the package name, then it is built and I saw it in `devel`. WTF!! 
+
+[This commit](https://github.com/zkytony/robotdev/commit/3f3011cd11c5521a5162100b180b76ae12a83c89) is proof that this setup.py mishap is most likely why we had our issues.
