@@ -60,3 +60,9 @@ For example, to start the container for robotdev using ROS Kinetic:
    docker attach vigilant_keller
    ```
    You will regain the shell (may need to press enter once).
+
+3. To have access to convenient docker functions such as `dsh`, `dls`, etc. run
+   ```
+   source docker_functions.sh
+   ```
+   Note that you should do this outside docker (of course you don't want to run docker inside docker!)
