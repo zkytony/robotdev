@@ -49,6 +49,7 @@ Before running the skill, make sure:
 2. AR Tag detector is running. You can run `roslaunch rbd_movo_perception artag_tracker.launch` (Do it on MOVO)
 3. Point cloud processing is running (necessary to enable Moveit! OctoMap collision avoidance to work properly): `roslaunch rbd_movo_perception process_pointcloud.launch`.
 4. Moveit! OctoMap collision avoidance is working (Open RVIZ, and visualize the topic `move_group/filtered_points`).
+5. Run rviz in `rbd_movo_perception/viz/manip_perception.rviz`
 
 If the above all pass, we can run a skill.
 Suppose you have written a script as in the example above. Then you will need to run:
