@@ -430,3 +430,26 @@ The solution is to add the IP addresses to MOVO1 and MOVO2 in your `/etc/hosts` 
 138.16.161.17 movo
 ```
 This [ROS Ask answer](https://answers.ros.org/question/48240/rostopic-list-works-but-rostopic-echo-does-not/?answer=213729#post-id-213729) helped me.
+
+
+# UNABLE TO IMPORT BASIC ROS PYTHON PACKAGE
+Today (02/26/2022), Eric tried to setup this MOVO docker stack on his computer.
+Everything built fine. However, he could not import `rbd_movo_motor_skills.motion_planning`. The symptoms are:
+0. The import fails.
+1. When we try to build a basic ROS package with a pythom module (called the same name as the ROS package itself) using `catkin_make -DCATKIN_WHITELIST_PACKAGES="<pkg_name>"`, the `pkg_name` does not show up in `devel/lib/python2.7/site-packages`. 
+2. The `__init__.py` file for `rbd_movo_motor_skills` became empty.
+
+**INVESTIGATION.**
+In the beginning, my setup was fine. When Eric ran into the issue, I wanted to reproduce it on my computer.
+So I removed my `build/` and `devel` directories. I also removed `.DONE_SETUP`. I ran `source setup_movo.bash` again and it rebuilt everything.
+Everything finished 100% without an error. But, I then ran into the same symptoms as Eric.
+
+I noticed, as soon as I ran `source setup_movo.bash`, two new packages were pip-installed:
+
+![image](https://user-images.githubusercontent.com/7720184/155858716-d2cfa7c8-9e53-4365-a4e2-4e22727f3dc4.png)
+
+This is not normal because I had everything working so nothing should need to be installed again.
+
+And then, I found on [this Github issue thread response](https://github.com/Azure/azure-functions-python-worker/issues/233#issuecomment-436819580)
+that `pathlib` is ONLY for Python 3.4+. 
+Another reason to support this is the problem is that I added the line `pip install pathlib` to `setup_movo.bash` AFTER I had the package structure (rbd_movo_motor_skills) done and built successfully. And that was added for "need to install pathlib & pyyaml for setup movo dev (python2.7)" (see commit 6cf489da34b3895de6)
