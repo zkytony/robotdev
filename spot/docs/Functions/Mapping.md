@@ -31,3 +31,15 @@ and the authors have basically left the repository hanging.
 The question is: do you want to use docker for ORB_SLAM3 or RTABMap?
 
 **THE ANSWER IS: NEITHER. We will use Open3D.**
+
+
+## rtabmap
+Installation: Very smooth.
+```
+git clone https://github.com/introlab/rtabmap.git
+cd rtabmap/build
+cmake ..
+make -j4
+sudo make install
+```
+See `shared/install_rtabmap.sh`. It JUST WORKS in the Docker container we have for spot.
