@@ -12,6 +12,7 @@ import rospy
 
 import rbd_spot
 import pandas as pd
+import sys
 
 
 def main():
@@ -57,18 +58,19 @@ def main():
         args.sources, quality=args.quality, fmt=args.format)
 
     # Stream the image through specified sources
-    try:
-        _start_time = time.time()
-        for result, time_taken in rbd_spot.image.getImageStream(image_client, image_requests):
+    _start_time = time.time()
+    while True:
+        try:
+            result, time_taken = rbd_spot.image.getImage(image_client, image_requests)
             print(time_taken)
             if args.pub:
                 rbd_spot.image.ros_publish_image_result(conn, result, publishers)
             _used_time = time.time() - _start_time
             if args.timeout and _used_time > args.timeout:
                 break
-
-    except KeyboardInterrupt:
-        print("Bye.")
+        finally:
+            if args.pub and rospy.is_shutdown():
+                sys.exit(1)
 
 if __name__ == "__main__":
     main()
