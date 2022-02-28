@@ -145,11 +145,11 @@ if first_time_build $SPOT_ROS_PATH; then
     sudo apt-get install python3-pykdl
 
     # other ROS utlities/packages
-    sudo apt-get install ros-noetic-rqt-graph
-    sudo apt-get install ros-noetic-rqt-tf-tree
-    sudo apt-get install ros-noetic-navigation
-    sudo apt-get install ros-noetic-gmapping
-    sudo apt-get install ros-noetic-kdl-parser-py
+    sudo apt-get install -y ros-noetic-rqt-graph
+    sudo apt-get install -y ros-noetic-rqt-tf-tree
+    sudo apt-get install -y ros-noetic-navigation
+    sudo apt-get install -y ros-noetic-gmapping
+    sudo apt-get install -y ros-noetic-kdl-parser-py
 
     # Mapping library
     sudo apt install ros-noetic-rtabmap-ros
