@@ -1,0 +1,3 @@
+<launch>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbd_spot_perception)/viz/rtabmap_viz.rviz" />
+</launch>
