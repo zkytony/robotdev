@@ -34,7 +34,13 @@ The question is: do you want to use docker for ORB_SLAM3 or RTABMap?
 
 
 ## rtabmap
-Installation: Very smooth.
+
+### Installation
+You can directly install rtabmap and rtabmap_ros simply by running
+```
+sudo apt install ros-noetic-rtabmap-ros
+```
+You can also install from source, although that is quite unnecessary:
 ```
 git clone https://github.com/introlab/rtabmap.git
 cd rtabmap/build

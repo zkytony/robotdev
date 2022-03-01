@@ -67,3 +67,7 @@ to be usable with minor fixes. ROS Noetic on Ubuntu 20.04 works.
     /spot/depth/right/camera_info
     /spot/depth/right/image
     ```
+
+## TF frames
+
+`body` and `base_link` frames are together (0 transform between the two).
