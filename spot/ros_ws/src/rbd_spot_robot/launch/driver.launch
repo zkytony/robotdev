@@ -5,7 +5,7 @@
   <arg name="network" default="$(env SPOT_CONN)"/>
   <arg name="hostname" default="$(env SPOT_IP)"/>
   <arg name="estop_timeout" default="9.0"/>
-  <arg name="cameras_used" default="[front]" />
+  <arg name="cameras_used" default="[]" />
 
   <include file="$(find spot_driver)/launch/driver.launch">
     <arg name="username" value="$(arg username)"/>
