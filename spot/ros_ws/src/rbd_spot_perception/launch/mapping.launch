@@ -7,8 +7,7 @@
   <arg name="stream_ns" default="stream_image"/>
 
   <group ns="rtabmap">
-
-    <!-- Kinect cloud to laser scan -->
+    <!-- spot depth cloud to laser scan -->
     <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan0">
       <remap from="image"       to="/spot/$(arg stream_ns)/$(arg camera0)_depth_in_visual_frame/image"/>
       <remap from="camera_info" to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/camera_info"/>
