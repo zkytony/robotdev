@@ -1,0 +1,18 @@
+<launch>
+  <!-- Uses the depthmap_to_laserscan ROS node to treat depth map
+       from Spot camera as 2D laser scan -->
+  <arg name="camera"/>  <!-- e.g. frontleft -->
+  <arg name="range_max"    default="2" />   <!-- This affects the depth beyond which we'll discard the data (set to +inf)  -->
+
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="$(arg camera)_depthimage_to_laserscan">
+    <remap from="image"       to="/spot/stream_image/$(arg camera)_depth_in_visual_frame/image"/>
+    <remap from="camera_info" to="/spot/stream_image/$(arg camera)_fisheye_image/camera_info"/>
+    <remap from="scan"        to="/spot_scan"/>  <!-- output topic -->
+    <param name="range_max"          type="double"  value="$(arg range_max)"/>
+    <param name="output_frame_id"    type="str"     value="camera_$(arg camera)_frame"/>  <!-- output tf frame for the scan's message header -->
+  </node>
+
+  <!-- tf static transform publisher; the scan's frame will be identical to the fisheye camera frame -->
+  <node pkg="tf" type="static_transform_publisher" name="$(arg camera)_depth_frame_tf_pub"
+        args="0 0 0 0 0 0 $(arg camera)_fisheye camera_$(arg camera)_frame 100"/>
+</launch>
