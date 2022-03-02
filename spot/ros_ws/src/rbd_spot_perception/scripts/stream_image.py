@@ -25,7 +25,7 @@ def main():
                         help="format", choices=formats)
     parser.add_argument("-p", "--pub", action="store_true", help="publish as ROS messages")
     parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
-    parser.add_argument("-ns", "--ns", "--name-space",
+    parser.add_argument("-ns", "--ns",
                         type=str, help="name space of topic when publishing image messages; default 'stream_image'",
                         default="stream_image")
     args = parser.parse_args()
@@ -53,7 +53,7 @@ def main():
     # maps from source name to a publisher.
     if args.pub:
         rospy.init_node("stream_image")
-        publishers = rbd_spot.image.ros_create_publishers(args.sources, name_space=args.name_space)
+        publishers = rbd_spot.image.ros_create_publishers(args.sources, name_space=args.ns)
 
     # We want to stream the image sources, publish as ROS message if necessary
     # First, build requests
