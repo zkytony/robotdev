@@ -64,6 +64,7 @@ function detect_spot_connection
     false
 }
 
+SPOT_ADDITIONAL_BUILD_OPTIONS=""
 function build_spot
 {
     cd $repo_root/${SPOT_ROS_PATH}
@@ -74,6 +75,7 @@ function build_spot
         -DPYTHON_EXECUTABLE=/usr/bin/python3\
         -DPYTHON_INCLUDE_DIR=/usr/include/python3.8\
         -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so\
+        ${SPOT_ADDITIONAL_BUILD_OPTIONS}\
         $1; then
         echo "SPOT SETUP DONE." >> src/.DONE_SETUP
     else
@@ -88,6 +90,14 @@ function ping_spot
     else
         ping $SPOT_IP
     fi
+}
+
+function install_rtabmap_from_source
+{
+    cd $repo_root/${SPOT_ROS_PATH}/src
+    git clone -b noetic-devel https://github.com/introlab/rtabmap_ros.git
+    SPOT_ADDITIONAL_BUILD_OPTIONS="-DRTABMAP_SYNC_MULTI_RGBD=ON"
+    cd $repo_root
 }
 
 # Add a few alias for pinging spot.
@@ -152,7 +162,7 @@ if first_time_build $SPOT_ROS_PATH; then
     sudo apt-get install -y ros-noetic-kdl-parser-py
 
     # Mapping library
-    sudo apt install ros-noetic-rtabmap-ros
+    install_rtabmap_from_source
     sudo apt-get install ros-noetic-octomap-rviz-plugins
 
     # Uninstall PyQt5 and PyQt5-sip in pip, so that
