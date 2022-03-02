@@ -1,10 +1,40 @@
 # Mapping
 
+1. Run spot driver `roslaunch rbd_spot_robot driver.launch`
+
+   Do not need to launch any camera streaming through this.
+
+2. Run the `stream_single_cameraset.sh [camera]` script
+   under `rbd_spot_perception/scripts`. TODO: use multiple cameras
+
+3. Run the `rbd_spot_perception/mapping.launch`. This will
+   launch relevant nodes for rtabmap.
+
+4. Run visualization: `roslaunch rtabmap_rviz.launch`
+
+
+## APPENDIX: rtabmap Installation
+
+You can directly install rtabmap and rtabmap_ros simply by running
+```
+sudo apt install ros-noetic-rtabmap-ros
+```
+You can also install from source, although that is quite unnecessary:
+```
+git clone https://github.com/introlab/rtabmap.git
+cd rtabmap/build
+cmake ..
+make -j4
+sudo make install
+```
+See `shared/install_rtabmap.sh`. It JUST WORKS in the Docker container we have for spot.
+
+
+## APPENDIX: Which package to use?
+
  I would like to try out [ORB_SLAM3](https://github.com/UZ-SLAMLab/ORB_SLAM3),
  a very recent SLAM library. The alternative is [rtabmap](https://github.com/introlab/rtabmap)
  and [cartographer](https://google-cartographer.readthedocs.io/en/latest/).
-
-## Which package to use?
 
 [ORB_SLAM's original paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7219438) has been probably the most popular
 SLAM-package paper. ORB_SLAM3, despite released only in 2020, has
@@ -30,22 +60,6 @@ and the authors have basically left the repository hanging.
 
 The question is: do you want to use docker for ORB_SLAM3 or RTABMap?
 
-**THE ANSWER IS: NEITHER. We will use Open3D.**
+THE ANSWER IS: NEITHER. We will use Open3D.
 
-
-## rtabmap
-
-### Installation
-You can directly install rtabmap and rtabmap_ros simply by running
-```
-sudo apt install ros-noetic-rtabmap-ros
-```
-You can also install from source, although that is quite unnecessary:
-```
-git clone https://github.com/introlab/rtabmap.git
-cd rtabmap/build
-cmake ..
-make -j4
-sudo make install
-```
-See `shared/install_rtabmap.sh`. It JUST WORKS in the Docker container we have for spot.
+**NOPE. WE ENDED UP USING RTABMAP.**
