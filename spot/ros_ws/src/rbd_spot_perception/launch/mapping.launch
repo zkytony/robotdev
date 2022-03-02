@@ -9,16 +9,28 @@
   <group ns="rtabmap">
 
     <!-- Kinect cloud to laser scan -->
-    <!-- <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan"> -->
-    <!--   <remap from="image"       to="/spot/$(arg stream_ns)/$(arg camera)_depth_in_visual_frame/image"/> -->
-    <!--   <remap from="camera_info" to="/spot/$(arg stream_ns)/$(arg camera)_fisheye_image/camera_info"/> -->
-    <!--   <remap from="scan"        to="/kinect_scan"/>  <!-\- output topic -\-> -->
-    <!--   <param name="range_max"   type="double" value="4"/> -->
-    <!--   <param name="output_frame_id"    type="str"    value="camera_$(arg camera)_frame"/> -->
-    <!-- </node> -->
+    <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan0">
+      <remap from="image"       to="/spot/$(arg stream_ns)/$(arg camera0)_depth_in_visual_frame/image"/>
+      <remap from="camera_info" to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/camera_info"/>
+      <remap from="scan"        to="/spot_scan"/>  <!-- output topic -->
+      <param name="range_max"   type="double" value="2"/>
+      <param name="output_frame_id"    type="str"    value="camera_$(arg camera0)_frame"/>
+    </node>
+
+    <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan1">
+      <remap from="image"       to="/spot/$(arg stream_ns)/$(arg camera1)_depth_in_visual_frame/image"/>
+      <remap from="camera_info" to="/spot/$(arg stream_ns)/$(arg camera1)_fisheye_image/camera_info"/>
+      <remap from="scan"        to="/spot_scan"/>  <!-- output topic -->
+      <param name="range_max"   type="double" value="2"/>
+      <param name="output_frame_id"    type="str"    value="camera_$(arg camera1)_frame"/>
+    </node>
+
     <!-- tf static transform publisher -->
-    <!-- <node pkg="tf" type="static_transform_publisher" name="camera_depth_frame_tf_pub" -->
-    <!--       args="0 0 0 0 0 0 $(arg camera)_fisheye camera_depth_frame 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_depth_frame_tf_pub0"
+          args="0 0 0 0 0 0 $(arg camera0)_fisheye camera_$(arg camera0)_frame 100"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="camera_depth_frame_tf_pub1"
+          args="0 0 0 0 0 0 $(arg camera1)_fisheye camera_$(arg camera1)_frame 100"/>
 
     <!-- RGBD synchronization -->
     <node pkg="nodelet" type="nodelet" name="rgbd_sync0" args="standalone rtabmap_ros/rgbd_sync" output="screen">
@@ -45,7 +57,7 @@
       <param name="subscribe_scan" type="bool" value="false"/>
 
       <remap from="odom"         to="/spot/odometry"/>
-      <remap from="scan"         to="/kinect_scan"/>
+      <remap from="scan"         to="/spot_scan"/>
       <param name="queue_size" type="int" value="10"/>
 
       <param name="rgbd_cameras"  type="int"    value="2"/>
