@@ -138,7 +138,10 @@ if first_time_build $SPOT_ROS_PATH; then
     pip install empy catkin-pkg rospkg defusedxml
     pip install pyqt5
     pip install PySide2
-    pip install bosdyn-client bosdyn-mission bosdyn-api bosdyn-core
+    pip install bosdyn-client==3.0.3
+    pip install bosdyn-mission==3.0.3
+    pip install bosdyn-api==3.0.3
+    pip install bosdyn-core==3.0.3
     pip install rosdep
     # other necessary packages
     pip install numpy
