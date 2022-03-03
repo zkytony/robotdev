@@ -1,16 +1,79 @@
 # Mapping
 
-1. Run spot driver `roslaunch rbd_spot_robot driver.launch`
+1. Run spot driver
+   ```
+   roslaunch rbd_spot_robot driver.launch
+   ```
 
    Do not need to launch any camera streaming through this.
 
-2. Run the `stream_single_cameraset.sh [camera]` script
-   under `rbd_spot_perception/scripts`. TODO: use multiple cameras
+2. Stream camera images. Do this by running :
+   ```
+   rosrun rbd_spot_perception stream_front_camerasets.sh
+   ```
+
+   If you would like to do mapping with other cameras,
+   develop a `stream_*_camerasets.sh` file similar to
+   the front one, and modify the `mapping.launch` file
+   accordingly. Currently, by default, `mapping.launch`
+   expects only the front two cameras to be engaged.
+
+   Note that the streaming speed (time per response) will
+   be printed. If you are connected to RLAB, this speed
+   would increase. Observe and wait till it does so
+   (typically around or below 0.7s) before you move on.
 
 3. Run the `rbd_spot_perception/mapping.launch`. This will
-   launch relevant nodes for rtabmap.
+   launch relevant nodes for rtabmap:
+   ```
+   roslaunch rbd_spot_perception mapping.launch
+   ```
 
-4. Run visualization: `roslaunch rtabmap_rviz.launch`
+4. Run visualization: `roslaunch rbd_spot_perception rtabmap_rviz.launch`
+
+## Notes when using rtabmap
+There is a massive launch file at `rtabmap_ros/launch/rtabmap.launch`.
+It is too huge and doesn't seem to support multiple cameras.
+However, it does have some nice options. For example,
+it supports [loading saved map]((https://github.com/introlab/rtabmap_ros/issues/228#issuecomment-376218928)).
+
+Our strategy is to not use that massive launch file because we
+do not know what is going on. We write our own.
+
+
+
+## Saving the map
+
+Looking at RVIZ, the point cloud comes from the `/rtabmap/mapData` topic.
+The grid map comes from the `/rtabmap/grid_map` topic.
+
+How to save the map? According to [RTABMap's author](https://github.com/introlab/rtabmap_ros/issues/215#issuecomment-357742873);
+>To save the cloud, I suggest to open the database afterward with rtabmap
+>standalone app ($ rtabmap ~/.ros/rtabmap.db), then do "File->Export 3D
+>clouds...", you will have many options to export the point cloud (PLY or PCD,
+>or even OBJ if meshing is enabled). If you don't care about cloud density,
+>/rtabmap/cloud_map topic can be a good choice too, which is a PointCloud2 topic
+>that can be easily save to a PCD using pcl_ros.
+My experience after reading the above:
+- Yes, "MapCloud" in RVIZ and visualizing `/rtabmap/cloud_map` as PointCloud2
+  can both display the point cloud for the map.
+
+  But, `/rtabmap/cloud_map` seems to be a normal rostopic; you can get
+  the map by saving a message from it.
+
+- "MapCloud" seems to be an RVIZ "feature;" When you turn it on, the map
+  gets incrementally downloaded (this process sometimes seems to make Spot to
+  have connection problems with the controller). You can press the "Download Map"
+  checkmark to make this process start manually.
+
+Strange (03/02/2022): for once, somehow the map got deleted in the middle of running
+rtabmap and RVIZ...? (I got network error again with Spot controller!)
+
+Also, look at [this nice github issue reply](https://github.com/introlab/rtabmap_ros/issues/228#issuecomment-376218928)
+on more concretely how to save the map and reload it. There is a very useful
+launch file `rtabmap.launch`.
+
+
 
 
 ## APPENDIX: rtabmap Installation
@@ -63,3 +126,8 @@ The question is: do you want to use docker for ORB_SLAM3 or RTABMap?
 THE ANSWER IS: NEITHER. We will use Open3D.
 
 **NOPE. WE ENDED UP USING RTABMAP.**
+
+
+## APPENDIX: Resources
+
+* [Useful course material for using rtabmap by U of Chicago](http://people.cs.uchicago.edu/~aachien/Teaching/CS234-W17/CourseMaterials/Lab4.pdf)
