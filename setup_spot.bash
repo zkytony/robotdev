@@ -134,29 +134,29 @@ fi
 source ${SPOT_PATH}/venv/spot/bin/activate
 
 if first_time_build $SPOT_ROS_PATH; then
-    pip uninstall em
-    pip install empy catkin-pkg rospkg defusedxml
-    pip install pyqt5
-    pip install PySide2
-    pip install bosdyn-client==3.0.3
-    pip install bosdyn-mission==3.0.3
-    pip install bosdyn-api==3.0.3
-    pip install bosdyn-core==3.0.3
-    pip install rosdep
+    pip uninstall -y em
+    pip install -y empy catkin-pkg rospkg defusedxml
+    pip install -y pyqt5
+    pip install -y PySide2
+    pip install -y bosdyn-client==3.0.3
+    pip install -y bosdyn-mission==3.0.3
+    pip install -y bosdyn-api==3.0.3
+    pip install -y bosdyn-core==3.0.3
+    pip install -y rosdep
     # other necessary packages
-    pip install numpy
-    pip install pydot
-    pip install graphviz
-    pip install opencv-python
-    pip install pandas
-    pip install open3d
+    pip install -y numpy
+    pip install -y pydot
+    pip install -y graphviz
+    pip install -y opencv-python
+    pip install -y pandas
+    pip install -y open3d
 
     # rosdep install dependencies
     rosdep update
     rosdep install --from-paths src --ignore-src -y
 
     # install pykdl, needed by tf2_geometry_msgs
-    sudo apt-get install python3-pykdl
+    sudo apt-get install -y python3-pykdl
 
     # other ROS utlities/packages
     sudo apt-get install -y ros-noetic-rqt-graph
@@ -167,17 +167,17 @@ if first_time_build $SPOT_ROS_PATH; then
 
     # Mapping library
     install_rtabmap_from_source
-    sudo apt-get install ros-noetic-octomap-rviz-plugins
+    sudo apt-get install -y ros-noetic-octomap-rviz-plugins
 
     # Uninstall PyQt5 and PyQt5-sip in pip, so that
     # rqt_* GUI software work.
     # reference: https://github.com/ros-visualization/rqt_graph/issues/51#issuecomment-782062642
-    pip uninstall PyQt5
-    pip uninstall PyQt5-sip
+    pip uninstall -y PyQt5
+    pip uninstall -y PyQt5-sip
 
     # Downgrade yaml so that rqt_* stuff runs
     # reference: https://stackoverflow.com/a/69565230/2893053
-    !pip install pyyaml==5.4.1
+    !pip install -y pyyaml==5.4.1
 fi
 
 # catkin make and end.
