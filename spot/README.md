@@ -36,6 +36,11 @@
    build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
    ```
 
+   The build should be successful. If you encounter an error about
+   a header file in `spot_ros` not found, just rebuild. If you encounter
+   an error about "Killed signal terminated program cc1plus," that
+   is [a sign that you ran out of memory](https://github.com/introlab/rtabmap_ros/issues/95#issuecomment-230366461).
+   Just rebuild.
 
 
 ## Choreographer
