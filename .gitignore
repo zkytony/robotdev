@@ -75,3 +75,9 @@ thirdparty/
 spot/ros_ws/src/rbd_spot_perception/analysis/results
 spot/ros_ws/src/rbd_spot_perception/maps/*.db
 spot/ros_ws/src/rtabmap_ros
+
+# point clouds
+*.ply
+
+# temporary map files
+*.map_name
