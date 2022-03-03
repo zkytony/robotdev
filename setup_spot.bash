@@ -135,21 +135,21 @@ source ${SPOT_PATH}/venv/spot/bin/activate
 
 if first_time_build $SPOT_ROS_PATH; then
     pip uninstall -y em
-    pip install -y empy catkin-pkg rospkg defusedxml
-    pip install -y pyqt5
-    pip install -y PySide2
-    pip install -y bosdyn-client==3.0.3
-    pip install -y bosdyn-mission==3.0.3
-    pip install -y bosdyn-api==3.0.3
-    pip install -y bosdyn-core==3.0.3
-    pip install -y rosdep
+    pip install empy catkin-pkg rospkg defusedxml
+    pip install pyqt5
+    pip install PySide2
+    pip install bosdyn-client==3.0.3
+    pip install bosdyn-mission==3.0.3
+    pip install bosdyn-api==3.0.3
+    pip install bosdyn-core==3.0.3
+    pip install rosdep
     # other necessary packages
-    pip install -y numpy
-    pip install -y pydot
-    pip install -y graphviz
-    pip install -y opencv-python
-    pip install -y pandas
-    pip install -y open3d
+    pip install numpy
+    pip install pydot
+    pip install graphviz
+    pip install opencv-python
+    pip install pandas
+    pip install open3d
 
     # rosdep install dependencies
     rosdep update
@@ -177,7 +177,7 @@ if first_time_build $SPOT_ROS_PATH; then
 
     # Downgrade yaml so that rqt_* stuff runs
     # reference: https://stackoverflow.com/a/69565230/2893053
-    !pip install -y pyyaml==5.4.1
+    !pip install pyyaml==5.4.1
 fi
 
 # catkin make and end.
