@@ -23,11 +23,21 @@
    would increase. Observe and wait till it does so
    (typically around or below 0.7s) before you move on.
 
-3. Run the `rbd_spot_perception/mapping.launch`. This will
-   launch relevant nodes for rtabmap:
+3. Run our rtabmap launch file:
    ```
-   roslaunch rbd_spot_perception mapping.launch
+   roslaunch rbd_spot_perception dual_camera_mapping.launch map_name:=<map_name>
    ```
+   Specify map name via `map_name`. The resulting map
+   will be saved at `$(find rbd_spot_perception)/maps/<map_name>.rtabmap.db)`.
+   If you launch this launch file again with the same map name,
+   then by default, the old map will be loaded. If you want to
+   overwrite it, you can specify `overwrite_existing:=true`
+   as an argument.
+
+   It by default uses the two front cameras; you can
+   configure it to use two other cameras. If you
+   want to use a different number of cameras, you
+   can develop a launch file based on this one.
 
 4. Run visualization: `roslaunch rbd_spot_perception rtabmap_rviz.launch`
 

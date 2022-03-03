@@ -1,28 +1,30 @@
 <launch>
+  <arg name="map_name"/>
   <arg name="camera0"/>
   <arg name="camera1"/>
   <arg name="subscribe_scan" default="false"/>
-  <arg name="data" default="false"/>
+  <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name).rtabmap.db"/>
+  <arg name="rtabmap_args" default=""/>  <!-- arguments to pass to rtabmap node -->
 
   <!-- RGBD synchronization -->
   <node pkg="nodelet" type="nodelet" name="rgbd_sync0" args="standalone rtabmap_ros/rgbd_sync" output="screen">
-    <remap from="rgb/image"        to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/image"/>
-    <remap from="depth/image"      to="/spot/$(arg stream_ns)/$(arg camera0)_depth_in_visual_frame/image"/>
-    <remap from="rgb/camera_info"  to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/camera_info"/>
+    <remap from="rgb/image"        to="/spot/stream_image/$(arg camera0)_fisheye_image/image"/>
+    <remap from="depth/image"      to="/spot/stream_image/$(arg camera0)_depth_in_visual_frame/image"/>
+    <remap from="rgb/camera_info"  to="/spot/stream_image/$(arg camera0)_fisheye_image/camera_info"/>
     <remap from="rgbd_image"       to="$(arg camera0)_rgbd_image"/> <!-- output -->
     <param name="approx_sync"       value="true"/>
   </node>
 
   <node pkg="nodelet" type="nodelet" name="rgbd_sync1" args="standalone rtabmap_ros/rgbd_sync" output="screen">
-    <remap from="rgb/image"        to="/spot/$(arg stream_ns)/$(arg camera1)_fisheye_image/image"/>
-    <remap from="depth/image"      to="/spot/$(arg stream_ns)/$(arg camera1)_depth_in_visual_frame/image"/>
-    <remap from="rgb/camera_info"  to="/spot/$(arg stream_ns)/$(arg camera1)_fisheye_image/camera_info"/>
+    <remap from="rgb/image"        to="/spot/stream_image/$(arg camera1)_fisheye_image/image"/>
+    <remap from="depth/image"      to="/spot/stream_image/$(arg camera1)_depth_in_visual_frame/image"/>
+    <remap from="rgb/camera_info"  to="/spot/stream_image/$(arg camera1)_fisheye_image/camera_info"/>
     <remap from="rgbd_image"       to="$(arg camera1)_rgbd_image"/> <!-- output -->
     <param name="approx_sync"       value="true"/>
   </node>
 
   <!-- rtabmap main node -->
-  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="">
+  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
     <param name="frame_id" type="string" value="body" />
     <param name="subscribe_depth" type="bool" value="false"/>
     <param name="subscribe_rgbd"  type="bool" value="true"/>
@@ -35,6 +37,8 @@
     <param name="rgbd_cameras"  type="int"    value="2"/>
     <remap from="rgbd_image0"   to="$(arg camera0)_rgbd_image"/>
     <remap from="rgbd_image1"   to="$(arg camera1)_rgbd_image"/>
+
+    <param name="database_path" type="string" value="$(arg database_path)"/>
 
     <!-- RTAB-Map's parameters -->
     <param name="RGBD/ProximityBySpace"     type="string" value="false"/>

@@ -7,8 +7,6 @@ Panels:
         - /Global Options1
         - /Status1
         - /MapCloud1
-        - /MapCloud1/Status1
-        - /Map1
         - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 725
@@ -120,39 +118,11 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /rtabmap/grid_map
       Unreliable: false
       Use Timestamp: false
-      Value: false
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: RGB8
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic: /rtabmap/cloud_ground
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -247,6 +217,34 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 2.0473101139068604
+        Min Value: 0.4440220892429352
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.019999999552965164
+      Style: Squares
+      Topic: /rtabmap/cloud_map
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -275,7 +273,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.157079696655273
+      Distance: 12.176085472106934
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -283,17 +281,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -3.197843074798584
-        Y: -2.1001949310302734
-        Z: 1.4971081018447876
+        X: -4.233583927154541
+        Y: -2.5905771255493164
+        Z: 1.6825793981552124
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2553987503051758
+      Pitch: 0.26520419120788574
       Target Frame: <Fixed Frame>
-      Yaw: 2.095407724380493
+      Yaw: 6.234930515289307
     Saved: ~
 Window Geometry:
   Displays:

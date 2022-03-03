@@ -2,11 +2,10 @@
   <!-- This launch file starts the rtabmap system -->
   <!-- This follows the "Kinect + Odometry + Fake 2D laser from Kinect" tutorial -->
   <!-- with various refactoring -->
-
+  <arg name="map_name" />
   <arg name="camera1" default="frontleft"/>
   <arg name="camera0" default="frontright"/>
-
-  <arg name="stream_ns" default="stream_image"/>
+  <arg name="overwrite_existing" default="false"/>
 
   <group ns="rtabmap">
     <!-- spot depth cloud to laser scan (this is necessary to create grid map) -->
@@ -17,6 +16,18 @@
     <include file="$(find rbd_spot_perception)/launch/include/fake_scan_from_depth.launch">
       <arg name="camera" value="$(arg camera1)"/>
     </include>
+
+    <!-- main rtabmap launch file -->
+    <include file="$(find rbd_spot_perception)/launch/include/rtabmap_dual_cameras.launch">
+      <arg name="map_name" value="$(arg map_name)"/>
+      <arg name="camera0" value="$(arg camera0)"/>
+      <arg name="camera1" value="$(arg camera1)"/>
+      <arg name="subscribe_scan" value="true"/>
+
+      <arg name="rtabmap_args" value="--delete_db_on_start" if="$(arg overwrite_existing)"/>
+      <arg name="rtabmap_args" value="" unless="$(arg overwrite_existing)"/>
+    </include>
+
 
   </group>
 </launch>
