@@ -15,7 +15,7 @@ def main():
     map_name = os.environ['MAP_NAME']
     save_path = os.path.join(sys.argv[1], ".map_name")
     with open(save_path, "w") as f:
-        f.write(map_name)
+        f.write(map_name + "\n")
     rospy.loginfo(f"map name {map_name} saved to {save_path}.")
 
 if __name__ == "__main__":

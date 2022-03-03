@@ -9,7 +9,7 @@
   <arg name="overwrite_existing" default="false"/>
 
   <!-- This node saves the map name to be accessible by the map saver -->
-  <node pkg="rbd_spot_perception" type="save_map_name.py" name="save_map_name"/>
+  <node pkg="rbd_spot_perception" type="save_map_name.py" name="save_map_name" args="$(find rbd_spot_perception)/maps"/>
 
   <group ns="rtabmap">
     <!-- spot depth cloud to laser scan (this is necessary to create grid map) -->
