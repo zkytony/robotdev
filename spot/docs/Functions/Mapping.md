@@ -70,7 +70,6 @@ This file may be very big. If you want to save:
 
 2. the 2d grid map as a pgm file (with corresponding .yaml file for ROS navigation)
 
-
 #### _Investigations_
 Looking at RVIZ, the point cloud comes from the `/rtabmap/mapData` topic.
 The grid map comes from the `/rtabmap/grid_map` topic.
@@ -101,7 +100,14 @@ Also, look at [this nice github issue reply](https://github.com/introlab/rtabmap
 on more concretely how to save the map and reload it. There is a very useful
 launch file `rtabmap.launch`.
 
+## Resolution
 
+According to [this ROS Answers
+post](https://answers.ros.org/question/239760/how-to-get-maps-point-cloud-from-rtab_map/?answer=239768#post-id-239768),
+"by default the topic `/rtabmap/cloud_map` is voxelized at 5 cm...You can change
+this by setting `cloud_voxel_size` to `0.01` for rtabmap node" (to get higher
+resolution as much as shown in rtabmapviz). "You may also want to reduce
+cloud_decimation to 1 (default 4) if you want even more points."
 
 
 ## APPENDIX: rtabmap Installation
