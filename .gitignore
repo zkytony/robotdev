@@ -77,7 +77,11 @@ spot/ros_ws/src/rbd_spot_perception/maps/*.db
 spot/ros_ws/src/rtabmap_ros
 
 # point clouds
-*.ply
+spot/ros_ws/src/rbd_spot_perception/maps/*.ply
 
 # temporary map files
-*.map_name
+spot/ros_ws/src/rbd_spot_perception/maps/.map_name
+
+# 2d maps
+spot/ros_ws/src/rbd_spot_perception/maps/*.pgm
+spot/ros_ws/src/rbd_spot_perception/maps/*.yaml
