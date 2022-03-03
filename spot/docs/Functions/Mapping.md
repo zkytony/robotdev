@@ -70,6 +70,13 @@ This file may be very big. If you want to save:
 
 2. the 2d grid map as a pgm file (with corresponding .yaml file for ROS navigation)
 
+run the following command:
+```
+rosrun rbd_spot_perception map_saver.py
+```
+this will save the map under `$(find rbd_spot_perception)/maps`.
+
+
 #### _Investigations_
 Looking at RVIZ, the point cloud comes from the `/rtabmap/mapData` topic.
 The grid map comes from the `/rtabmap/grid_map` topic.
