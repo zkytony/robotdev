@@ -170,6 +170,7 @@ if first_time_build $SPOT_ROS_PATH; then
     sudo apt-get install -y ros-noetic-find-object-2d
     sudo apt-get install -y ros-noetic-apriltag-ros
     sudo apt-get install -y ros-noetic-rtabmap
+    sudo apt-get install -y ros-noetic-ros-numpy
 
     # Mapping library
     install_rtabmap_ros_from_source

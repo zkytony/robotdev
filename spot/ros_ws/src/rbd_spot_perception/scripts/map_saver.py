@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 #
 # save map (point cloud and grid map) Saving the grid map can be easily done
-# through the map_saver utility.  Regarding point cloud, here is a useful
-# thread:
-# https://answers.ros.org/question/255351/how-o-save-a-pointcloud2-data-in-python/
-# Also useful:
-# - https://github.com/Yelloooowww/point2mesh/blob/main/catkin_ws/src/points2mesh/src/savepcd.py
+# through the map_saver utility.  Regarding point cloud, useful resources:
+# - https://answers.ros.org/question/255351/how-o-save-a-pointcloud2-data-in-python/
+# - https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/?answer=395676#post-id-395676
 
 import os
 import subprocess
 import argparse
 import pickle
+import numpy as np
 
 import rospy
 import rospkg
+import ros_numpy
 import sensor_msgs.point_cloud2
 import sensor_msgs.msg
 
@@ -23,19 +23,34 @@ POINT_CLOUD_SAVED=False
 GRID_MAP_SAVED = False
 
 
-def save_point_cloud_to_ply(pcl2msg, map_name):
-    for point in sensor_msgs.point_cloud2.read_points(pcl2msg):
-        print(point)
+def save_point_cloud_to_ply(pcl2msg, map_name, maps_dir):
+    """Saves the PointCloud2 message as a .ply file"""
+    pc = ros_numpy.numpify(pcl2msg)
+    pc = ros_numpy.point_cloud2.split_rgb_field(pc)
+    points = np.zeros((pc.shape[0], 3))
+    rgb = np.zeros((pc.shape[0], 3))
+    points[:, 0] = pc['x']
+    points[:, 1] = pc['y']
+    points[:, 2] = pc['z']
+    rgb[:, 0] = pc['r']
+    rgb[:, 1] = pc['g']
+    rgb[:, 2] = pc['b']
+    out_pcd = o3d.geometry.PointCloud()
+    out_pcd.points = o3d.utility.Vector3dVector(points)
+    out_pcd.colors = o3d.utility.Vector3dVector(rgb)
+    o3d.io.write_point_cloud(
+        os.path.join(maps_dir, f"{map_name}.point_cloud.ply"), out_pcd)
 
 
 def point_cloud_callback(m, args):
     global POINT_CLOUD_SAVED
-    pcl_save_mode, map_name = args
+    pcl_save_mode, map_name, maps_dir = args
     if pcl_save_mode == "raw":
-        with open(f"{map_name}.point_cloud.pkl", "wb") as f:
+        with open(os.path.join(maps_dir, f"{map_name}.point_cloud.pkl"), "wb") as f:
             pickle.dump(m, f)
     else:
-        save_point_cloud_to_ply(m, map_name)
+        save_point_cloud_to_ply(m, map_name, maps_dir)
+    POINT_CLOUD_SAVED = True
 
 
 def main():
@@ -65,11 +80,13 @@ def main():
     point_cloud_sub = rospy.Subscriber(args.point_cloud_topic,
                                        sensor_msgs.msg.PointCloud2,
                                        callback=point_cloud_callback,
-                                       callback_args=(args.pcl_save_mode, map_name),
+                                       callback_args=(args.pcl_save_mode, map_name, maps_dir),
                                        queue_size=10)
 
     # For grid map, we just call the map_saver node from ROS navigation.
-    p = subprocess.Popen(["rosrun", "map_server", "map_saver", "-f", map_name, "map:={args.grid_map_topic}"], cwd=maps_dir)
+    p = subprocess.Popen(["rosrun", "map_server", "map_saver",
+                          "-f", map_name, "map:={args.grid_map_topic}"],
+                         cwd=maps_dir)  # changes the working directory
 
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
