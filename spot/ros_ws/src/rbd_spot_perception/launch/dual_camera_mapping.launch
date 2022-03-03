@@ -1,6 +1,7 @@
 <launch>
   <!-- This launch file starts the rtabmap system -->
   <!-- This follows the "Kinect + Odometry + Fake 2D laser from Kinect" tutorial -->
+  <!-- with various refactoring -->
 
   <arg name="camera1" default="frontleft"/>
   <arg name="camera0" default="frontright"/>
@@ -8,55 +9,14 @@
   <arg name="stream_ns" default="stream_image"/>
 
   <group ns="rtabmap">
-    <!-- spot depth cloud to laser scan -->
-    <include file="$(find rbd_spot_perception)/launch/include/fake_scan.launch">
+    <!-- spot depth cloud to laser scan (this is necessary to create grid map) -->
+    <include file="$(find rbd_spot_perception)/launch/include/fake_scan_from_depth.launch">
       <arg name="camera" value="$(arg camera0)"/>
     </include>
 
-    <include file="$(find rbd_spot_perception)/launch/include/fake_scan.launch">
+    <include file="$(find rbd_spot_perception)/launch/include/fake_scan_from_depth.launch">
       <arg name="camera" value="$(arg camera1)"/>
     </include>
-
-    <!-- RGBD synchronization -->
-    <node pkg="nodelet" type="nodelet" name="rgbd_sync0" args="standalone rtabmap_ros/rgbd_sync" output="screen">
-      <remap from="rgb/image"        to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/image"/>
-      <remap from="depth/image"      to="/spot/$(arg stream_ns)/$(arg camera0)_depth_in_visual_frame/image"/>
-      <remap from="rgb/camera_info"  to="/spot/$(arg stream_ns)/$(arg camera0)_fisheye_image/camera_info"/>
-      <remap from="rgbd_image"       to="$(arg camera0)_rgbd_image"/> <!-- output -->
-      <param name="approx_sync"       value="true"/>
-    </node>
-
-    <node pkg="nodelet" type="nodelet" name="rgbd_sync1" args="standalone rtabmap_ros/rgbd_sync" output="screen">
-      <remap from="rgb/image"        to="/spot/$(arg stream_ns)/$(arg camera1)_fisheye_image/image"/>
-      <remap from="depth/image"      to="/spot/$(arg stream_ns)/$(arg camera1)_depth_in_visual_frame/image"/>
-      <remap from="rgb/camera_info"  to="/spot/$(arg stream_ns)/$(arg camera1)_fisheye_image/camera_info"/>
-      <remap from="rgbd_image"       to="$(arg camera1)_rgbd_image"/> <!-- output -->
-      <param name="approx_sync"       value="true"/>
-    </node>
-
-    <!-- rtabmap main node -->
-    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="">
-      <param name="frame_id" type="string" value="body" />
-      <param name="subscribe_depth" type="bool" value="false"/>
-      <param name="subscribe_rgbd" type="bool" value="true"/>
-      <param name="subscribe_scan" type="bool" value="false"/>
-
-      <remap from="odom"         to="/spot/odometry"/>
-      <remap from="scan"         to="/spot_scan"/>
-      <param name="queue_size" type="int" value="10"/>
-
-      <param name="rgbd_cameras"  type="int"    value="2"/>
-      <remap from="rgbd_image0"   to="$(arg camera0)_rgbd_image"/>
-      <remap from="rgbd_image1"   to="$(arg camera1)_rgbd_image"/>
-
-      <!-- RTAB-Map's parameters -->
-      <param name="RGBD/ProximityBySpace"     type="string" value="false"/>
-      <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
-      <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
-      <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
-      <param name="Reg/Force3DoF"             type="string" value="true"/>
-      <param name="Vis/MinInliers"            type="string" value="12"/>
-    </node>
 
   </group>
 </launch>
