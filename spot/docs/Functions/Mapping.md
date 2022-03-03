@@ -1,5 +1,19 @@
 # Mapping
 
+We use [rtabmap](http://introlab.github.io/rtabmap/).
+
+## Strategy when using rtabmap
+There is a massive launch file at `rtabmap_ros/launch/rtabmap.launch`.
+It is too huge and doesn't seem to support multiple cameras.
+However, it does have some nice options. For example,
+it supports [loading saved map]((https://github.com/introlab/rtabmap_ros/issues/228#issuecomment-376218928)).
+
+Our strategy is to not use that massive launch file because we
+do not know what is going on. We write our own.
+
+
+## Steps
+
 1. Run spot driver
    ```
    roslaunch rbd_spot_robot driver.launch
@@ -39,21 +53,22 @@
    want to use a different number of cameras, you
    can develop a launch file based on this one.
 
+
 4. Run visualization: `roslaunch rbd_spot_perception rtabmap_rviz.launch`
-
-## Notes when using rtabmap
-There is a massive launch file at `rtabmap_ros/launch/rtabmap.launch`.
-It is too huge and doesn't seem to support multiple cameras.
-However, it does have some nice options. For example,
-it supports [loading saved map]((https://github.com/introlab/rtabmap_ros/issues/228#issuecomment-376218928)).
-
-Our strategy is to not use that massive launch file because we
-do not know what is going on. We write our own.
-
 
 
 ## Saving the map
 
+When you launch `dual_camera_mapping.launch` it will by default save
+the map in rtabmap's format into a file called `<map_name>.rtabmap.db`.
+This file may be very big. If you want to save:
+
+1. the 3D point cloud to a common format (that can be loaded by e.g. Open3D)
+
+2. the 2d grid map as a pgm file (with corresponding .yaml file for ROS navigation)
+
+
+#### _Investigations_
 Looking at RVIZ, the point cloud comes from the `/rtabmap/mapData` topic.
 The grid map comes from the `/rtabmap/grid_map` topic.
 
