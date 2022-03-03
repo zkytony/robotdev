@@ -42,7 +42,7 @@ do not know what is going on. We write our own.
    MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch
    ```
    Specify map name via `map_name`. The resulting map
-   will be saved at `$(find rbd_spot_perception)/maps/<map_name>.rtabmap.db)`.
+   will be saved at `$(find rbd_spot_perception)/maps/<map_name>_rtabmap.db)`.
    If you launch this launch file again with the same map name,
    then by default, the old map will be loaded. If you want to
    overwrite it, you can specify `overwrite_existing:=true`
@@ -115,6 +115,11 @@ post](https://answers.ros.org/question/239760/how-to-get-maps-point-cloud-from-r
 this by setting `cloud_voxel_size` to `0.01` for rtabmap node" (to get higher
 resolution as much as shown in rtabmapviz). "You may also want to reduce
 cloud_decimation to 1 (default 4) if you want even more points."
+
+To change the resolution of the occupancy grid map,
+set the `Grid/CellSize` parameter for the `rtabmap` node.
+By default, it is `0.05`. Also, see [this Github issue question](https://github.com/introlab/rtabmap_ros/issues/717#issue-1138872131)
+for a dump of parameters for rtabmap_ros.
 
 
 ## APPENDIX: rtabmap Installation
