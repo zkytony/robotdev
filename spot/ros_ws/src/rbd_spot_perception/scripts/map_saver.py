@@ -39,7 +39,7 @@ def save_point_cloud_to_ply(pcl2msg, map_name, maps_dir):
     out_pcd.points = o3d.utility.Vector3dVector(points)
     out_pcd.colors = o3d.utility.Vector3dVector(rgb)
     o3d.io.write_point_cloud(
-        os.path.join(maps_dir, f"{map_name}.point_cloud.ply"), out_pcd)
+        os.path.join(maps_dir, f"{map_name}_point_cloud.ply"), out_pcd)
 
 
 def point_cloud_callback(m, args):

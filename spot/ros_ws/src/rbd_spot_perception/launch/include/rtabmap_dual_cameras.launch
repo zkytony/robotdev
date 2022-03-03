@@ -3,7 +3,7 @@
   <arg name="camera1"/>
   <arg name="map_name" default=""/>
   <arg name="subscribe_scan" default="false"/>
-  <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name).rtabmap.db"/>
+  <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name)_rtabmap.db"/>
   <arg name="rtabmap_args" default=""/>  <!-- arguments to pass to rtabmap node -->
 
   <!-- RGBD synchronization -->
@@ -48,5 +48,7 @@
     <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
     <param name="Reg/Force3DoF"             type="string" value="true"/>
     <param name="Vis/MinInliers"            type="string" value="12"/>
+    <param name="Vis/MinInliers"            type="string" value="12"/>
+    <param name="Grid/CellSize"             type="string" value="0.02"/>
   </node>
 </launch>
