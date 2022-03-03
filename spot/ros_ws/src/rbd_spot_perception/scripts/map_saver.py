@@ -44,13 +44,14 @@ def save_point_cloud_to_ply(pcl2msg, map_name, maps_dir):
 
 def point_cloud_callback(m, args):
     global POINT_CLOUD_SAVED
-    pcl_save_mode, map_name, maps_dir = args
-    if pcl_save_mode == "raw":
-        with open(os.path.join(maps_dir, f"{map_name}.point_cloud.pkl"), "wb") as f:
-            pickle.dump(m, f)
-    else:
-        save_point_cloud_to_ply(m, map_name, maps_dir)
-    POINT_CLOUD_SAVED = True
+    if not POINT_CLOUD_SAVED:
+        pcl_save_mode, map_name, maps_dir = args
+        if pcl_save_mode == "raw":
+            with open(os.path.join(maps_dir, f"{map_name}.point_cloud.pkl"), "wb") as f:
+                pickle.dump(m, f)
+        else:
+            save_point_cloud_to_ply(m, map_name, maps_dir)
+        POINT_CLOUD_SAVED = True
 
 
 def main():
@@ -84,16 +85,16 @@ def main():
                                        queue_size=10)
 
     # For grid map, we just call the map_saver node from ROS navigation.
-    p = subprocess.Popen(["rosrun", "map_server", "map_saver",
-                          "-f", map_name, "map:={args.grid_map_topic}"],
+    p = subprocess.Popen(["rosrun", "map_server", "map_saver", "-f",
+                          map_name, f"map:={args.grid_map_topic}"],
                          cwd=maps_dir)  # changes the working directory
 
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         poll = p.poll()
         if poll is not None:
-            # subprocess is dead - finished
             GRID_MAP_SAVED = True
+
         if POINT_CLOUD_SAVED and GRID_MAP_SAVED:
             rospy.loginfo("Map saved. Done.")
             break
