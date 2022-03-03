@@ -2,6 +2,8 @@
 
 ## Build
 
+0. Run `git submodule update --init --recursive` to get the spot_ros repository.
+
 1. Similar to MOVO, we use Docker for Spot too (but we are using
    Ubuntu 20.04 with ROS noetic). First, build the docker image:
    ```
@@ -33,20 +35,6 @@
    ```
    build_spot -DCATKIN_WHITELIST_PACKAGES="rbd_spot_robot"
    ```
-
-3. Install Open3D. Run the installation script from repository root:
-   **Note:** You SHOULD run this command with spot virtualenv activated.
-   ```
-   source shared/install_open3d.sh
-   ```
-   This installation process could take 10 minutes. This will build
-   both the C++ package and the Python package. If the Python package
-   is successfully build, the final message is "[100%] Built target pip-package"
-   and you should be able to do `import open3d` without error in a Python shell.
-
-   Troubleshooting: If you get an error like "CMake 3.19.2 or higher is required.
-   You are running version 3.16.3," you should first install the latest CMake
-   by running `source shared/install_cmake.sh`
 
 
 
