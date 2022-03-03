@@ -92,10 +92,12 @@ function ping_spot
     fi
 }
 
-function install_rtabmap_from_source
+function install_rtabmap_ros_from_source
 {
     cd $repo_root/${SPOT_ROS_PATH}/src
-    git clone -b noetic-devel https://github.com/introlab/rtabmap_ros.git
+    if [ ! -d "rtabmap_ros" ]; then
+        git clone -b noetic-devel https://github.com/introlab/rtabmap_ros.git
+    fi
     SPOT_ADDITIONAL_BUILD_OPTIONS="-DRTABMAP_SYNC_MULTI_RGBD=ON"
     cd $repo_root
 }
@@ -164,9 +166,13 @@ if first_time_build $SPOT_ROS_PATH; then
     sudo apt-get install -y ros-noetic-navigation
     sudo apt-get install -y ros-noetic-gmapping
     sudo apt-get install -y ros-noetic-kdl-parser-py
+    sudo apt-get install -y ros-noetic-fiducials
+    sudo apt-get install -y ros-noetic-find-object-2d
+    sudo apt-get install -y ros-noetic-apriltag-ros
+    sudo apt-get install -y ros-noetic-rtabmap
 
     # Mapping library
-    install_rtabmap_from_source
+    install_rtabmap_ros_from_source
     sudo apt-get install -y ros-noetic-octomap-rviz-plugins
 
     # Uninstall PyQt5 and PyQt5-sip in pip, so that
