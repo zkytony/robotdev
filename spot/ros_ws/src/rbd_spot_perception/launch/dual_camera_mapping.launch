@@ -1,11 +1,15 @@
 <launch>
-  <!-- This launch file starts the rtabmap system -->
+  <!-- This launch file starts the rtabmap system. -->
   <!-- This follows the "Kinect + Odometry + Fake 2D laser from Kinect" tutorial -->
-  <!-- with various refactoring -->
-  <arg name="map_name" />
+  <!-- with various refactoring. -->
+  <!-- Note: you MUST set environment variable MAP_NAME when running this launch file. -->
+  <!-- That is, do 'MAP_NAME=<map_name> roslaunch <this_file>' -->
   <arg name="camera1" default="frontleft"/>
   <arg name="camera0" default="frontright"/>
   <arg name="overwrite_existing" default="false"/>
+
+  <!-- This node saves the map name to be accessible by the map saver -->
+  <node pkg="rbd_spot_perception" type="save_map_name.py" name="save_map_name"/>
 
   <group ns="rtabmap">
     <!-- spot depth cloud to laser scan (this is necessary to create grid map) -->
@@ -19,7 +23,7 @@
 
     <!-- main rtabmap launch file -->
     <include file="$(find rbd_spot_perception)/launch/include/rtabmap_dual_cameras.launch">
-      <arg name="map_name" value="$(arg map_name)"/>
+      <arg name="map_name" value="$(env MAP_NAME)"/>
       <arg name="camera0" value="$(arg camera0)"/>
       <arg name="camera1" value="$(arg camera1)"/>
       <arg name="subscribe_scan" value="true"/>
@@ -27,7 +31,5 @@
       <arg name="rtabmap_args" value="--delete_db_on_start" if="$(arg overwrite_existing)"/>
       <arg name="rtabmap_args" value="" unless="$(arg overwrite_existing)"/>
     </include>
-
-
   </group>
 </launch>

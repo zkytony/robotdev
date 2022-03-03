@@ -1,7 +1,7 @@
 <launch>
-  <arg name="map_name"/>
   <arg name="camera0"/>
   <arg name="camera1"/>
+  <arg name="map_name" default=""/>
   <arg name="subscribe_scan" default="false"/>
   <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name).rtabmap.db"/>
   <arg name="rtabmap_args" default=""/>  <!-- arguments to pass to rtabmap node -->
@@ -24,7 +24,8 @@
   </node>
 
   <!-- rtabmap main node -->
-  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)"
+        unless="$(eval $(arg 'map_name') == '')">  <!-- run only if map_name is not empty -->
     <param name="frame_id" type="string" value="body" />
     <param name="subscribe_depth" type="bool" value="false"/>
     <param name="subscribe_rgbd"  type="bool" value="true"/>

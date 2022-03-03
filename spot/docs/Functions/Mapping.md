@@ -39,7 +39,7 @@ do not know what is going on. We write our own.
 
 3. Run our rtabmap launch file:
    ```
-   roslaunch rbd_spot_perception dual_camera_mapping.launch map_name:=<map_name>
+   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch
    ```
    Specify map name via `map_name`. The resulting map
    will be saved at `$(find rbd_spot_perception)/maps/<map_name>.rtabmap.db)`.
@@ -47,6 +47,9 @@ do not know what is going on. We write our own.
    then by default, the old map will be loaded. If you want to
    overwrite it, you can specify `overwrite_existing:=true`
    as an argument.
+
+   Note that the map name should be set as an environment variable,
+   so that it can be accessed by another program.
 
    It by default uses the two front cameras; you can
    configure it to use two other cameras. If you
