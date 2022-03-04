@@ -45,7 +45,7 @@ do not know what is going on. We write our own.
    will be saved at `$(find rbd_spot_perception)/maps/<map_name>_rtabmap.db)`.
    If you launch this launch file again with the same map name,
    then by default, the old map will be loaded. If you want to
-   overwrite it, you can specify `overwrite_existing:=true`
+   overwrite it, you can specify `reload:=true`
    as an argument.
 
    Note that the map name should be set as an environment variable,

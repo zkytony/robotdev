@@ -1,0 +1,48 @@
+<launch>
+  <arg name="camera0"/>
+  <arg name="camera1"/>
+  <arg name="map_name"/>
+  <arg name="database_path"/>
+  <arg name="reload" default="false"/>
+  <arg name="localization_mode" default="false"/>
+
+  <!-- rtabmap main node -->
+  <arg name="rtabmap_args" value="--delete_db_on_start" if="$(arg reload)"/>
+  <arg name="rtabmap_args" value="" unless="$(arg reload)"/>
+  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)"
+        unless="$(eval arg('map_name') == '')">  <!-- run only if map_name is not empty -->
+    <param name="frame_id" type="string" value="body" />
+    <param name="subscribe_depth" type="bool" value="false"/>
+    <param name="subscribe_rgbd"  type="bool" value="true"/>
+    <!-- It is strange, but to make grid mapping work, you need 'subscribe_scan' to be false
+         and you need to supply the 'scan' topic -->
+    <param name="subscribe_scan"  type="bool" value="false"/>
+
+    <remap from="scan"         to="/spot_scan"/>
+    <remap from="odom"         to="/spot/odometry"/>
+
+    <param name="rgbd_cameras"  type="int"    value="2"/>
+    <remap from="rgbd_image0"   to="$(arg camera0)_rgbd_image"/>
+    <remap from="rgbd_image1"   to="$(arg camera1)_rgbd_image"/>
+
+    <!-- Size of message queue for each synchronized topic. -->
+    <param name="queue_size" type="int" value="10"/>
+
+    <!-- path to .db map that will save the map -->
+    <param name="database_path" type="string" value="$(arg database_path)"/>
+
+    <!-- RTAB-Map's parameters -->
+    <param name="RGBD/ProximityBySpace"     type="string" value="false"/>
+    <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
+    <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+    <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
+    <param name="Reg/Force3DoF"             type="string" value="true"/>
+    <param name="Vis/MinInliers"            type="string" value="12"/>
+    <param name="Vis/MinInliers"            type="string" value="12"/>
+    <param name="Grid/CellSize"             type="string" value="0.02"/>
+
+    <!-- Localization mode -->
+    <param name="Mem/IncrementalMemory"     type="string" value="false"  if="$(arg localization_mode)"/>
+  </node>
+
+</launch>

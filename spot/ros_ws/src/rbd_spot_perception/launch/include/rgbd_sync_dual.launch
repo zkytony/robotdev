@@ -1,0 +1,22 @@
+<launch>
+  <!-- Synchronize depth, image, camera_info from two cameras -->
+  <arg name="camera0"/>
+  <arg name="camera1"/>
+
+  <!-- RGBD synchronization -->
+  <node pkg="nodelet" type="nodelet" name="rgbd_sync0" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+    <remap from="rgb/image"        to="/spot/stream_image/$(arg camera0)_fisheye_image/image"/>
+    <remap from="depth/image"      to="/spot/stream_image/$(arg camera0)_depth_in_visual_frame/image"/>
+    <remap from="rgb/camera_info"  to="/spot/stream_image/$(arg camera0)_fisheye_image/camera_info"/>
+    <remap from="rgbd_image"       to="$(arg camera0)_rgbd_image"/> <!-- output -->
+    <param name="approx_sync"       value="true"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="rgbd_sync1" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+    <remap from="rgb/image"        to="/spot/stream_image/$(arg camera1)_fisheye_image/image"/>
+    <remap from="depth/image"      to="/spot/stream_image/$(arg camera1)_depth_in_visual_frame/image"/>
+    <remap from="rgb/camera_info"  to="/spot/stream_image/$(arg camera1)_fisheye_image/camera_info"/>
+    <remap from="rgbd_image"       to="$(arg camera1)_rgbd_image"/> <!-- output -->
+    <param name="approx_sync"       value="true"/>
+  </node>
+</launch>

@@ -1,0 +1,42 @@
+<launch>
+  <!-- This launch file starts the rtabmap system for mapping using two camereas. -->
+  <!-- This is based on the "Kinect + Odometry + Fake 2D laser from Kinect" tutorial -->
+  <!-- with various refactoring. -->
+  <!-- !!!Note: you MUST set environment variable MAP_NAME when running this launch file.** -->
+  <!-- !!!That is, do 'MAP_NAME=<map_name> roslaunch <this_file>' -->
+  <arg name="camera0" default="frontleft"/>
+  <arg name="camera1" default="frontright"/>
+  <arg name="map_name" default="$(env MAP_NAME)"/>
+  <arg name="reload" default="false"/>
+  <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name)_rtabmap.db"/>
+
+  <!-- This node saves the map name to be accessible by the map saver -->
+  <node pkg="rbd_spot_perception" type="save_map_name.py" name="save_map_name" args="$(find rbd_spot_perception)/maps"/>
+
+  <group ns="rtabmap">
+    <!-- spot depth cloud to laser scan (this is necessary to create grid map) -->
+    <include file="$(find rbd_spot_perception)/launch/include/fake_scan_from_depth.launch">
+      <arg name="camera" value="$(arg camera0)"/>
+    </include>
+    <include file="$(find rbd_spot_perception)/launch/include/fake_scan_from_depth.launch">
+      <arg name="camera" value="$(arg camera1)"/>
+    </include>
+
+    <!-- RGBD sync -->
+    <include file="$(find rbd_spot_perception)/launch/include/rgbd_sync_dual.launch">
+      <arg name="camera0" value="$(arg camera0)"/>
+      <arg name="camera1" value="$(arg camera1)"/>
+    </include>
+
+    <!-- rtabmap main node -->
+    <include file="$(find rbd_spot_perception)/launch/include/rtabmap_dual.launch">
+      <arg name="camera0" value="$(arg camera0)"/>
+      <arg name="camera1" value="$(arg camera1)"/>
+      <arg name="map_name" value="$(arg map_name)"/>
+      <arg name="database_path" value="$(arg database_path)"/>
+      <arg name="reload" value="$(arg reload)"/>
+      <arg name="localization_mode" value="false"/>
+    </include>
+
+  </group>
+</launch>
