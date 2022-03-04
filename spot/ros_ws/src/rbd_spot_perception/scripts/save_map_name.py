@@ -6,6 +6,10 @@
 # running in other shells be able to access the
 # map name directly without asking for it from the
 # user again.
+#
+# Convention: whether you are running mapping or localization,
+# it is desirable to have the current map name stored in the
+# .map_name file.
 import rospy
 import os
 import sys

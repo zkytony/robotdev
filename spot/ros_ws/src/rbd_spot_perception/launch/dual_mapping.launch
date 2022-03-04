@@ -7,7 +7,7 @@
   <arg name="camera0" default="frontleft"/>
   <arg name="camera1" default="frontright"/>
   <arg name="map_name" default="$(env MAP_NAME)"/>
-  <arg name="reload" default="false"/>
+  <arg name="reload" default="true"/>
   <arg name="database_path" default="$(find rbd_spot_perception)/maps/$(arg map_name)_rtabmap.db"/>
 
   <!-- This node saves the map name to be accessible by the map saver -->

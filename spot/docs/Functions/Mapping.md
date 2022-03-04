@@ -41,15 +41,15 @@ do not know what is going on. We write our own.
    ```
    MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch
    ```
-   Specify map name via `map_name`. The resulting map
+   Specify map name via `map_name`. Note that the map name is set as an environment variable,
+   so that it can be accessed by another program. The resulting map
    will be saved at `$(find rbd_spot_perception)/maps/<map_name>_rtabmap.db)`.
-   If you launch this launch file again with the same map name,
-   then by default, the old map will be loaded. If you want to
-   overwrite it, you can specify `reload:=true`
-   as an argument.
 
-   Note that the map name should be set as an environment variable,
-   so that it can be accessed by another program.
+   By default, this will reload the map with the same name. If you
+   want to overwrite the existing map, you should do:
+   ```
+   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch reload:=false
+   ```
 
    It by default uses the two front cameras; you can
    configure it to use two other cameras. If you
