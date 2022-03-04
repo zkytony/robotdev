@@ -63,7 +63,7 @@ do not know what is going on. We write our own.
 ## Saving the map
 
 When you launch `dual_camera_mapping.launch` it will by default save
-the map in rtabmap's format into a file called `<map_name>.rtabmap.db`.
+the map in rtabmap's format into a file called `<map_name>_rtabmap.db`.
 This file may be very big. If you want to save:
 
 1. the 3D point cloud to a common format (that can be loaded by e.g. Open3D)
@@ -75,6 +75,18 @@ run the following command:
 rosrun rbd_spot_perception map_saver.py
 ```
 this will save the map under `$(find rbd_spot_perception)/maps`.
+Specifically:
+* The point cloud will be saved as `<map_name>_point_cloud.ply`
+* The grid map will be saved as `<map_name>_grid_map.pgm` and `<map_name>_grid_map.yaml`
+
+You can visualize the `.ply` point cloud file using Open3D via:
+```
+rosrun rbd_spot_perception visualize_ply.py <map_name>.ply
+```
+
+**Troubleshooting:** If you open the visualizer and you only see a few red dots (same
+thing in RVIZ if you visualize the `/rtabmap/grid_map` topic and you see abnormal points),
+then you should restart everything (driver, image streaming, rtabmap etc.), and try again.
 
 
 #### _Investigations_

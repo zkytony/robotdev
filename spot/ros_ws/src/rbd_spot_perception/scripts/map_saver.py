@@ -87,7 +87,7 @@ def main():
 
     # For grid map, we just call the map_saver node from ROS navigation.
     p = subprocess.Popen(["rosrun", "map_server", "map_saver", "-f",
-                          map_name, f"map:={args.grid_map_topic}"],
+                          f"{map_name}_grid_map", f"map:={args.grid_map_topic}"],
                          cwd=maps_dir)  # changes the working directory
 
     rate = rospy.Rate(10)

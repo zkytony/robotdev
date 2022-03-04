@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /MapCloud1
         - /PointCloud21
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.5117647051811218
     Tree Height: 725
   - Class: rviz/Selection
     Name: Selection
@@ -57,8 +57,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 1.6946321725845337
+        Min Value: -0.6964916586875916
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -220,14 +220,14 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 2.0473101139068604
-        Min Value: 0.4440220892429352
+        Max Value: 6.134628772735596
+        Min Value: 3.7525062561035156
         Value: true
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: AxisColor
+      Color Transformer: RGB8
       Decay Time: 0
       Enabled: false
       Invert Rainbow: false
@@ -273,7 +273,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 12.176085472106934
+      Distance: 9.415040969848633
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -281,17 +281,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -4.233583927154541
-        Y: -2.5905771255493164
-        Z: 1.6825793981552124
+        X: -1.8459718227386475
+        Y: -2.1678364276885986
+        Z: 2.7131447792053223
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.26520419120788574
+      Pitch: 0.4702043831348419
       Target Frame: <Fixed Frame>
-      Yaw: 6.234930515289307
+      Yaw: 3.834914445877075
     Saved: ~
 Window Geometry:
   Displays:
