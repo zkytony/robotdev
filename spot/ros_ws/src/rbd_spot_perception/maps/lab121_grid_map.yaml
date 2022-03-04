@@ -1,6 +1,6 @@
 image: lab121_grid_map.pgm
 resolution: 0.020000
-origin: [-10.499858, -7.631521, 0.000000]
+origin: [-11.163231, -7.528270, 0.000000]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.196
