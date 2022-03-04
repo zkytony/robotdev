@@ -88,6 +88,9 @@ rosrun rbd_spot_perception visualize_ply.py <map_name>.ply
 thing in RVIZ if you visualize the `/rtabmap/grid_map` topic and you see abnormal points),
 then you should restart everything (driver, image streaming, rtabmap etc.), and try again.
 
+**Troubleshooting:** TODO it seems like setting `overwrite_existing` to false doesn't
+prevent existing map to be removed.
+
 
 #### _Investigations_
 Looking at RVIZ, the point cloud comes from the `/rtabmap/mapData` topic.
