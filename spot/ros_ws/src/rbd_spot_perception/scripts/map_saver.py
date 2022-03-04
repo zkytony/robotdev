@@ -14,7 +14,7 @@ import numpy as np
 import rospy
 import rospkg
 import ros_numpy
-import sensor_msgs.point_cloud2
+import sensor_msgs.point_cloud2 as pc2
 import sensor_msgs.msg
 
 import open3d as o3d
@@ -25,6 +25,7 @@ GRID_MAP_SAVED = False
 
 def save_point_cloud_to_ply(pcl2msg, map_name, maps_dir):
     """Saves the PointCloud2 message as a .ply file"""
+    rospy.loginfo("Saving the point cloud to a .ply file")
     pc = ros_numpy.numpify(pcl2msg)
     pc = ros_numpy.point_cloud2.split_rgb_field(pc)
     points = np.zeros((pc.shape[0], 3))
@@ -37,7 +38,7 @@ def save_point_cloud_to_ply(pcl2msg, map_name, maps_dir):
     rgb[:, 2] = pc['b']
     out_pcd = o3d.geometry.PointCloud()
     out_pcd.points = o3d.utility.Vector3dVector(points)
-    out_pcd.colors = o3d.utility.Vector3dVector(rgb)
+    out_pcd.colors = o3d.utility.Vector3dVector(rgb.astype(float)/255.0)
     o3d.io.write_point_cloud(
         os.path.join(maps_dir, f"{map_name}_point_cloud.ply"), out_pcd)
 
