@@ -12,7 +12,7 @@ def main():
 
     ply_file = sys.argv[1]
     print(f"Loading {ply_file}")
-    pcd = o3d.io.read_point_cloud("ply_file")
+    pcd = o3d.io.read_point_cloud(ply_file)
     o3d.visualization.draw_geometries([pcd])
 
 if __name__ == "__main__":
