@@ -71,3 +71,11 @@ to be usable with minor fixes. ROS Noetic on Ubuntu 20.04 works.
 ## TF frames
 
 `body` and `base_link` frames are together (0 transform between the two).
+
+### odom->body transform problem
+
+It may happen to you that the "odom"->"body" transform seems off.
+For example, as documented in [Localization](./Functions/Localization.md):
+![image](https://user-images.githubusercontent.com/7720184/156898718-7375ef2c-80a3-4c1a-9157-92f852a0bf4a.png)
+
+How does Spot ROS publish this transform?

@@ -48,3 +48,4 @@ grounded on the map. In the figure below, clearly, the reason is the transform f
 The TF tree shows that "odom->body" is published by `spot_ros` - it is not rtabmap's fault.
 ![image](https://user-images.githubusercontent.com/7720184/156898698-62eb8994-02d4-410e-a896-c08f01b5c755.png)
 
+How to fix this? See [SpotROS](../SpotROS.md) section on TF for more details.
