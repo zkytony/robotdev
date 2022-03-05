@@ -36,3 +36,11 @@ Ignore this. Localization works properly when you
 use `dual_localization.launch` even though you will
 see this warning. Do not change "Vis/CorGuessWinSize" to 0
 because that breaks localization.
+
+
+
+### Localization doesn't update; Robot float in air
+
+It appears that sometimes (very often) when you start the driver, image streamer, and then rtabmap, the robot model floats in mid air instead of
+grounded on the map. In the figure below, clearly, the reason is the transform from `odom` to `body` is not correct.
+![image](https://user-images.githubusercontent.com/7720184/156897554-57127c11-eb18-46b3-8088-fa2d9bb8cecd.png)
