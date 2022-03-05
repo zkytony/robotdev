@@ -6,8 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /MapCloud1
-        - /PointCloud21
+        - /TF1
+        - /TF1/Frames1
+        - /TF1/Tree1
       Splitter Ratio: 0.5117647051811218
     Tree Height: 725
   - Class: rviz/Selection
@@ -28,7 +29,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: MapCloud
+    SyncSource: Info
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -73,7 +74,7 @@ Visualization Manager:
       Download graph: false
       Download map: false
       Download namespace: rtabmap
-      Enabled: true
+      Enabled: false
       Filter ceiling (m): 0
       Filter floor (m): 0
       Invert Rainbow: false
@@ -91,7 +92,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rtabmap_ros/MapGraph
       Enabled: true
@@ -245,6 +246,120 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base_link:
+          Value: false
+        body:
+          Value: true
+        camera_frontleft_frame:
+          Value: false
+        camera_frontright_frame:
+          Value: false
+        flat_body:
+          Value: false
+        front_left_hip:
+          Value: false
+        front_left_lower_leg:
+          Value: false
+        front_left_upper_leg:
+          Value: false
+        front_rail:
+          Value: false
+        front_right_hip:
+          Value: false
+        front_right_lower_leg:
+          Value: false
+        front_right_upper_leg:
+          Value: false
+        frontleft:
+          Value: false
+        frontleft_fisheye:
+          Value: false
+        frontright:
+          Value: false
+        frontright_fisheye:
+          Value: false
+        gpe:
+          Value: false
+        hand:
+          Value: false
+        head:
+          Value: false
+        map:
+          Value: true
+        odom:
+          Value: true
+        rear_left_hip:
+          Value: false
+        rear_left_lower_leg:
+          Value: false
+        rear_left_upper_leg:
+          Value: false
+        rear_rail:
+          Value: false
+        rear_right_hip:
+          Value: false
+        rear_right_lower_leg:
+          Value: false
+        rear_right_upper_leg:
+          Value: false
+        vision:
+          Value: true
+      Marker Alpha: 1
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        map:
+          odom:
+            body:
+              base_link:
+                {}
+              flat_body:
+                {}
+              front_left_hip:
+                front_left_upper_leg:
+                  front_left_lower_leg:
+                    {}
+              front_rail:
+                {}
+              front_right_hip:
+                front_right_upper_leg:
+                  front_right_lower_leg:
+                    {}
+              hand:
+                {}
+              head:
+                frontleft:
+                  frontleft_fisheye:
+                    camera_frontleft_frame:
+                      {}
+                frontright:
+                  frontright_fisheye:
+                    camera_frontright_frame:
+                      {}
+              rear_left_hip:
+                rear_left_upper_leg:
+                  rear_left_lower_leg:
+                    {}
+              rear_rail:
+                {}
+              rear_right_hip:
+                rear_right_upper_leg:
+                  rear_right_lower_leg:
+                    {}
+              vision:
+                {}
+            gpe:
+              {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -273,7 +388,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.415040969848633
+      Distance: 3.744281768798828
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -281,17 +396,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -1.8459718227386475
-        Y: -2.1678364276885986
-        Z: 2.7131447792053223
+        X: -0.07914374768733978
+        Y: 0.6761294007301331
+        Z: 0.5997378826141357
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4702043831348419
+      Pitch: 0.6402041912078857
       Target Frame: <Fixed Frame>
-      Yaw: 3.834914445877075
+      Yaw: 2.0449130535125732
     Saved: ~
 Window Geometry:
   Displays:
