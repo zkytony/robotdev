@@ -17,3 +17,22 @@ To set in localization mode with a previously created map, you should set the me
 </node>
 </launch>
 ```
+
+
+## Troubleshooting
+
+### Robot starts at old location & doesn't update
+When I start rtabmap in localization mode (setting `Mem/IncrementalMemory` to false),
+the robot can't update its location. Its initial location seems to be where it was
+when the SLAM mapping stopped.
+
+The following Github issue describes the same problem.
+https://github.com/introlab/rtabmap_ros/issues/687
+
+
+### Warning "...computeTransformationImpl()...Finding correspondences with ..."
+
+Ignore this. Localization works properly when you
+use `dual_localization.launch` even though you will
+see this warning. Do not change "Vis/CorGuessWinSize" to 0
+because that breaks localization.
