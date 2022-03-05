@@ -45,6 +45,7 @@
     <!-- Localization mode -->
     <param name="Mem/IncrementalMemory"     type="string" value="false"  if="$(arg localization_mode)"/>
     <param name="Mem/ReduceGraph"           type="string" value="false"  if="$(arg localization_mode)"/>
+    <param name="RGBD/StartAtOrigin"        type="string" value="true"   if="$(arg localization_mode)"/>
   </node>
 
 </launch>
