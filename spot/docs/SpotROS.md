@@ -78,4 +78,11 @@ It may happen to you that the "odom"->"body" transform seems off.
 For example, as documented in [Localization](./Functions/Localization.md):
 ![image](https://user-images.githubusercontent.com/7720184/156898718-7375ef2c-80a3-4c1a-9157-92f852a0bf4a.png)
 
-How does Spot ROS publish this transform?
+How does Spot ROS publish this transform? In fact, it seems that the transform
+is directly published by Boston dynamics API through [get_odom_tform_body](https://dev.bostondynamics.com/python/bosdyn-client/src/bosdyn/client/frame_helpers#bosdyn.client.frame_helpers.get_odom_tform_body).
+
+The Clearpath robotics support provided a convincing answer: odometry drift.
+>This is caused by odometry drift. If you reboot the robot you should see that the odometry starts zeroed. If you move the robot around, the odometry will drift in the x-y coordinates. But, the z-offset drifts regardless of whether the robot is in motion, which I suspect is caused by IMU drift.
+
+This is why, even when the robot was floating in the air, if I left the rtabmap localization running for long enough, it seems to be able to localize itse.f
+
