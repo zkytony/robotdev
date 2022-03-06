@@ -48,10 +48,10 @@ because that breaks localization.
 
 It appears that sometimes (very often) when you start the driver, image streamer, and then rtabmap, the robot model floats in mid air instead of
 grounded on the map. In the figure below, clearly, the reason is the transform from `odom` to `body` is not correct.
-![image](https://user-images.githubusercontent.com/7720184/156898718-7375ef2c-80a3-4c1a-9157-92f852a0bf4a.png)
+<img src="https://user-images.githubusercontent.com/7720184/156898718-7375ef2c-80a3-4c1a-9157-92f852a0bf4a.png" width="500px"/>
 
 The TF tree shows that "odom->body" is published by `spot_ros` - it is not rtabmap's fault.
-![image](https://user-images.githubusercontent.com/7720184/156898698-62eb8994-02d4-410e-a896-c08f01b5c755.png)
+<img src="https://user-images.githubusercontent.com/7720184/156898698-62eb8994-02d4-410e-a896-c08f01b5c755.png" width="600px"/>
 
 How to fix this? 
 
