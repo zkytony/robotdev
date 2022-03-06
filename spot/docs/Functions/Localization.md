@@ -6,17 +6,27 @@ for localization:
 MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_localization.launch
 ```
 
+Note that rtabmap will _relocalize_ at loop closure. So, if the initial location of the robot is incorrect, use
+the controller to drive the robot to move along a loop, to force loop closure.
+
+<img src="https://user-images.githubusercontent.com/7720184/156906850-4631453c-fe3f-499f-ae08-5c64e1c6e7c9.png" width="600px"/>
+
+
+
 ### How it works
 By default, rtabmap is in mapping mode.
 To set in localization mode with a previously created map, you should set the memory not incremental (make sure that arguments don't contain `--delete_db_on_start` too!):
 ```xml
 <launch>
 <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" args="">
-   <!-- LOCALIZATION MODE -->
-   <param name="Mem/IncrementalMemory" type="string" value="false"/>
+    <!-- Localization mode -->
+    <param name="Mem/IncrementalMemory"     type="string" value="false"  if="$(arg localization_mode)"/>
+    <param name="Mem/ReduceGraph"           type="string" value="false"  if="$(arg localization_mode)"/>
+    <param name="RGBD/StartAtOrigin"        type="string" value="true"   if="$(arg localization_mode)"/>
 </node>
 </launch>
 ```
+Note that the [official documentation](http://wiki.ros.org/rtabmap_ros)(Sec 4.1) only mentions "Mem/IncrementalMemory." The use of the other two were result of reading from different places (ROS Answers and Github issues).
 
 
 ## Troubleshooting
