@@ -58,4 +58,5 @@ How to fix this?
 **This does not appear to be an actual problem; it is just odometry drift.** See [SpotROS](../SpotROS.md) section on TF for more details.
 Basically, if this happens, you could:
 1. restart the robot, so the odom frame will be _very close_ to body, and localization should happen rather quickly.
-2. wait. Just wait for a while. Then localization may just work automatically.
+2. Drive the robot in a loop to force loop closure; Localization happens at loop closure!  Below is where I read this ([source](https://answers.ros.org/question/302694/rtabmap-localization/)):
+    >RTAB-Map will still relocalize the robot on loop closure / global localization
