@@ -1,0 +1,21 @@
+<launch>
+  <!-- Move Base -->
+
+  <node pkg="move_base" type="move_base" name="move_base"
+        respawn="false" output="screen">
+
+    <!-- output; A stream of velocity commands meant for execution by a mobile base. -->
+    <remap from="cmd_vel" to="/spot/cmd_vel" />
+    <remap from="odom" to="/spot/odometry"/>
+
+    <rosparam file="$(find rbd_spot_action)/config/navigation/global_planner_params.yaml" command="load"/>
+    <rosparam file="$(find rbd_spot_action)/config/navigation/local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find rbd_spot_action)/config/navigation/costmap_common_params.yaml" command="load"/>
+    <rosparam file="$(find rbd_spot_action)/config/navigation/costmap_global_params.yaml" command="load"/>
+    <rosparam file="$(find rbd_spot_action)/config/navigation/costmap_local_params.yaml" command="load"/>
+
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+    <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
+  </node>
+
+</launch>
