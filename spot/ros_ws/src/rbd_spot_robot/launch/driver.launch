@@ -6,6 +6,8 @@
   <arg name="hostname" default="$(env SPOT_IP)"/>
   <arg name="estop_timeout" default="9.0"/>
   <arg name="cameras_used" default="[]" />
+  <!-- whether we would like to control the robot -->
+  <arg name="control" default="false" />
 
   <include file="$(find spot_driver)/launch/driver.launch">
     <arg name="username" value="$(arg username)"/>
@@ -13,6 +15,11 @@
     <arg name="hostname" value="$(arg hostname)"/>
     <arg name="estop_timeout" value="$(arg estop_timeout)"/>
     <arg name="cameras_used" value="$(arg cameras_used)" />
+
+    <!-- If we control the robot -->
+    <arg name="auto_power_on" value="true" if="$(arg control)"/>
+    <arg name="auto_claim"    value="true" if="$(arg control)"/>
+    <arg name="auto_stand"    value="true" if="$(arg control)"/>
   </include>
 
 </launch>
