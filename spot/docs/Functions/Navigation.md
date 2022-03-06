@@ -40,3 +40,12 @@ You can record a map "using the GraphNavRecording service".
 Spot SDK's GraphNav is intended for autonomous site inspection;
 basically, the robot would autonomously navigate from waypoint
 to waypoint, designed for the specific site.
+
+
+## APPENDIX: move_base launch file references:
+
+1. [Section 2.5 "Creating a Launch File for the Navigation Stack" in ROS Navigation tutorial](http://wiki.ros.org/navigation/Tutorials/RobotSetup)
+
+2. [Kinova MOVO's move_base.launch](https://github.com/Kinovarobotics/kinova-movo/blob/master/movo_demos/launch/nav/move_base.launch)
+
+3. [sara_action/sara_move_base's move_base.launch](https://github.com/zkytony/sara_actions/blob/master/sara_move_base/launch/move_base.launch) [private repo]
