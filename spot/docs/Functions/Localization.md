@@ -31,8 +31,13 @@ https://github.com/introlab/rtabmap_ros/issues/687
 
 
 ### Warning "...computeTransformationImpl()...Finding correspondences with ..."
+If you see this message:
+```
+[ WARN] (2022-03-06 02:25:05.468) RegistrationVis.cpp:1152::computeTransformationImpl() Finding correspondences with the guess cannot be done with multiple cameras, global matching is done instead. Please set "Vis/CorGuessWinSize" to 0 to avoid this warning.
+```
 
-Ignore this. Localization works properly when you
+Ignore this - This warning actually means localization is working!
+Localization works properly when you
 use `dual_localization.launch` even though you will
 see this warning. Do not change "Vis/CorGuessWinSize" to 0
 because that breaks localization.
