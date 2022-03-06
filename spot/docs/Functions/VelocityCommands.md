@@ -7,7 +7,7 @@ Spot ROS provides a more ROS-friendly interface to send velocity commands. See [
 
 1. Release control from the tablet. To do this, press "X" to sit the robot ->  press the power button icon -> Under "CONTROL", press "RELEASE CONTROL".
 2. Set parameters "auto_claim", "auto_power_on" and "auto_stand" to be all True in `spot_driver/config/spot_ros.yaml`.
-3. Now, (re)start the driver `roslaunch rbd_spot_robot driver.launch`. The robot should now power its motor on, and then stand up by itself. This means now, the spot driver has _control_ of spot!
+3. Now, (re)start the driver `roslaunch rbd_spot_robot driver.launch control:=true`. The robot should now power its motor on, and then stand up by itself. This means now, the spot driver has _control_ of spot!
 4. You can now run a velocity command, for example:
     ```
     rostopic pub /spot/cmd_vel geometry_msgs/Twist "linear:
