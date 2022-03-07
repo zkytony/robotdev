@@ -3,5 +3,5 @@ global_costmap:
    robot_base_frame: body
    update_frequency: 1.0
    publish_frequency: 0.5
-   static_map: true
    transform_tolerance: 0.5
+   map_topic: /rtabmap/grid_map
