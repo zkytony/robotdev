@@ -119,3 +119,20 @@ global_costmap:
 ```
 
 **So, I removed the 'static_map' parameter.**
+
+I had to manually run `rosparam delete /move_base/{local|global}_costmap/static_map`
+so that the next `move_base` launch session is not affected by those parameters.
+
+
+### _Warning: "Trajectory Rollout planner initialized with param meter_scoring not set. Set it to true to make your settings robust against changes of costmap resolution."_
+This warning message:
+```
+[ WARN] [1646663092.504505520]: Trajectory Rollout planner initialized with param meter_scoring not set. Set it to true to make your settings robust against changes of costmap resolution.
+```
+appears once when I start the move_base node.
+According to [this ROS Answers](https://answers.ros.org/question/188847/hydro-error-in-move_baselaunch/),
+it is recommended to set the `TrajectoryPlannerROS/meter_scoring` parameter to either `true` or `false`, and
+>It is recommended to use meter scoring (meter_scoring: true) when you expect that the resolution of your map might change.
+
+
+Note that "TrajectoryPlannerROS" is an object within the [`base_local_planner`](http://wiki.ros.org/base_local_planner#TrajectoryPlannerROS) package.
