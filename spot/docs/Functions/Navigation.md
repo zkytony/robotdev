@@ -139,3 +139,24 @@ it is recommended to set the `TrajectoryPlannerROS/meter_scoring` parameter to e
 
 
 Note that "TrajectoryPlannerROS" is an object within the [`base_local_planner`](http://wiki.ros.org/base_local_planner#TrajectoryPlannerROS) package.
+
+
+### _Warning: "global_costmap: Parameter "plugins" not provided, loading pre-Hydro parameters" ..._
+If you see warnings like this:
+```
+[ WARN] [1646680822.376228607]: global_costmap: Parameter "plugins" not provided, loading pre-Hydro parameters
+...
+[ WARN] [1646680822.478478339]: local_costmap: Parameter "plugins" not provided, loading pre-Hydro parameters
+```
+Ignore it and restart `move_base`. The parameters `plugins` SHOULD be set if you restart.
+If that doesn't happen, then you can define them explicitly in the
+costmap parameter files.
+
+
+### _Warning: Costmap2DROS transform timeout ... Could not get robot pose
+I saw this warning once together with the above warning regarding "plugins" not provided.
+```
+[ WARN] [1646680832.782474276]: Costmap2DROS transform timeout. Current time: 1646680832.7824, global_pose stamp: 1646680832.2648, tolerance: 0.5000
+[ WARN] [1646680832.782588799]: Could not get robot pose, cancelling reconfiguration
+```
+I just restarted `move_base` again and this warning is gone.
