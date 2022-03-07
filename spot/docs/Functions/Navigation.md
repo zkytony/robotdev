@@ -20,6 +20,17 @@ To run navigation,
 
 
 
+#### Problem: if control is given to the spot ros driver, how to localize the robot?
+Because to localize the robot you need to drive it to create a loop closure.
+If you hijack control from the driver, then the driver may not be able to get
+it back and you cannot do navigation.
+
+A solution is to have a keyboard controller that you can use while the spot driver
+is running. This can be easily done through the [`wasd.py` example](https://dev.bostondynamics.com/python/examples/wasd/readme)
+in Spot SDK. Note that
+
+
+
 
 ## Overall Strategy
 
