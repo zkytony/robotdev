@@ -160,3 +160,6 @@ I saw this warning once together with the above warning regarding "plugins" not 
 [ WARN] [1646680832.782588799]: Could not get robot pose, cancelling reconfiguration
 ```
 I just restarted `move_base` again and this warning is gone.
+
+But, it does still happen occassionally, from time to time. It does not occur
+continuously. This may be normal.
