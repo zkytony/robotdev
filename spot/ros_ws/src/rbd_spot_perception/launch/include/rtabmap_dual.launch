@@ -10,6 +10,7 @@
   <arg name="rtabmap_args" value="--delete_db_on_start" unless="$(arg reload)"/>
   <arg name="rtabmap_args" value="" if="$(arg reload)"/>
 
+  <!-- assuming everything is under the 'rtabmap' namesapce -->
   <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)"
         unless="$(eval arg('map_name') == '')">  <!-- run only if map_name is not empty -->
     <param name="frame_id" type="string" value="body" />
