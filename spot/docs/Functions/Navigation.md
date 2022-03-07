@@ -49,3 +49,73 @@ to waypoint, designed for the specific site.
 2. [Kinova MOVO's move_base.launch](https://github.com/Kinovarobotics/kinova-movo/blob/master/movo_demos/launch/nav/move_base.launch)
 
 3. [sara_action/sara_move_base's move_base.launch](https://github.com/zkytony/sara_actions/blob/master/sara_move_base/launch/move_base.launch) [private repo]
+
+
+## APPENDIX: Troubleshooting
+
+### _Stuck at "Requesting the map..."_
+
+When launching the `move_base` node, I saw the first three printed messages:
+```
+[ WARN] [1646661679.269838083]: global_costmap: Pre-Hydro parameter "static_map" unused since "plugins" is provided
+[ INFO] [1646661679.275519048]: global_costmap: Using plugin "static_layer"
+[ INFO] [1646661679.297608433]: Requesting the map...
+```
+and the process hangs.
+
+The fix is to set the costmap parameter `map_topic` to the topic where
+"nav_msgs/OccupancyGrid" message is published, a parameter for the [costmap
+static map layer](http://wiki.ros.org/costmap_2d/hydro/staticmap) (the
+documentation is still hydro but it applies to noetic...); this parameter is
+set as:
+```
+global_costmap:
+    ...
+    map_topic: /rtabmap/grid_map
+```
+
+### _Warning: "Pre-Hydro parameter "static_map" unused since "plugins" is provided"_
+
+I get this warning for both "global costmap" and "local costmap":
+```
+[ WARN] [1646662114.193319092]: global_costmap: Pre-Hydro parameter "static_map" unused since "plugins" is provided
+...
+[ WARN] [1646662114.612013356]: local_costmap: Pre-Hydro parameter "static_map" unused since "plugins" is provided
+```
+According to [this Stackoverflow](https://stackoverflow.com/a/61363290/2893053),
+the "static_map" parameter is deprecated.
+
+You can ignore this warning; I find it more explicitly understandable that for
+`global_costmap`, the "static_map" parameter is set to `true` and for
+`local_costmap`, the "static_map" parameter is set to `false`. Removing
+this removes this distinction.
+
+
+But of course, this parameter **is deprecated.** The actual parameter that
+is in effect, as suggested by the warning message, is the "plugins":
+```
+$ rosparam get /move_base/global_costmap/plugins
+- name: static_layer
+  type: costmap_2d::StaticLayer
+- name: obstacle_layer
+  type: costmap_2d::ObstacleLayer
+- name: inflation_layer
+  type: costmap_2d::InflationLayer
+```
+It is very clear that static layer is used for global costmap, but not local costmap:
+```
+$ rosparam get /move_base/local_costmap/plugins
+- name: obstacle_layer
+  type: costmap_2d::ObstacleLayer
+- name: inflation_layer
+  type: costmap_2d::InflationLayer
+```
+You can change this simply by defining your own `plugins` parameter like so ([reference](http://wiki.ros.org/costmap_2d/Tutorials/Configuring%20Layered%20Costmaps)):
+```
+global_costmap:
+    plugins:
+        - {name: static_map,       type: "costmap_2d::StaticLayer"}
+        ...
+```
+
+**So, I removed the 'static_map' parameter.**
