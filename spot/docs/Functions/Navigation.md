@@ -16,6 +16,9 @@ To run navigation,
 3. TODO
 
 
+4. Run visualization `roslaunch rbd_spot_action view_nav.launch`
+
+
 
 
 ## Overall Strategy

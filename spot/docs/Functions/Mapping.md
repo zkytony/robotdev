@@ -57,7 +57,7 @@ do not know what is going on. We write our own.
    can develop a launch file based on this one.
 
 
-4. Run visualization: `roslaunch rbd_spot_perception rtabmap_rviz.launch`
+4. Run visualization: `roslaunch rbd_spot_perception view_maploc.launch`
 
 
 ## Saving the map

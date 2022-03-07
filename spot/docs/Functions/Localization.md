@@ -12,6 +12,10 @@ the controller to drive the robot to move along a loop, to force loop closure.
 <img src="https://user-images.githubusercontent.com/7720184/156906850-4631453c-fe3f-499f-ae08-5c64e1c6e7c9.png" width="600px"/>
 
 
+You can run visualization for this by either
+- `roslaunch rbd_spot_perception view_maploc.launch`  or
+- `roslaunch rbd_spot_action view_nav.launch`
+
 
 ### How it works
 By default, rtabmap is in mapping mode.
@@ -63,7 +67,7 @@ grounded on the map. In the figure below, clearly, the reason is the transform f
 The TF tree shows that "odom->body" is published by `spot_ros` - it is not rtabmap's fault.
 <img src="https://user-images.githubusercontent.com/7720184/156898698-62eb8994-02d4-410e-a896-c08f01b5c755.png" width="600px"/>
 
-How to fix this? 
+How to fix this?
 
 **This does not appear to be an actual problem; it is just odometry drift.** See [SpotROS](../SpotROS.md) section on TF for more details.
 Basically, if this happens, you could:
