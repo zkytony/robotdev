@@ -27,9 +27,11 @@ it back and you cannot do navigation.
 
 A solution is to have a keyboard controller that you can use while the spot driver
 is running. This can be easily done through the [`wasd.py` example](https://dev.bostondynamics.com/python/examples/wasd/readme)
-in Spot SDK. Note that
+in Spot SDK. **HOWEVER, I FOUND THIS EXAMPLE TO BE NOT WORKING (03/07/2022); The
+robot ESTOPS every time the wasd.py is run.**
 
 
+So instead, I wrote one, using the spot ros's `/spot/cmd_vel` topic.
 
 
 ## Overall Strategy
