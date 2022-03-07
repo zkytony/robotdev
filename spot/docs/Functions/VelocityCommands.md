@@ -20,5 +20,8 @@ Spot ROS provides a more ROS-friendly interface to send velocity commands. See [
       z: 0.3" -r 10
     ````
     and you will see spot rotating in place 0.3rad/s. If you press `Ctrl+C` to stop this `rostopic pub` command, then the robot will stop rotating.
+    
+    (**GOOD NEWS**): Spot's automatic collison avoidance is still _in effect_ and it is VERY accurate. I tried standing in front of spot such that it will bump into me if it keeps rotating in place, but Spot can adjust itself slightly (disobeying the velocity command) but avoid the collision. Amazing!
+    
 
 **Note, if you are done, don't just kill the spot ROS driver. It is preferred to go to the tablet and do "HIJACK CONTROL", and then control the robot (dock it or whatever) as needed.**
