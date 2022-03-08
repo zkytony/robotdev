@@ -8,6 +8,7 @@
   <arg name="cameras_used" default="[]" />
   <!-- whether we would like to control the robot -->
   <arg name="control" default="false" />
+  <arg name="force" default="false" />
 
   <include file="$(find spot_driver)/launch/driver.launch">
     <arg name="username" value="$(arg username)"/>
@@ -20,6 +21,8 @@
     <arg name="auto_power_on" value="true" if="$(arg control)"/>
     <arg name="auto_claim"    value="true" if="$(arg control)"/>
     <arg name="auto_stand"    value="true" if="$(arg control)"/>
+    <!-- force take the lease - even if someone else is controlling it -->
+    <arg name="take_lease"    value="true" if="$(arg force)"/>
   </include>
 
 </launch>
