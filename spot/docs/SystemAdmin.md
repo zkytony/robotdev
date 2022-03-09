@@ -17,7 +17,11 @@ The primary tools for administration:
 Boston dynamics manages Spot software "as a whole."
 
 To update software, you need to download the ".BDE" file "for the latest release by following the link provided by Boston
-Dynamics." Then, in the admin console, go to "Software Update" and then upload and install the downloaded file.
+Dynamics."
+
+https://support.bostondynamics.com/s/downloads
+
+Then, in the admin console, go to "Software Update" and then upload and install the downloaded file.
 
 **The robot's key software systems must be running the same version of software.** When updating
 the robot's software the following components must also be updated:
