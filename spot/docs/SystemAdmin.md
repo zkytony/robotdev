@@ -50,7 +50,7 @@ Follow the steps [here](https://support.bostondynamics.com/s/article/Updating-th
 10. If you install, it will override the previous app.
 11. After installation is successful, click on the same Spot app and you should see it in a new version.
 
-
+**Note**: After software upgrade on the tablet (to v3.1.0), "AutoLogin" doesn't work. You can still, however, enter the username and password credentials manually and the tablet can STILL CONTROL the robot (which is running an older software version (v2.3.8))
 
 
 ### Important points 3.1.0
