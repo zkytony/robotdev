@@ -1,3 +1,21 @@
 <launch>
+  <!-- Navigation; assumes driver.launch is running with control authority -->
+  <arg name="camera0" default="frontleft"/>
+  <arg name="camera1" default="frontright"/>
+  <arg name="map_name" default="$(env MAP_NAME)"/>
+
+  <!-- streaming sensors -->
+  <node pkg="rbd_spot_perception" type="stream_front_camerasets.sh"
+        name="stream_front_camerasets" />
+
+  <!-- localization -->
+  <include file="$(find rbd_spot_perception)/launch/dual_localization.launch">
+    <arg name="camera0"  value="$(arg camera0)"/>
+    <arg name="camera1"  value="$(arg camera1)"/>
+    <arg name="map_name" value="$(env MAP_NAME)"/>
+  </include>
+
+  <!-- move base -->
+  <include file="$(find rbd_spot_action)/launch/include/move_base.launch" />
 
 </launch>

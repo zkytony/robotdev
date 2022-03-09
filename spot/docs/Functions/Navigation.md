@@ -6,17 +6,13 @@ To run navigation,
 
    `roslaunch rbd_spot_robot driver.launch control:=true`
 
-2. Run camera streaming and rtabmap localization (with the correct map; lab121 in this example):
+2. Run navigation for a given map:
 
-   ```
-   rosrun rbd_spot_perception stream_front_camerasets.sh
-   MAP_NAME=lab121 roslaunch rbd_spot_perception dual_localization.launch
-   ```
+    `MAP_NAME=lab121 roslaunch rbd_spot_action navigation.launch`
 
-3. TODO
+   Note: You MUST provide the map name as an environment variable through `MAP_NAME`.
 
-
-4. Run visualization `roslaunch rbd_spot_action view_nav.launch`
+3. Run visualization `roslaunch rbd_spot_action view_nav.launch`
 
 
 
