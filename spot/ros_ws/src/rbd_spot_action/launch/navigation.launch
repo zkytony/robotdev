@@ -17,5 +17,7 @@
 
   <!-- move base -->
   <include file="$(find rbd_spot_action)/launch/include/move_base.launch" />
+  <node pkg="rbd_spot_action" type="move_base_status.py"
+        name="move_base_status" output="screen"/>
 
 </launch>
