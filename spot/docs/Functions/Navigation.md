@@ -176,3 +176,28 @@ I just restarted `move_base` again and this warning is gone.
 
 But, it does still happen occassionally, from time to time. It does not occur
 continuously. This may be normal.
+
+
+### _move_base receives goal, but does not plan any global path)
+When I set a goal in RVIZ, the `move_base/goal` topic gets the goal,
+and `move_base/status` shows the following message
+```
+header:
+  seq: 3428
+  stamp:
+    secs: 1646783604
+    nsecs: 739524564
+  frame_id: ''
+status_list:
+  -
+    goal_id:
+      stamp:
+        secs: 1646783596
+        nsecs: 300418991
+      id: "/move_base-4-1646783596.300418991"
+    status: 1
+    text: "This goal has been accepted by the simple action server"
+```
+But I don't see a path on RVIZ.
+
+**FIX:** Did you add visualization for global path? The topic is `/move_base/GlobalPlanner/plan`
