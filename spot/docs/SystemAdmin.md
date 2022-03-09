@@ -34,6 +34,24 @@ the robot's software the following components must also be updated:
 
 As of 02/16/2022, the "currently staged file" is "spot_release_v2.3.8.bde" installed on 08-09-2021
 
+### Update Tablet App
+
+Follow the steps [here](https://support.bostondynamics.com/s/article/Updating-the-Spot-system)
+
+1. On the tablet, go to support.bostondynamics.com
+2. Sign in
+3. Go to "Downloads."
+4. Download the desired .apk file (that is the android app; e.g. version 3.1.0)
+5. Exit chrome
+6. Go to Explorer (you can swipe up from the tablet to see all apps; Explorer is one of them)
+7. Click "Home" -> "internal memory" -> "Download"
+8. Select ".apk" file (for your particular version)
+9. Click it, it will ask you to INSTALL
+10. If you install, it will override the previous app.
+11. After installation is successful, click on the same Spot app and you should see it in a new version.
+
+
+
 
 ### Important points 3.1.0
 
