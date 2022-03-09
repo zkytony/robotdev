@@ -5,7 +5,7 @@
         respawn="false" output="screen">
 
     <!-- output; A stream of velocity commands meant for execution by a mobile base. -->
-    <remap from="cmd_vel" to="/spot/cmd_velxx" />
+    <remap from="cmd_vel" to="/spot/cmd_vel" />
     <remap from="odom" to="/spot/odometry"/>
 
     <rosparam file="$(find rbd_spot_action)/config/navigation/global_planner_params.yaml" command="load"/>
