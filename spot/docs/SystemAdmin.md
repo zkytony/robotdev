@@ -32,7 +32,20 @@ the robot's software the following components must also be updated:
 * Spot CORE (if present)
 
 
-As of 02/16/2022, the "currently staged file" is "spot_release_v2.3.8.bde" installed on 08-09-2021
+If you see message in orange box:
+>The robot is taking longer than normal to reboot. This page will time out after
+>5 minutes. The reboot may have already succeeded. You may try refreshing this
+>page or power cycling the robot again.
+Then you can refresh.
+
+If the upgrade is successful, both "CURRENTLY STAGED FILE" and "SOFTWARE VERSION"
+should show the correct new version.
+
+
+#### Software Logs
+* (012) As of 02/16/2022, the "currently staged file" is "spot_release_v2.3.8.bde" installed on 08-09-2021
+* (012) As of 03/09/2022, the "currently staged file" is "spot_release_v3.1.0.bde" installed on 03-09-2022
+
 
 ### Update Tablet App
 
