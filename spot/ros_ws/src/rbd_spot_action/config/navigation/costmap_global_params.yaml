@@ -1,11 +1,21 @@
 global_costmap:
-   global_frame: map
-   robot_base_frame: body
-   update_frequency: 1.0
-   publish_frequency: 0.5
-   transform_tolerance: 0.5
-   map_topic: /rtabmap/grid_map
-   plugins:
-     - {name: static_layer,       type: "costmap_2d::StaticLayer"}
-     - {name: obstacle_layer,     type: "costmap_2d::ObstacleLayer"}
-     - {name: inflation_layer,    type: "costmap_2d::InflationLayer"}
+  global_frame: map
+  robot_base_frame: body
+  update_frequency: 1.0
+  publish_frequency: 0.5
+  transform_tolerance: 0.5
+  map_topic: /rtabmap/grid_map
+  plugins:
+    - {name: static_layer,       type: "costmap_2d::StaticLayer"}
+    - {name: obstacle_layer,     type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer,    type: "costmap_2d::InflationLayer"}
+  obstacle_layer:
+    footprint_clearing_enabled: true
+    observation_sources: depth_points
+    depth_points:
+      data_type: PointCloud2
+      topic: /rtabmap/local_grid_obstacle
+      marking: true
+      clearing: true
+      min_obstacle_height: 0.01
+      max_obstacle_height: 2.0
