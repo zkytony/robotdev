@@ -5,7 +5,7 @@ from actionlib_msgs.msg import GoalStatusArray, GoalStatus
 
 GOAL_REACHED_PRINTED=False
 LAST_PRINT_TIME = None
-PRINT_FREQ = 5  # hz
+PRINT_FREQ = 2  # hz
 
 def callback(m):
     global GOAL_REACHED_PRINTED
