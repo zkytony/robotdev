@@ -7,6 +7,7 @@
 # https://github.com/boston-dynamics/spot-sdk/blob/master/python/bosdyn-client/src/bosdyn/client/robot_command.py#L851
 import time
 import rospy
+
 from geometry_msgs.msg import Twist
 from rbd_spot.utils.keys import getch
 
@@ -49,6 +50,23 @@ def print_controls(controls):
     print("[c]  quit\n")
 
 
+def is_holding(key, cur_time, last_key, last_time, hold_time_gap=0.3):
+    """
+    Args:
+        key (str): character of the key currently pressed
+        curtime (time): time of key pressed
+        last_key (str): character of the last key pressed
+        last_time (time): time of last key pressed
+        hold_time_gap (float): the amount of time between two getch() event-returns
+            when one is actually holding a key. This is used to identify whether
+            a user is holding the key. This is typically < 0.3.
+    """
+    if key == last_key:
+        if cur_time - last_time < hold_time_gap:
+            return True
+    return False
+
+
 def main():
     rospy.init_node("spot_keyboard_control")
 
@@ -63,8 +81,12 @@ def main():
     print_controls(controls)
 
     pub = rospy.Publisher("/spot/cmd_vel", Twist, queue_size=10)
-    max_rate = rospy.Rate(50)
+    max_rate = rospy.Rate(60)
     _start_time = time.time()
+
+    _last_key = None
+    _last_time = None
+
     while True:
         k = getch()
         if k == "c":
@@ -76,9 +98,17 @@ def main():
 
         if k in controls:
             action = controls[k]
-            m = action.to_message()
-            pub.publish(m)
-            print("%.3fs: %s" % (time.time() - _start_time, action.name))
+            key_time = time.time() - _start_time
+            # We only publish the message when the user is holding the key
+            if _last_key is not None:
+                if is_holding(k, key_time, _last_key, _last_time):
+                    m = action.to_message()
+                    pub.publish(m)
+                    print("%.3fs: holding %s" % (key_time, action.name))
+                else:
+                    print("%.3fs: pressed %s" % (key_time, action.name))
+            _last_key = k
+            _last_time = key_time
         max_rate.sleep()
 
 if __name__ == "__main__":
