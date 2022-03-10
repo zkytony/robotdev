@@ -13,3 +13,8 @@ Then, you can obtain color image and corresponding depth map easily:
 Then you can easily visualize the depth cloud in RVIZ:
 
 <img src="https://user-images.githubusercontent.com/7720184/157586653-afbd7007-01cc-4a75-8e7a-61d2d8034b6b.png" width="550px"/>
+
+
+## References
+
+* https://answers.ros.org/question/367829/converting-image-pixel-coordinates-2dx-y-to-3d-world-coordinatequaternion/
