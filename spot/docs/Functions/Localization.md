@@ -6,8 +6,10 @@ for localization:
 MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_localization.launch
 ```
 
-Note that rtabmap will _relocalize_ at loop closure. So, if the initial location of the robot is incorrect, use
-the controller to drive the robot to move along a loop, to force loop closure.
+**_When does rtabmap localize?_** According to the package author, there are two ways:
+1. "you can send a pose on /rtabmap/initialpose topic to relocalize manually the robot. Like AMCL, you can set this topic under 2D Pose Estimate tool in RVIZ for convenience."
+
+2. "By default rtabmap thinks the robot is restarting from the last location where the robot has previously shutdown. We can change this behavior to "assume that the robot is restarting from origin of the map" (the first node in the map) by setting RGBD/StartAtOrigin=true." Either way, if the robot is not localized in this mode, rtabmap will _relocalize_ at loop closure.
 
 <img src="https://user-images.githubusercontent.com/7720184/156906850-4631453c-fe3f-499f-ae08-5c64e1c6e7c9.png" width="600px"/>
 
