@@ -1,0 +1,14 @@
+* Status Log
+
+** Basic functionality
+
+  | Datetime           | Who         | Tablet Control | Body Camera Streaming | Gripper Camera Streaming |
+  |--------------------+-------------+----------------+-----------------------+--------------------------|
+  | 03-16-2022 10:10AM | Kaiyu Zheng | ok             | ok                    | ok                       |
+
+
+** Spot ROS functionality
+
+  | Datetime           | Who         | Driver | Keyboard | Localization | Navigation | Mapping | Arm Control | Others |
+  |--------------------+-------------+--------+----------+--------------+------------+---------+-------------+--------|
+  | 03-16-2022 10:14AM | Kaiyu Zheng | ok     | ok       |              |            |         |             |        |
