@@ -1,4 +1,6 @@
 <launch>
   <!-- Mapping and localization visualization -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbd_spot_action)/viz/rtabmap_nav.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbd_spot_action)/viz/rtabmap_nav.rviz">
+    <remap from="initialpose"   to="/rtabmap/initialpose"/>
+  </node>
 </launch>

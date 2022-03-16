@@ -11,6 +11,8 @@ MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_localization.lau
 
 2. "By default rtabmap thinks the robot is restarting from the last location where the robot has previously shutdown. We can change this behavior to "assume that the robot is restarting from origin of the map" (the first node in the map) by setting RGBD/StartAtOrigin=true." Either way, if the robot is not localized in this mode, rtabmap will _relocalize_ at loop closure.
 
+I find that localization is only accurate after loop closure, regardless of initial pose (the author says "When a global loop closure happens, the robot would teleport at the right position independently of its initial localization.").
+
 <img src="https://user-images.githubusercontent.com/7720184/156906850-4631453c-fe3f-499f-ae08-5c64e1c6e7c9.png" width="600px"/>
 
 
