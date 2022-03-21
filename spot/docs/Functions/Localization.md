@@ -3,7 +3,7 @@
 Because we use rtabmap for mapping, we can use it again
 for localization:
 ```
-MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_localization.launch
+MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_localization.launch
 ```
 
 **_When does rtabmap localize?_** According to the package author, there are two ways:
