@@ -39,7 +39,7 @@ do not know what is going on. We write our own.
 
 3. Run our rtabmap launch file:
    ```
-   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch
+   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_mapping.launch
    ```
    Specify map name via `map_name`. Note that the map name is set as an environment variable,
    so that it can be accessed by another program. The resulting map
@@ -48,7 +48,7 @@ do not know what is going on. We write our own.
    By default, this will reload the map with the same name. If you
    want to overwrite the existing map, you should do:
    ```
-   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_camera_mapping.launch reload:=false
+   MAP_NAME="<map_name>" roslaunch rbd_spot_perception dual_mapping.launch reload:=false
    ```
 
    It by default uses the two front cameras; you can
