@@ -11,6 +11,8 @@ To run navigation,
     `MAP_NAME=lab121 roslaunch rbd_spot_action navigation.launch`
 
    Note: You MUST provide the map name as an environment variable through `MAP_NAME`.
+   
+   You can download the "lab121" map from [this link](https://drive.google.com/file/d/1OgzMqsSzDZiPwZHXjOMjVxEWytttL1YP/view?usp=sharing).
 
 3. Run visualization `roslaunch rbd_spot_action view_nav.launch`
 
