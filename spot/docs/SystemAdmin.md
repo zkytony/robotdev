@@ -45,6 +45,7 @@ should show the correct new version.
 #### Software Logs
 * (012) As of 02/16/2022, the "currently staged file" is "spot_release_v2.3.8.bde" installed on 08-09-2021
 * (012) As of 03/09/2022, the "currently staged file" is "spot_release_v3.1.0.bde" installed on 03-09-2022
+* (002) As of 2022-03-22 15:33:35, the "currently staged file" is "spot_release_v3.1.0.bde" installed on 03-22-2022
 
 
 ### Update Tablet App
