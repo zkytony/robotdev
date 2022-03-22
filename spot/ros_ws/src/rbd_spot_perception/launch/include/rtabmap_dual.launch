@@ -47,6 +47,11 @@
     <param name="Mem/IncrementalMemory"     type="string" value="false"  if="$(arg localization_mode)"/>
     <param name="Mem/ReduceGraph"           type="string" value="false"  if="$(arg localization_mode)"/>
     <param name="RGBD/StartAtOrigin"        type="string" value="true"   if="$(arg localization_mode)"/>
+
+    <!-- Mapping mode (i.e. not localization mode) -->
+    <param name="Mem/IncrementalMemory"     type="string" value="true"  unless="$(arg localization_mode)"/>
+    <param name="Mem/ReduceGraph"           type="string" value="true"  unless="$(arg localization_mode)"/>
+    <param name="RGBD/StartAtOrigin"        type="string" value="false" unless="$(arg localization_mode)"/>
   </node>
 
 </launch>
