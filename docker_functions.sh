@@ -45,7 +45,7 @@ function dkill
         echo -e "Usage: dkill <container>"
     else
         if drunning $1; then
-            if ask_confirm_yes "Stop container $1? "; then
+            if confirm "Stop container $1? "; then
                 docker stop $1
             fi
         else
@@ -61,7 +61,7 @@ function drm
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: drm <container>"
     else
-        if ask_confirm_yes "Remove container $1? "; then
+        if confirm "Remove container $1? "; then
             docker rm $1
         fi
     fi

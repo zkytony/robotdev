@@ -9,7 +9,6 @@ function confirm()
     false
 }
 
-
 # https://unix.stackexchange.com/questions/70615/bash-script-echo-output-in-box
 function box_out()
 {
