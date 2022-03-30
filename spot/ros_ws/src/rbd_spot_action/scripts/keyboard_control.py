@@ -78,6 +78,10 @@ def main():
         "q": Move("turn_left", vrot=(0.0, 0.0, ROT_VEL)),
         "e": Move("turn_right", vrot=(0.0, 0.0, -ROT_VEL)),
     }
+
+    arm_controls = {
+            "W": "hey"       
+            }
     print_controls(controls)
 
     pub = rospy.Publisher("/spot/cmd_vel", Twist, queue_size=10)
@@ -93,10 +97,22 @@ def main():
             print("bye.")
             break
 
-        if k == "h":
+        elif k == "h":
             print_controls(controls)
 
-        if k in controls:
+        elif k in arm_controls:
+            #action = controls[k]
+            key_time = time.time() - _start_time
+            # We only publish the message when the user is holding the key
+            if _last_key is not None:
+                if is_holding(k, key_time, _last_key, _last_time):
+                    print("%.3fs: holding %s" % (key_time, "MOVE"))
+                else:
+                    print("%.3fs: pressed %s" % (key_time, "MOVE"))
+            _last_key = k
+            _last_time = key_time
+
+        elif k in controls:
             action = controls[k]
             key_time = time.time() - _start_time
             # We only publish the message when the user is holding the key

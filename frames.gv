@@ -1,0 +1,27 @@
+digraph G {
+"odom" -> "gpe"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"body" -> "odom"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"vision" -> "body"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"body" -> "link_wr1"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"body" -> "hand"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"body" -> "flat_body"[label="Broadcaster: /spot/spot_ros\nAverage rate: 16.870 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.920 sec\n"];
+"body" -> "base_link"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1648654786.464 sec old)\nBuffer length: 0.000 sec\n"];
+"body" -> "front_rail"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1648654786.464 sec old)\nBuffer length: 0.000 sec\n"];
+"body" -> "rear_rail"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1648654786.464 sec old)\nBuffer length: 0.000 sec\n"];
+"body" -> "front_left_hip"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"front_left_hip" -> "front_left_upper_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"front_left_upper_leg" -> "front_left_lower_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"body" -> "front_right_hip"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"front_right_hip" -> "front_right_upper_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"front_right_upper_leg" -> "front_right_lower_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"body" -> "rear_left_hip"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"rear_left_hip" -> "rear_left_upper_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"rear_left_upper_leg" -> "rear_left_lower_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"body" -> "rear_right_hip"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"rear_right_hip" -> "rear_right_upper_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+"rear_right_upper_leg" -> "rear_right_lower_leg"[label="Broadcaster: /robot_state_publisher\nAverage rate: 16.875 Hz\nMost recent transform: 1648654786.355 ( 0.109 sec old)\nBuffer length: 4.800 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1648654786.464"[ shape=plaintext ] ;
+ }->"vision";
+}
