@@ -77,3 +77,14 @@ For example, "right camera communication error."
 If that happens, then you will not be able to run GetImage gRPC for that camera.
 
 Try to restart the robot.
+
+### Docker container unable to start after rebooting computer
+Eric got this error after rebooting the desktop computer (near 012):
+```
+Error response from daemon: Cannot restart container 01a: failed to create shim: OCI runtime create failed: container_linux.go:380: starting container process caused: process_linux.go:545: container init caused: rootfs_linux.go:75: mounting "/tmp/.docker.xauth" to rootfs at "/tmp/.docker.xauth" caused: mount through procfd: not a directory: unknown: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type
+Error response from daemon: Container 01a6861ae324f806d5187fa60e4517862bee9658ea40c2460292fc3b8e83896d is not running
+```
+
+The error message indicates that the file `/tmp/.docker.xauth` is missing. Deemer found the solution: for some reason, the /tmp/.docker.xauth was a a file when the container was created, but after restarting the computer, for some reason, it was made into a directory
+
+So all demer did was delete the folder there, and made an empty file there instead with the same name, and it worked
