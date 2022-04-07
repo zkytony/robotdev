@@ -35,6 +35,12 @@ For example, to start the container for robotdev using ROS Kinetic:
      robotdev     kinetic   3293f13a9b25   7 seconds ago   1.13GB
      ```
 
+   When using the `docker/build.noetic.sh`, you can provide a custom string as the suffix of the image tag name:
+   ```
+   source docker/build.kinetic.sh --tag-suffix=joy
+   ```
+   Then the tab of the image will become `noetic:joy`. (TODO for kinetic)
+
 2. Run the docker container
    ```
    source docker/run.kinetic.sh

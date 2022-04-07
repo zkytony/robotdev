@@ -17,6 +17,7 @@ hostuser=$USER
 hostuid=$UID
 hostgroup=$(id -gn $hostuser)
 hostgid=$(id -g $hostuser)
+custom_tag_suffix=""   # allows user to supply a custom suffix
 
 nvidia=""
 for arg in "$@"
@@ -24,6 +25,8 @@ do
     if parse_var_arg arg; then
         if [[ $var_name = "hostuser" ]]; then
             hostuser=$var_value
+        if [[ $var_name = "tag-suffix" ]]; then
+            custom_tag_suffix=":${var_value}"
         else
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
@@ -40,7 +43,7 @@ done
 # rebuild the image.
 cd $PWD/../  # get to the root of the repository
 docker build -f Dockerfile.noetic${nvidia}\
-       -t robotdev:noetic\
+       -t robotdev:noetic$custom_tag_suffix\
        --build-arg hostuser=$hostuser\
        --build-arg hostgroup=$hostgroup\
        --build-arg hostuid=$hostuid\
