@@ -11,13 +11,23 @@ fi
 . "../tools.sh"
 
 # parse args
-hostuser=$USER  # the user inside the container
+
+# UID/GID for the container user
+hostuser=$USER
+hostuid=$UID
+hostgroup=$(id -gn $hostuser)
+hostgid=$(id -g $hostuser)
+# allows user to supply a custom suffix
+custom_tag_suffix=""
+
 nvidia=""
 for arg in "$@"
 do
     if parse_var_arg $arg; then
         if [[ $var_name = "hostuser" ]]; then
             hostuser=$var_value
+        elif [[ $var_name = "tag-suffix" ]]; then
+            custom_tag_suffix="-$var_value"
         else
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
@@ -32,7 +42,10 @@ done
 # rebuild the image.
 cd $PWD/../  # get to the root of the repository
 docker build -f Dockerfile.kinetic${nvidia}\
-       -t robotdev:kinetic\
+       -t robotdev:kinetic$custom_tag_suffix\
        --build-arg hostuser=$hostuser\
+       --build-arg hostgroup=$hostgroup\
+       --build-arg hostuid=$hostuid\
+       --build-arg hostgid=$hostgid\
        --rm\
        .
