@@ -11,7 +11,13 @@ fi
 . "../tools.sh"
 
 # parse args
-hostuser=$USER  # the user inside the container
+
+# UID/GID for the container user
+hostuser=$USER
+hostuid=$UID
+hostgroup=$(id -gn $hostuser)
+hostgid=$(id -g $hostuser)
+
 nvidia=""
 for arg in "$@"
 do
@@ -36,6 +42,9 @@ cd $PWD/../  # get to the root of the repository
 docker build -f Dockerfile.noetic${nvidia}\
        -t robotdev:noetic\
        --build-arg hostuser=$hostuser\
+       --build-arg hostgroup=$hostgroup\
+       --build-arg hostuid=$hostuid\
+       --build-arg hostgid=$hostgid\
        --rm\
        .
 # Explain the options above:
