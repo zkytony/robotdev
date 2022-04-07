@@ -15,7 +15,7 @@ hostuser=$USER  # the user inside the container
 nvidia=""
 for arg in "$@"
 do
-    if parse_var_arg arg; then
+    if parse_var_arg $arg; then
         if [[ $var_name = "hostuser" ]]; then
             hostuser=$var_value
         else

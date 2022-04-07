@@ -15,7 +15,7 @@ gui=false
 nvidia=false
 for arg in "$@"
 do
-    if is_flag arg; then
+    if is_flag $arg; then
         if [[ $arg = "--gui" ]]; then
             gui=true
         elif [[ $arg = "--nvidia" ]]; then
