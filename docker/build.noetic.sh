@@ -27,7 +27,7 @@ do
         if [[ $var_name = "hostuser" ]]; then
             hostuser=$var_value
         elif [[ $var_name = "tag-suffix" ]]; then
-            custom_tag_suffix=":$var_value"
+            custom_tag_suffix="-$var_value"
         else
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
