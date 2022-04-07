@@ -187,7 +187,7 @@ function match_var_arg {
     # usage: match_single_var_arg <arg>
     # If <arg> is of format --variable=value
     # return true. Otherwise, return false.
-    regex='--[a-zA-Z0-9]+=(.*)'
+    regex='--[a-zA-Z0-9\-]+=(.*)'
     if [[ $1 =~ $regex ]]; then
         true && return
     else
