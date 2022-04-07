@@ -11,6 +11,7 @@ FROM ros:noetic
 # do this to avoid hanging
 ENV DEBIAN_FRONTEND=noninteractive
 # Install software
+RUN apt-get clean
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y emacs
