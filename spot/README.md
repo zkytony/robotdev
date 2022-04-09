@@ -44,9 +44,11 @@
    
 3. Get arm URDF file. Download [URDF.zip](https://drive.google.com/file/d/1ZnD4UxcuJSCufE-UVvJBFQtlVohIKtjo/view?usp=sharing),
    decompress it. Then, move the "spot/meshes" directory and "spot/meshes.meta" under URDF to `robotdev/spot/ros_ws/src/spot_ros/spot_descriptions/spot`. 
-   This way when you start the Spot ROS driver, the URDF (textureless) of the robot arm will be loaded.
+   This way after you start the Spot ROS driver, the URDF (textureless) of the robot arm will be loaded. 
    
    ![image](https://user-images.githubusercontent.com/7720184/162574583-124b09ed-0676-4236-9cc7-90cf17fdc29f.png)
+   
+   To start Spot ROS and use it, check out documentation under [docs/Functions](./docs/Functions).
 
 
 ## Choreographer
