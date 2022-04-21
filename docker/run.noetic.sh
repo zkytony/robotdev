@@ -43,6 +43,8 @@ if ! $gui; then
            --env "TERM=xterm-256color"\
            --privileged\
            --network=host\
+	   --gpus all\
+	   --runtime=nvidia\
            robotdev:noetic$custom_tag_suffix
 else
     # Want to support running GUI applications in Docker.
@@ -83,6 +85,8 @@ else
            --volume /tmp/.X11-unix/:/tmp/.X11-unix:rw\
            --env "XAUTHORITY=$XAUTH"\
            --volume $XAUTH:$XAUTH\
+	   --gpus all\
+	   --runtime=nvidia\
            --privileged\
            --network=host\
            ${runtime_nvidia}\
