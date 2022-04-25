@@ -13,9 +13,17 @@ fi
 # parse args
 gui=false
 nvidia=false
+# allows user to supply a custom suffix
+custom_tag_suffix=""
 for arg in "$@"
 do
-    if is_flag arg; then
+    if parse_var_arg $arg; then
+        if [[ $var_name = "tag-suffix" ]]; then
+            custom_tag_suffix="-$var_value"
+        else
+            echo -e "Unrecognized argument variable: ${var_name}"
+        fi
+    elif is_flag $arg; then
         if [[ $arg = "--gui" ]]; then
             gui=true
         elif [[ $arg = "--nvidia" ]]; then
@@ -35,7 +43,7 @@ if ! $gui; then
            --env "TERM=xterm-256color"\
            --privileged\
            --network=host\
-           robotdev:kinetic
+           robotdev:kinetic$custom_tag_suffix
 else
     # Want to support running GUI applications in Docker.
     # Need to forward X11.
@@ -78,5 +86,5 @@ else
            --privileged\
            --network=host\
            ${runtime_nvidia}\
-           robotdev:kinetic
+           robotdev:kinetic$custom_tag_suffix
 fi
