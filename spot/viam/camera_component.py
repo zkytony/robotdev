@@ -1,10 +1,12 @@
 import rbd_spot
+from rbd_spot_perception.depth_visual import make_cloud
 
 import asyncio
 from typing import Tuple
 from PIL import Image
 from viam.components.camera import Camera
 from viam.components.types import CameraMimeType
+
 
 
 class SpotCamera(Camera):
@@ -37,9 +39,23 @@ class SpotCamera(Camera):
         result, time_taken = rbd_spot.image.getImage(self._image_client,
                                                      self._image_requests)
         print(time_taken)
-        # return Image.fromarray(image)
+        fisheye_response = result[0]
+        return Image.fromarray(rbd_spot.image\
+                               .image_response_to_array(self._conn, fisheye_response))
+
 
     async def get_point_cloud(self) -> Tuple[bytes, str]:
+        result, time_taken = rbd_spot.image.getImage(self._image_client,
+                                                     self._image_requests)
+        print(time_taken)
+        fisheye_response = result[0]
+        depth_visual_response = result[1]
+        fisheye_img, fisheye_camera_info =\
+            rbd_spot.image.image_response_to_ros_image(self._conn, fisheye_response)
+        depth_visual_img, _ =\
+            rbd_spot.image.image_response_to_ros_image(self._conn, depth_visual_response)
+        point_cloud = make_cloud(depth_visual_img, fisheye_img, fisheye_camera_info)
+
         pass
     #     point_cloud = spot_camera.read_point_cloud()
     #     return (point_cloud.bytes, CameraMimeType.PCD.value)
@@ -47,8 +63,9 @@ class SpotCamera(Camera):
 def _test():
     spot_camera = SpotCamera("frontleft")
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(spot_camera.get_frame())
+    img = loop.run_until_complete(spot_camera.get_frame())
     loop.close()
+    img.save("test.png")
 
 if __name__ == "__main__":
     _test()
