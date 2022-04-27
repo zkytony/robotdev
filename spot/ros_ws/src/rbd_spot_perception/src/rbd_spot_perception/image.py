@@ -60,10 +60,10 @@ def ros_create_publishers(sources, name_space="stream_image"):
         publishers[source] = {
             "image": rospy.Publisher(
                 f"/spot/{name_space}/{source}/image",
-                sensor_msgs.msg.Image, queue_size=10),
+                sensor_msgs.msg.Image, queue_size=1),
             "camera_info": rospy.Publisher(
                 f"/spot/{name_space}/{source}/camera_info",
-                sensor_msgs.msg.CameraInfo, queue_size=10)
+                sensor_msgs.msg.CameraInfo, queue_size=1)
         }
     return publishers
 
