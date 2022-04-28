@@ -7,12 +7,12 @@ import sensor_msgs
 import tf2_ros
 import sys
 import numpy as np
-from cv_bridge import CvBridge
 
 from bosdyn.api import image_pb2
 from bosdyn.client.image import ImageClient, build_image_request
 
 import spot_driver.ros_helpers
+from cv_bridge import CvBridge
 
 # Note that if you don't specify image format (None) when
 # sending GetImageRequest, the response will be in JPEG format.
@@ -84,7 +84,7 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
     # publish the image with local timestamp
     for image_response in get_image_result:
         source_name = image_response.source.name
-        image_msg, camera_info_msg = image_response_to_ros_image(conn, image_response)
+        image_msg, camera_info_msg = ros_image_response_to_message(conn, image_response)
         publishers[source_name]['image'].publish(image_msg)
         publishers[source_name]['camera_info'].publish(camera_info_msg)
         rospy.loginfo(f"Published image response from {source_name}")
@@ -92,32 +92,41 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
         if broadcast_tf:
             populate_camera_static_transforms(conn, image_response, tf_frames)
 
-def image_response_to_ros_image(conn, response):
+def ros_image_response_to_message(conn, result):
     """
-    Given a result (returend by an image request for a single
-    source), return a tuple sensor_msgs/Image, sensor_msgs/CameraInfo
+    Given a result (ImageResponse), return a tuple
+    (sensor_msgs/Image, sensor_msgs/CameraInfo)
     """
     local_time = conn.spot_time_to_local(
-        response.shot.acquisition_time)
+        result.shot.acquisition_time)
     image_msg, camera_info_msg =\
-        spot_driver.ros_helpers._getImageMsg(response, local_time)
+        spot_driver.ros_helpers._getImageMsg(result, local_time)
     return image_msg, camera_info_msg
 
-
-def image_response_to_array(conn, response):
+def image_response_to_array(conn, result):
     """
-    Given a result (returend by an image request for a single
-    source), return a numpy array representation of the image.
+    Given a result (ImageResponse), return a numpy array
+    representation of the image.
 
     Args:
-        response (ImageResponse): a single image response.
+        conn (SpotSDKConn): establishes connection to the robot.
+        result (ImageResponse): a single image response.
     """
-    local_time = conn.spot_time_to_local(response.shot.acquisition_time)
-    image_msg, camera_info_msg = spot_driver.ros_helpers._getImageMsg(response, local_time)
+    image_msg, _ = ros_image_response_to_message(conn, result)
     bridge = CvBridge()
-    imgarr = bridge.imgmsg_to_cv2(image_msg)
-    return imgarr
+    return bridge.imgmsg_to_cv2(image_msg)
 
+def extract_pinhole_intrinsic(result):
+    """
+    Given a result (ImageResponse), return a tuple (width, length, fx, fy, cx,
+    cy), which are the parameters of a pinhole camera model.
+    """
+    return (result.shot.image.cols,
+            result.shot.image.rows,
+            result.source.pinhole.intrinsics.focal_length.x,
+            result.source.pinhole.intrinsics.focal_length.y,
+            result.source.pinhole.intrinsics.principal_point.x,
+            result.source.pinhole.intrinsics.principal_point.y)
 
 def _get_odom_tf_frames():
     # get tf frames; Spot has 2 types of odometries: 'odom' and 'vision'

@@ -1,13 +1,15 @@
+import asyncio
+from typing import Tuple
+import numpy as np
+from PIL import Image
+
 import rbd_spot
 from rbd_spot_perception.depth_visual import make_cloud
 
-import asyncio
-from typing import Tuple
-from PIL import Image
 from viam.components.camera import Camera
 from viam.components.types import CameraMimeType
 
-
+from . import utils
 
 class SpotCamera(Camera):
     """
@@ -43,29 +45,51 @@ class SpotCamera(Camera):
         return Image.fromarray(rbd_spot.image\
                                .image_response_to_array(self._conn, fisheye_response))
 
-
     async def get_point_cloud(self) -> Tuple[bytes, str]:
         result, time_taken = rbd_spot.image.getImage(self._image_client,
                                                      self._image_requests)
         print(time_taken)
         fisheye_response = result[0]
+        fisheye_img = rbd_spot.image.image_response_to_array(
+            self._conn, fisheye_response)
+        # extend single channel to three channels (otherwise gets unsupported format for open3d)
+        fisheye_img = np.stack((fisheye_img,)*3, axis=2).astype(np.uint8)
         depth_visual_response = result[1]
-        fisheye_img, fisheye_camera_info =\
-            rbd_spot.image.image_response_to_ros_image(self._conn, fisheye_response)
-        depth_visual_img, _ =\
-            rbd_spot.image.image_response_to_ros_image(self._conn, depth_visual_response)
-        point_cloud = make_cloud(depth_visual_img, fisheye_img, fisheye_camera_info)
+        depth_visual_img = rbd_spot.image.image_response_to_array(
+            self._conn, depth_visual_response)
+        intrinsic = rbd_spot.image.extract_pinhole_intrinsic(depth_visual_response)
+        point_cloud = utils.open3d_pointcloud_from_rgbd(fisheye_img, depth_visual_img, intrinsic)
+        # For now, let's use open3d's io function to convert the point cloud
+        # into pcd; because the PCD file format is sophisticated:
+        # https://github.com/isl-org/Open3D/blob/master/cpp/open3d/io/file_format/FilePCD.cpp#L791
+        pcd_binary = utils.open3d_pointcloud_to_pcd(point_cloud)
+        return (pcd_binary, CameraMimeType.PCD.value)
 
-        pass
-    #     point_cloud = spot_camera.read_point_cloud()
-    #     return (point_cloud.bytes, CameraMimeType.PCD.value)
 
-def _test():
+def _test_local():
     spot_camera = SpotCamera("frontleft")
-    loop = asyncio.get_event_loop()
+
+    print("testing get_frame...")
+    loop = asyncio.new_event_loop()
     img = loop.run_until_complete(spot_camera.get_frame())
-    loop.close()
     img.save("test.png")
 
+
+    print("testing get_point_cloud...")
+    pcd_binary, mimetype = loop.run_until_complete(spot_camera.get_point_cloud())
+    loop.close()
+
+    with open("/tmp/pointcloud_frame.pcd", "wb") as f:
+        f.write(pcd_binary)
+    import open3d as o3d
+    pcd = o3d.io.read_point_cloud("/tmp/pointcloud_frame.pcd")
+    viz = o3d.visualization.Visualizer()
+    viz.create_window()
+    viz.add_geometry(pcd)
+    opt = viz.get_render_option()
+    opt.show_coordinate_frame = True
+    viz.run()
+    viz.destroy_window()
+
 if __name__ == "__main__":
-    _test()
+    _test_local()
