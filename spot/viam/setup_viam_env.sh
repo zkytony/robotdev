@@ -18,6 +18,9 @@ fi
 
 source ${venv_path}/spot39/bin/activate
 export PYTHONPATH=""
+# TODO: For now, we are relying on some rbd_spot_* packages
+# that involve importing 'rospy'. So must add ROS packages to path.
+source ../ros_ws/devel/setup.bash
 
 if first_time_setup ./; then
     # install boston dynamics
@@ -35,4 +38,11 @@ if first_time_setup ./; then
     pip install pandas
     pip install open3d
     echo "SPOT SETUP DONE." >> .DONE_SETUP
+
+    # Install viam
+    ACCESS_TOKEN="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"
+    pip install git+https://$ACCESS_TOKEN@github.com/viamrobotics/python-sdk.git
+
+    # TODO: some ros packages to keep things running for now
+    pip install rospkg
 fi
