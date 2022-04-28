@@ -15,3 +15,5 @@ then
     make
     make test
 fi
+PYTHON_39="$HOME/software/Python-$PYTHON_VERSION/python"
+sudo ln -sf $PYTHON_39 /usr/bin/python3.9

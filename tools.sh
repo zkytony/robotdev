@@ -151,6 +151,20 @@ function first_time_build
     fi
 }
 
+# TODO: This is confusing. You should rename
+# the above function as first_time_build_rosws
+# This function is more generic; doesn't assume
+# existence of 'src' folder.
+function first_time_setup
+{
+    if [ ! -e "$1/.DONE_SETUP" ]; then
+        # has not successfully setup
+        true && return
+    else
+        false
+    fi
+}
+
 
 function build_ros_ws
 {
