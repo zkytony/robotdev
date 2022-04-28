@@ -3,9 +3,15 @@ from typing import Tuple
 import numpy as np
 from PIL import Image
 
-import rbd_spot
-from rbd_spot_perception.depth_visual import make_cloud
+# path to rbd_spot (needed for working with spot)
+import os
+import sys
+ABS_PATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(ABS_PATH, '../../ros_ws/src/rbd_spot/src'))
+sys.path.insert(0, os.path.join(ABS_PATH, '../../ros_ws/src/rbd_spot_robot/src'))
+sys.path.insert(0, os.path.join(ABS_PATH, '../../ros_ws/src/rbd_spot_perception/src'))
 
+import rbd_spot
 from viam.components.camera import Camera
 from viam.components.types import CameraMimeType
 
