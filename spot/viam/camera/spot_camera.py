@@ -52,7 +52,8 @@ class SpotCamera(Camera):
         fisheye_response = result[0]
         fisheye_img = rbd_spot.image.image_response_to_array(
             self._conn, fisheye_response)
-        # extend single channel to three channels (otherwise gets unsupported format for open3d)
+        # extend single channel to three channels (otherwise gets unsupported
+        # format for open3d)
         fisheye_img = np.stack((fisheye_img,)*3, axis=2).astype(np.uint8)
         depth_visual_response = result[1]
         depth_visual_img = rbd_spot.image.image_response_to_array(

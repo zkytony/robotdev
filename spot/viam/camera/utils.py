@@ -57,6 +57,7 @@ def open3d_pointcloud_from_rgbd(color, depth,
         position and rotation are tuples too.
     depth_scale: depth will be scaled by 1.0 / depth_scale
     depth_trunc: points with depth greater than depth_trunc will be discarded
+    /author: Kaiyu Zheng
     """
     width, height, fx, fy, cx, cy = intrinsic
     depth_img = o3d.geometry.Image(depth.astype(np.uint16))
@@ -83,6 +84,7 @@ def open3d_pointcloud_to_pcd(pcd, binary=True):
 
     Args:
         pcd (open3d.geometry.PointCloud): a point cloud object
+    /author: Kaiyu Zheng
     """
     tmp_pcd_path = "/tmp/pointcloud.pcd"
     o3d.io.write_point_cloud(tmp_pcd_path, pcd,
