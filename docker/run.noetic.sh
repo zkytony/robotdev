@@ -11,8 +11,8 @@ fi
 . "../tools.sh"
 
 # parse args
-gui=false
-nvidia=false
+gui=true
+nvidia=true
 # allows user to supply a custom suffix
 custom_tag_suffix=""
 for arg in "$@"

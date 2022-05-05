@@ -153,6 +153,8 @@ if first_time_build $SPOT_ROS_PATH; then
     pip install opencv-python
     pip install pandas
     pip install open3d
+    pip install torch
+    pip install torchvision
 
     # rosdep install dependencies
     rosdep update

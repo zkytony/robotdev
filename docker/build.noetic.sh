@@ -20,7 +20,8 @@ hostgid=$(id -g $hostuser)
 # allows user to supply a custom suffix
 custom_tag_suffix=""
 
-nvidia=""
+nvidia=".nvidia"
+echo "RUNNING NVIDIA"
 for arg in "$@"
 do
     if parse_var_arg $arg; then
@@ -32,8 +33,8 @@ do
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
     elif is_flag $arg; then
-        # we are not there yet (with nvidia)
-        # if [[ $arg = "--nvidia" ]]; then
+	# we ARE there (with nvidia) -- see above (neev)
+        # if [[ "$arg" = "--nvidia" ]]; then
         #     nvidia=".nvidia"
         # fi
         echo "unhandled arg: $arg"

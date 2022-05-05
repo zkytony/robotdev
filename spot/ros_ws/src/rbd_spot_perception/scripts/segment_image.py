@@ -25,10 +25,16 @@ from matplotlib.figure import Figure
 
 from bosdyn.api import image_pb2
 
-from utils.MaskRCNN.infr_api import get_mrcnn_model, visualize
+from utils.MaskRCNNtmp.infr_api import get_mrcnn_model, visualize
+import torch
+
+import torchvision
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 
 def make_callback():
-    model = get_mrcnn_model()
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+    model.eval()
     publisher = rospy.Publisher("/spot/segment/image", Image, queue_size=1)
     def callback(msg):
         fig = Figure()
@@ -41,7 +47,8 @@ def make_callback():
 
         img = ros_utils.convert(msg)
         
-        mask_res = model.detect([img], verbose=0)
+        print(img.shape)
+        mask_res = model([img])
 
         visualize(img, mask_res[0], ax=ax)
         canvas.draw()       # draw the canvas, cache the renderer
