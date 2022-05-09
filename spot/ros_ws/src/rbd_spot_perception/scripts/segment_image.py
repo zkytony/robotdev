@@ -33,6 +33,8 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 import cv2
 import random
+import open3d as o3d
+
 class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
@@ -97,25 +99,44 @@ def segment_and_publish(msg):
         masks = (pred[0]['masks']>0.5).squeeze().detach().cpu().numpy()[:pred_t+1]
         bottle_mask = np.full(masks[0].shape, False)
         pred_class = [class_names[i] for i in list(pred[0]['labels'][:pred_t+1].cpu().numpy())]
-        pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'][:pred_t+1].detach().cpu().numpy())]
+        # pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'][:pred_t+1].detach().cpu().numpy())]
         for i, mask in enumerate(masks):
-            rgb_mask = get_coloured_mask(mask)
-            img = cv2.addWeighted(img, 1, rgb_mask, 0.5, 0)
+            # rgb_mask = get_coloured_mask(mask)
+            # img = cv2.addWeighted(img, 1, rgb_mask, 0.5, 0)
             if pred_class[i] == "knife":
                 print("HERE")
                 bottle_mask = np.logical_or(bottle_mask, mask)
-            box_pt1 = [int(j) for j in pred_boxes[i][0]]
-            box_pt2 = [int(j) for j in pred_boxes[i][1]]
-            cv2.rectangle(img, box_pt1, box_pt2,color=(0, 1, 0), thickness=3)
-            cv2.putText(img,pred_class[i], box_pt1, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),thickness=2)
+            # box_pt1 = [int(j) for j in pred_boxes[i][0]]
+            # box_pt2 = [int(j) for j in pred_boxes[i][1]]
+            # cv2.rectangle(img, box_pt1, box_pt2,color=(0, 1, 0), thickness=3)
+            # cv2.putText(img,pred_class[i], box_pt1, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),thickness=2)
         depth_img = cv2.bitwise_and(depth_img, depth_img, mask=np.where(bottle_mask, np.uint8(255), np.uint8(0)))
     else:
         print("Failed to detect objects")
+
+    intrinsics = msg[1].source.pinhole.intrinsics
+    shape = depth_img.shape
+    o3d_intrinsics = o3d.camera.PinholeCameraIntrinsic(
+        shape[0], shape[1],
+        intrinsics.focal_length.x, intrinsics.focal_length.y,
+        intrinsics.principal_point.x, intrinsics.principal_point.y
+    )
+    o3d_img = o3d.geometry.Image(img)
+    o3d_depth_img = o3d.geometry.Image(depth_img)
+    rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(o3d_img, o3d_depth_img, convert_rgb_to_intensity = False)
+    pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, o3d_intrinsics)
+
+    # flip the orientation, so it looks upright, not upside-down
+    pcd.transform([[1,0,0,0],[0,-1,0,0],[0,0,-1,0],[0,0,0,1]])
+    if not pcd.is_empty() > 0:
+        o3d.visualization.draw_geometries([pcd])  
     
     result_bytes = img.flatten().tobytes()
+    print(np.sum(depth_img) / np.sum(np.where(bottle_mask, 1, 0)))
     depth_result_bytes = depth_img.flatten().tobytes()
     color_img_msg.data = result_bytes
     depth_img_msg.data = depth_result_bytes
+    print(msg[1].source.depth_scale)
 
     publisher.publish(depth_img_msg)
 
