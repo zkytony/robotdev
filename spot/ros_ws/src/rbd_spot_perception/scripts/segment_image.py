@@ -103,38 +103,6 @@ def move_arm(config, pos):
 
             # Move the arm to a spot in front of the robot, and open the gripper.
 
-            # Make the arm pose RobotCommand
-            # Build a position to move the arm to (in meters, relative to and expressed in the gravity aligned body frame).
-            hand_ewrt_flat_body = geometry_pb2.Vec3(x=pos[0], y=pos[1], z=pos[2])
-
-            # Rotation as a quaternion
-            qw = 1
-            qx = 0
-            qy = 0
-            qz = 0
-            flat_body_Q_hand = geometry_pb2.Quaternion(w=qw, x=qx, y=qy, z=qz)
-
-            flat_body_T_hand = geometry_pb2.SE3Pose(position=hand_ewrt_flat_body,
-                                                    rotation=flat_body_Q_hand)
-
-            robot_state = robot_state_client.get_robot_state()
-            odom_T_flat_body = get_a_tform_b(robot_state.kinematic_state.transforms_snapshot,
-                                             ODOM_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
-
-            odom_T_hand = odom_T_flat_body * math_helpers.SE3Pose.from_obj(flat_body_T_hand)
-
-            # duration in seconds
-            seconds = 2
-
-            arm_command = RobotCommandBuilder.arm_pose_command(
-                odom_T_hand.x, odom_T_hand.y, odom_T_hand.z, odom_T_hand.rot.w, odom_T_hand.rot.x,
-                odom_T_hand.rot.y, odom_T_hand.rot.z, ODOM_FRAME_NAME, seconds)
-
-            # Make the open gripper RobotCommand
-            gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(1.0)
-
-            # Combine the arm and gripper commands into one RobotCommand
-            command = RobotCommandBuilder.build_synchro_command(gripper_command, arm_command)
 
             # Send the request
             cmd_id = command_client.robot_command(command)
@@ -224,8 +192,6 @@ class SpotTablePerception():
 
 
     def __init__(self):
-        move_arm([1, 0, 0.4])
-        sys.exit(0)
         # set up mask rcnn
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
@@ -254,6 +220,117 @@ class SpotTablePerception():
 
         self.point_cloud = o3d.geometry.PointCloud()
         self.transform = np.identity(4)
+
+    def close_robot_and_sit(self):
+        # Power the robot off. By specifying "cut_immediately=False", a safe power off command
+        # is issued to the robot. This will attempt to sit the robot before powering off.
+        self.robot.power_off(cut_immediately=False, timeout_sec=20)
+        assert not self.robot.is_powered_on(), "Robot power off failed."
+        self.robot.logger.info("Robot safely powered off.")
+        # If we successfully acquired a lease, return it.
+        self.lease_client.return_lease(self.lease)
+        self.lease_keep_alive.shutdown()
+
+    def stand(self):
+        self.robot.logger.info("Commanding robot to stand...")
+        blocking_stand(self.command_client, timeout_sec=10)
+        self.robot.logger.info("Robot standing.")
+
+    def get_lease_and_command_client(self):
+        # See hello_spot.py for an explanation of these lines.
+        sdk = bosdyn.client.create_standard_sdk('ArmSpotClient')
+        self.robot = sdk.create_robot("138.16.161.12")
+        self.robot.authenticate("user", "97qp5bwpwf2c")
+        self.robot.time_sync.wait_for_sync()
+
+        assert self.robot.has_arm(), "Robot requires an arm to run this example."
+
+        # Verify the robot is not estopped and that an external application has registered and holds
+        # an estop endpoint.
+        assert not self.robot.is_estopped(), "Robot is estopped. Please use an external E-Stop client, " \
+                                        "such as the estop SDK example, to configure E-Stop."
+
+        self.lease_client = self.robot.ensure_client(bosdyn.client.lease.LeaseClient.default_service_name)
+        self.lease = self.lease_client.acquire()
+        self.lease_keep_alive = bosdyn.client.lease.LeaseKeepAlive(self.lease_client)
+
+        # Now, we are ready to power on the robot. This call will block until the power
+        # is on. Commands would fail if this did not happen. We can also check that the robot is
+        # powered at any point.
+        self.robot.logger.info("Powering on robot... This may take several seconds.")
+        self.robot.power_on(timeout_sec=20)
+        assert self.robot.is_powered_on(), "Robot power on failed."
+        self.robot.logger.info("Robot powered on.")
+
+        # Tell the robot to stand up. The command service is used to issue commands to a robot.
+        # The set of valid commands for a robot depends on hardware configuration. See
+        # SpotCommandHelper for more detailed examples on command building. The robot
+        # command service requires timesync between the robot and the client.
+        self.robot.logger.info("Commanding robot to stand...")
+        self.command_client = self.robot.ensure_client(RobotCommandClient.default_service_name)
+
+    def build_arm_command(self, pos, rot, gripper_angle):
+        """
+        pos: [x, y, z] in odom
+        rot: [x, y, z, w] in odom
+        gripper_angle: gripper angle in [0, 1]
+        """
+        # Make the arm pose RobotCommand
+        # Build a position to move the arm to (in meters, relative to and expressed in the gravity aligned body frame).
+        # hand_ewrt_flat_body = geometry_pb2.Vec3(x=pos[0], y=pos[1], z=pos[2])
+
+        # Rotation as a quaternion
+        # odom_Q_hand = geometry_pb2.Quaternion(w=rot[0], x=rot[1], y=rot[2], z=rot[3])
+
+        # odom_T_hand = geometry_pb2.SE3Pose(position=hand_ewrt_flat_body,
+        #                                         rotation=odom_Q_hand)
+
+        # duration in seconds
+        seconds = 2
+
+        arm_command = RobotCommandBuilder.arm_pose_command(
+            pos[0], pos[1], pos[2], rot[0], rot[1], rot[2], rot[3], ODOM_FRAME_NAME, seconds)
+
+        # Make the open gripper RobotCommand
+        gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(gripper_angle)
+
+        # Combine the arm and gripper commands into one RobotCommand
+        return RobotCommandBuilder.build_synchro_command(gripper_command, arm_command)
+
+    def grab_bottle(self):
+        # mean = [-4.95875445, -0.74238825,  3.21221821]
+        mean, cov = self.point_cloud.compute_mean_and_covariance()
+        mean[2] += 0.2
+        command = self.build_arm_command(mean, [0, 0, 0, 1], 1.0)
+        print(self.lease_client.list_leases())
+        cmd_id = self.command_client.robot_command(command)
+        self.robot.logger.info('Moving arm to position 2.')
+
+        # Wait until the arm arrives at the goal.
+        # Note: here we use the helper function provided by robot_command.
+        block_until_arm_arrives(self.command_client, cmd_id)
+
+    def stow_arm(self):
+        stow = RobotCommandBuilder.arm_stow_command()
+
+        # Issue the command via the RobotCommandClient
+        cmd_id = self.command_client.robot_command(stow)
+        self.robot.logger.info('Stowing arm')
+
+        # Wait until the arm arrives at the goal.
+        # Note: here we use the helper function provided by robot_command.
+        block_until_arm_arrives(self.command_client, cmd_id)
+
+    def deploy_arm(self):
+        unstow = RobotCommandBuilder.arm_ready_command()
+
+        # Issue the command via the RobotCommandClient
+        cmd_id = self.command_client.robot_command(unstow)
+        self.robot.logger.info('Stowing arm')
+
+        # Wait until the arm arrives at the goal.
+        # Note: here we use the helper function provided by robot_command.
+        block_until_arm_arrives(self.command_client, cmd_id)
 
     def segment_and_publish(self, msg):
         fig = Figure()
@@ -305,7 +382,6 @@ class SpotTablePerception():
             o3d_depth_img = o3d.geometry.Image(depth_img)
             rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(o3d_img, o3d_depth_img, convert_rgb_to_intensity = False)
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, o3d_intrinsics)
-            print(pcd.compute_mean_and_covariance())
 
             # flip the orientation, so it looks upright, not upside-down
             pcd.transform([[0,0,1,0],[-1,0,0,0],[0,-1,0,0],[0,0,0,1]])
@@ -318,6 +394,7 @@ class SpotTablePerception():
                 old_points = np.asarray(self.point_cloud.points)
                 self.point_cloud.points = o3d.utility.Vector3dVector(np.concatenate((old_points, new_points), 0))
                 self.point_cloud.random_down_sample(0.5)
+                print(self.point_cloud.compute_mean_and_covariance())
                 o3d.visualization.draw_geometries([self.point_cloud])  
             
         result_bytes = img.flatten().tobytes()
@@ -336,8 +413,8 @@ class SpotTablePerception():
         # Stream the image through specified sources
         try:
             result, time_taken = rbd_spot.image.getImage(self.image_client, self.image_requests)
-            self.segment_and_publish(result)
             print(time_taken)
+            return result
         finally:
             if rospy.is_shutdown():
                 sys.exit(1)
@@ -370,9 +447,20 @@ class SpotTablePerception():
     def run(self):
         rospy.init_node("segment_image")
         print("HERE")
-        while True:
-            self.get_arm_pose()
-            self.get_image()
+        self.get_lease_and_command_client()
+        self.stand()
+
+        try:
+            while True:
+                self.get_arm_pose()
+                msg = self.get_image()
+                self.segment_and_publish(msg)
+                # self.deploy_arm()
+                self.grab_bottle()
+                self.stow_arm()
+                break
+        finally:
+            self.close_robot_and_sit()
 
 if __name__ == "__main__":
     obj = SpotTablePerception()
