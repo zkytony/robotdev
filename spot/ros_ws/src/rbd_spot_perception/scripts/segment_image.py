@@ -5,6 +5,8 @@
 #
 # rosrun rbd_spot_perception stream_image.py
 
+import pdb
+from select import select
 import time
 import argparse
 from tkinter.font import ROMAN
@@ -54,124 +56,16 @@ from bosdyn.api import arm_command_pb2
 import bosdyn.api.gripper_command_pb2
 from bosdyn.client.frame_helpers import *
 from bosdyn.api import geometry_pb2
+from bosdyn.client.docking import blocking_dock_robot
+from bosdyn.api.geometry_pb2 import SE2Velocity, SE2VelocityLimit, Vec2
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
+
+from bosdyn.client.world_object import WorldObjectClient
+from bosdyn.api import world_object_pb2
 
 import traceback
 import time
 
-def move_arm(config, pos):
-    """A simple example of using the Boston Dynamics API to command Spot's arm."""
-
-    # See hello_spot.py for an explanation of these lines.
-    bosdyn.client.util.setup_logging(config.verbose)
-
-    sdk = bosdyn.client.create_standard_sdk('ArmSpotClient')
-    robot = sdk.create_robot(config.hostname)
-    robot.authenticate(config.username, config.password)
-    robot.time_sync.wait_for_sync()
-
-    assert robot.has_arm(), "Robot requires an arm to run this example."
-
-    # Verify the robot is not estopped and that an external application has registered and holds
-    # an estop endpoint.
-    assert not robot.is_estopped(), "Robot is estopped. Please use an external E-Stop client, " \
-                                    "such as the estop SDK example, to configure E-Stop."
-
-    robot_state_client = robot.ensure_client(RobotStateClient.default_service_name)
-
-    lease_client = robot.ensure_client(bosdyn.client.lease.LeaseClient.default_service_name)
-    lease = lease_client.acquire()
-    try:
-        with bosdyn.client.lease.LeaseKeepAlive(lease_client):
-            # Now, we are ready to power on the robot. This call will block until the power
-            # is on. Commands would fail if this did not happen. We can also check that the robot is
-            # powered at any point.
-            robot.logger.info("Powering on robot... This may take several seconds.")
-            robot.power_on(timeout_sec=20)
-            assert robot.is_powered_on(), "Robot power on failed."
-            robot.logger.info("Robot powered on.")
-
-            # Tell the robot to stand up. The command service is used to issue commands to a robot.
-            # The set of valid commands for a robot depends on hardware configuration. See
-            # SpotCommandHelper for more detailed examples on command building. The robot
-            # command service requires timesync between the robot and the client.
-            robot.logger.info("Commanding robot to stand...")
-            command_client = robot.ensure_client(RobotCommandClient.default_service_name)
-            blocking_stand(command_client, timeout_sec=10)
-            robot.logger.info("Robot standing.")
-
-            time.sleep(2.0)
-
-            # Move the arm to a spot in front of the robot, and open the gripper.
-
-
-            # Send the request
-            cmd_id = command_client.robot_command(command)
-            robot.logger.info('Moving arm to position 1.')
-
-            # Wait until the arm arrives at the goal.
-            block_until_arm_arrives_with_prints(robot, command_client, cmd_id)
-
-            # Move the arm to a different position
-            hand_ewrt_flat_body.z = 0
-
-            flat_body_Q_hand.w = 0.707
-            flat_body_Q_hand.x = 0.707
-            flat_body_Q_hand.y = 0
-            flat_body_Q_hand.z = 0
-
-            flat_body_T_hand2 = geometry_pb2.SE3Pose(position=hand_ewrt_flat_body,
-                                                     rotation=flat_body_Q_hand)
-            odom_T_hand = odom_T_flat_body * math_helpers.SE3Pose.from_obj(flat_body_T_hand2)
-
-            arm_command = RobotCommandBuilder.arm_pose_command(
-                odom_T_hand.x, odom_T_hand.y, odom_T_hand.z, odom_T_hand.rot.w, odom_T_hand.rot.x,
-                odom_T_hand.rot.y, odom_T_hand.rot.z, ODOM_FRAME_NAME, seconds)
-
-            # Close the gripper
-            gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(0.0)
-
-            # Build the proto
-            command = RobotCommandBuilder.build_synchro_command(gripper_command, arm_command)
-
-            # Send the request
-            cmd_id = command_client.robot_command(command)
-            robot.logger.info('Moving arm to position 2.')
-
-            # Wait until the arm arrives at the goal.
-            # Note: here we use the helper function provided by robot_command.
-            block_until_arm_arrives(command_client, cmd_id)
-
-            robot.logger.info('Done.')
-
-            # Power the robot off. By specifying "cut_immediately=False", a safe power off command
-            # is issued to the robot. This will attempt to sit the robot before powering off.
-            robot.power_off(cut_immediately=False, timeout_sec=20)
-            assert not robot.is_powered_on(), "Robot power off failed."
-            robot.logger.info("Robot safely powered off.")
-    finally:
-        # If we successfully acquired a lease, return it.
-        lease_client.return_lease(lease)
-
-
-def block_until_arm_arrives_with_prints(robot, command_client, cmd_id):
-    """Block until the arm arrives at the goal and print the distance remaining.
-        Note: a version of this function is available as a helper in robot_command
-        without the prints.
-    """
-    while True:
-        feedback_resp = command_client.robot_command_feedback(cmd_id)
-        robot.logger.info(
-            'Distance to go: ' +
-            '{:.2f} meters'.format(feedback_resp.feedback.synchronized_feedback.arm_command_feedback
-                                   .arm_cartesian_feedback.measured_pos_distance_to_goal) +
-            ', {:.2f} radians'.format(
-                feedback_resp.feedback.synchronized_feedback.arm_command_feedback.
-                arm_cartesian_feedback.measured_rot_distance_to_goal))
-
-        if feedback_resp.feedback.synchronized_feedback.arm_command_feedback.arm_cartesian_feedback.status == arm_command_pb2.ArmCartesianCommand.Feedback.STATUS_TRAJECTORY_COMPLETE:
-            robot.logger.info('Move complete.')
-            break
-        time.sleep(0.1)
 
 class SpotTablePerception():
 
@@ -210,6 +104,12 @@ class SpotTablePerception():
         self.image_client = rbd_spot.image.create_client(image_conn)
         state_conn = rbd_spot.SpotSDKConn(sdk_name="ArmPoseClient")
         self.state_client = rbd_spot_robot.state.create_client(state_conn)
+        # Create robot object with a world object client.
+        # Create the world object client.
+        fiducial_conn = rbd_spot.SpotSDKConn(sdk_name="FiducialClient")
+        self.fiducial_client = fiducial_conn.ensure_client(WorldObjectClient.default_service_name)
+        
+        # Time sync is necessary so that time-based filter requests can be converted.
 
         # Check if the sources are valid
         color_source = "hand_color_image"
@@ -219,7 +119,12 @@ class SpotTablePerception():
             sources, quality=75, fmt="RAW")
 
         self.point_cloud = o3d.geometry.PointCloud()
+        self.transform_mat = np.identity(4)
         self.transform = np.identity(4)
+        
+
+
+
 
     def close_robot_and_sit(self):
         # Power the robot off. By specifying "cut_immediately=False", a safe power off command
@@ -239,8 +144,10 @@ class SpotTablePerception():
     def get_lease_and_command_client(self):
         # See hello_spot.py for an explanation of these lines.
         sdk = bosdyn.client.create_standard_sdk('ArmSpotClient')
-        self.robot = sdk.create_robot("138.16.161.12")
-        self.robot.authenticate("user", "97qp5bwpwf2c")
+        # self.robot = sdk.create_robot("138.16.161.12")
+        self.robot = sdk.create_robot("138.16.161.2")
+        # self.robot.authenticate("user", "97qp5bwpwf2c")
+        self.robot.authenticate("user", "dungnydsc8su")
         self.robot.time_sync.wait_for_sync()
 
         assert self.robot.has_arm(), "Robot requires an arm to run this example."
@@ -269,12 +176,30 @@ class SpotTablePerception():
         self.robot.logger.info("Commanding robot to stand...")
         self.command_client = self.robot.ensure_client(RobotCommandClient.default_service_name)
 
-    def build_arm_command(self, pos, rot, gripper_angle):
+    def build_arm_command_odom(self, pos, rot, gripper_angle):
         """
         pos: [x, y, z] in odom
         rot: [x, y, z, w] in odom
         gripper_angle: gripper angle in [0, 1]
         """
+        # duration in seconds
+        seconds = 2
+
+        arm_command = RobotCommandBuilder.arm_pose_command(
+            pos[0], pos[1], pos[2], rot[0], rot[1], rot[2], rot[3], ODOM_FRAME_NAME, seconds)
+
+        # Make the open gripper RobotCommand
+        gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(gripper_angle)
+
+        # Combine the arm and gripper commands into one RobotCommand
+        return RobotCommandBuilder.build_synchro_command(gripper_command, arm_command)
+
+    def build_arm_command_no_rot(self, pos, gripper_angle):
+        """
+        pos: [x, y, z] in odom
+        gripper_angle: gripper angle in [0, 1]
+        """
+        # TODO
         # Make the arm pose RobotCommand
         # Build a position to move the arm to (in meters, relative to and expressed in the gravity aligned body frame).
         # hand_ewrt_flat_body = geometry_pb2.Vec3(x=pos[0], y=pos[1], z=pos[2])
@@ -301,7 +226,7 @@ class SpotTablePerception():
         # mean = [-4.95875445, -0.74238825,  3.21221821]
         mean, cov = self.point_cloud.compute_mean_and_covariance()
         mean[2] += 0.2
-        command = self.build_arm_command(mean, [0, 0, 0, 1], 1.0)
+        command = self.build_arm_command_odom(mean, [0, 0, 0, 1], 1.0)
         print(self.lease_client.list_leases())
         cmd_id = self.command_client.robot_command(command)
         self.robot.logger.info('Moving arm to position 2.')
@@ -366,6 +291,8 @@ class SpotTablePerception():
             binary_mask = np.where(bottle_mask, np.uint8(255), np.uint8(0))
             if np.sum(binary_mask) > 500:
                 depth_img = cv2.bitwise_and(depth_img, depth_img, mask=binary_mask)
+            else:
+                found_bottle = False
         else:
             print("Failed to detect objects")
 
@@ -378,7 +305,6 @@ class SpotTablePerception():
                 intrinsics.principal_point.x, intrinsics.principal_point.y
             )
             o3d_img = o3d.geometry.Image(img)
-            print(depth_img.dtype)
             o3d_depth_img = o3d.geometry.Image(depth_img)
             rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(o3d_img, o3d_depth_img, convert_rgb_to_intensity = False)
             pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, o3d_intrinsics)
@@ -387,15 +313,14 @@ class SpotTablePerception():
             pcd.transform([[0,0,1,0],[-1,0,0,0],[0,-1,0,0],[0,0,0,1]])
             print(self.transform)
             new_points = np.asarray(pcd.points)
-            print(new_points[:10, :])
-            pcd.transform(self.transform)
-            new_points = np.asarray(pcd.points)
-            if new_points.shape[0] > 100:
-                old_points = np.asarray(self.point_cloud.points)
-                self.point_cloud.points = o3d.utility.Vector3dVector(np.concatenate((old_points, new_points), 0))
-                self.point_cloud.random_down_sample(0.5)
-                print(self.point_cloud.compute_mean_and_covariance())
-                o3d.visualization.draw_geometries([self.point_cloud])  
+            pcd.transform(self.transform_mat)
+
+            mean, _ = pcd.compute_mean_and_covariance()
+            if mean[0] <= 0 or np.linalg.norm(mean > 1):
+                found_bottle = False
+            else:
+                self.add_new_point_cloud(pcd, visualize=True)
+                
             
         result_bytes = img.flatten().tobytes()
         print(np.sum(depth_img) / np.sum(np.where(bottle_mask, 1, 0)))
@@ -403,11 +328,16 @@ class SpotTablePerception():
         color_img_msg.data = result_bytes
         depth_img_msg.data = depth_result_bytes
 
-        self.image_publisher.publish(depth_img_msg)
+        return found_bottle
 
 
-    def add_new_point_cloud(self):
-        pass
+    def add_new_point_cloud(self, pcd, visualize=False):
+        new_points = np.asarray(pcd.points)
+        old_points = np.asarray(self.point_cloud.points)
+        self.point_cloud.points = o3d.utility.Vector3dVector(np.concatenate((old_points, new_points), 0))
+        self.point_cloud.random_down_sample(0.5)
+        if visualize:
+            o3d.visualization.draw_geometries([self.point_cloud])  
 
     def get_image(self):
         # Stream the image through specified sources
@@ -424,45 +354,125 @@ class SpotTablePerception():
         snapshot = state.kinematic_state.transforms_snapshot
         tform = get_a_tform_b(snapshot, "hand", "odom")
         print(tform)
-        self.transform = np.linalg.inv(tform.to_matrix())
+        self.transform_mat = np.linalg.inv(tform.to_matrix())
+        self.transform = tform.inverse()
     
-    @staticmethod
-    def get_matrix_for_transform(transform):
-        rot = transform.rotation
-        pos = transform.position
-        rot_mat = R.from_quat([rot.x, rot.y, rot.z, rot.w])
-        print(rot_mat.as_euler("xyz"), pos)
-        translation_vec = np.array([pos.x, pos.y, pos.z])
-        return SpotTablePerception.get_matrix_from_rot_trans(rot_mat, translation_vec)
+    def dock_robot(self, dock_id):
+        blocking_dock_robot(self.robot, dock_id)
 
-    @staticmethod
-    def get_matrix_from_rot_trans(rot, trans):
-        mat = np.zeros((4, 4))
-        mat[:3, :3] = rot.as_matrix()
-        mat[3, :3] = trans
-        mat[3, 3] = 1
-        return mat
+    def get_mobility_params(self):
+        speed_limit = SE2VelocityLimit(max_vel=SE2Velocity(
+            linear=Vec2(x=0.5, y=0.5, angular=1)))
+        mobility_params = spot_command_pb2.MobilityParams(
+            vel_limit=speed_limit, locomotion_hint=spot_command_pb2.HINT_AUTO)
 
+        return mobility_params
 
+    def go_to_gpe_body(self, goal_pose, heading):
+        print(goal_pose)
+        self.relative_move(goal_pose[0], goal_pose[1], heading, ODOM_FRAME_NAME, self.command_client, self.state_client)
+
+    def relative_move(self, dx, dy, dyaw, frame_name, robot_command_client, robot_state_client, stairs=False):
+        transforms = self.state_client.get_robot_state().kinematic_state.transforms_snapshot
+
+        # Build the transform for where we want the robot to be relative to where the body currently is.
+        body_tform_goal = math_helpers.SE2Pose(x=dx, y=dy, angle=dyaw)
+        # We do not want to command this goal in body frame because the body will move, thus shifting
+        # our goal. Instead, we transform this offset to get the goal position in the output frame
+        # (which will be either odom or vision).
+        out_tform_body = get_se2_a_tform_b(transforms, frame_name, BODY_FRAME_NAME)
+        out_tform_goal = out_tform_body * body_tform_goal
+
+        # Command the robot to go to the goal point in the specified frame. The command will stop at the
+        # new position.
+        robot_cmd = RobotCommandBuilder.synchro_se2_trajectory_point_command(
+            goal_x=out_tform_goal.x, goal_y=out_tform_goal.y, goal_heading=out_tform_goal.angle,
+            frame_name=frame_name, params=RobotCommandBuilder.mobility_params(stair_hint=stairs))
+        end_time = 10.0
+        cmd_id = robot_command_client.robot_command(lease=None, command=robot_cmd,
+                                                    end_time_secs=time.time() + end_time)
+        # Wait until the robot has reached the goal.
+        feedback = robot_command_client.robot_command_feedback(cmd_id)
+        mobility_feedback = feedback.feedback.synchronized_feedback.mobility_command_feedback
+        traj_feedback = mobility_feedback.se2_trajectory_feedback
+        if (traj_feedback.status == traj_feedback.STATUS_AT_GOAL and
+                traj_feedback.body_movement_status == traj_feedback.BODY_STATUS_SETTLED):
+            print("Arrived at the goal.")
+            return True
+        time.sleep(5)
+
+    def get_fiducials(self, offset):
+        self.fiducial_poses = {}
+    
+        # Get all fiducial objects (an object of a specific type).
+        request_fiducials = [world_object_pb2.WORLD_OBJECT_APRILTAG]
+        fiducial_objects = self.fiducial_client.list_world_objects(
+        object_type=request_fiducials).world_objects
+
+        fiducials = []
+
+        for fiducial in fiducial_objects:
+            fiducial_number = fiducial.name.split("_")[-1]
+            fiducial_name = "fiducial_"+str(fiducial_number)
+
+            fiducials.append(fiducial_name)
+
+            print()
+            snapshot = fiducial.transforms_snapshot 
+            
+            fiducial_transform = get_a_tform_b(snapshot, fiducial_name, BODY_FRAME_NAME)
+            fiducial_transform_inv = fiducial_transform.inverse()
+
+            fid_origin = np.array(fiducial_transform_inv.transform_point(0, 0, 0))
+            goal_pos = np.array(fiducial_transform_inv.transform_point(0, 0, offset))
+            x_axis = np.array([1, 0, 0])
+            goal_heading_vec = fid_origin - goal_pos
+            goal_heading_vec = goal_heading_vec / np.linalg.norm(goal_heading_vec)
+            goal_rot = np.arccos(np.dot(x_axis, goal_heading_vec))
+
+            self.fiducial_poses[fiducial_name] = (goal_pos, goal_rot)
+
+        print(self.fiducial_poses)
+
+    def go_to_fid(self, fid_id):
+        offsets = [1, 0.75]
+        for i in range(2):
+            self.get_fiducials(offsets[i])
+            try:
+                fid = self.fiducial_poses["fiducial_" + str(fid_id)]
+            except:
+                print("fid not found")
+                self.close_robot_and_sit()
+                return False
+
+            self.go_to_gpe_body(fid[0], fid[1])
+
+        return True
+
+        
     def run(self):
         rospy.init_node("segment_image")
         print("HERE")
         self.get_lease_and_command_client()
         self.stand()
 
-        try:
-            while True:
-                self.get_arm_pose()
-                msg = self.get_image()
-                self.segment_and_publish(msg)
-                # self.deploy_arm()
-                self.grab_bottle()
-                self.stow_arm()
-                break
-        finally:
-            self.close_robot_and_sit()
+        self.go_to_fid(523)
+
+        self.get_arm_pose()
+        msg = self.get_image()
+        if self.segment_and_publish(msg):
+            self.grab_bottle()
+            self.stow_arm()
+        else:
+            print("didn't find bottle")
+        self.close_robot_and_sit()
+
+        # while True:
+        #     msg = self.get_image()
+        #     self.segment_and_publish(msg)
+        
+        # self.dock_robot(521)
 
 if __name__ == "__main__":
     obj = SpotTablePerception()
-    obj.run()
 
