@@ -81,7 +81,6 @@ def _test_local():
     img = loop.run_until_complete(spot_camera.get_frame())
     img.save("test.png")
 
-
     print("testing get_point_cloud...")
     pcd_binary, mimetype = loop.run_until_complete(spot_camera.get_point_cloud())
     loop.close()
