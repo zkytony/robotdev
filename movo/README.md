@@ -1,4 +1,4 @@
-This is the ROS workspace for movo.
+This is the ROS workspace for movo. **Note that MOVO uses ROS kinetic on Ubuntu 16.04**
 The main repository for the kinova stack is [here](https://github.com/zkytony/kinova-movo);
 It is my fork of their official repo (following Yoon's fork).
 
