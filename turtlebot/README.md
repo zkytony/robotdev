@@ -11,11 +11,23 @@ issues encountered while setting up this workspace.
 
 
 ## Build
-Run the following at the root directory of `robotdev`
-```
-source setup_turtlebot.bash
-```
-See output [here](build_output)
+1. We are using docker with Ubuntu 20.04 with ROS noetic. To
+   use this environment, run
+   ```
+   source docker/build.noetic.sh
+   ```
+   to build the docker image. Then
+   ```
+   source docker/run.noetic.sh --gui
+   ```
+   to start a container of that image.
+
+2. Run the following at the root directory of `robotdev`
+   ```
+   source setup_turtlebot.bash
+   ```
+   See output [here](build_output)
+
 
 ## Run
 ```
