@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
 )
-catkin_python_setup()
 
 add_action_files(
   DIRECTORY action
@@ -33,7 +32,7 @@ generate_messages (
 )
 
 catkin_package()
-
+catkin_python_setup()
 
 install(
   PROGRAMS

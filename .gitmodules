@@ -16,3 +16,6 @@
 [submodule "shared/ros/sloop_ros"]
 	path = shared/ros/sloop_ros
 	url = git@github.com:zkytony/sloop_ros.git
+[submodule "shared/ros/pomdp_ros"]
+	path = shared/ros/pomdp_ros
+	url = git@github.com:zkytony/pomdp_ros.git
