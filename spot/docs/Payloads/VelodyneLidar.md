@@ -78,3 +78,6 @@ Then, I view the map using the "graph_nav_view_map" example:
 ```
 python view_map.py ../graph_nav_command_line/downloaded_graph/
 ```
+I mapped teh CIT first floor. The result shows:
+![image](https://user-images.githubusercontent.com/7720184/174335917-b8ca0bf5-83a2-47e1-9361-d1be8f1e8c47.png)
+
