@@ -26,12 +26,28 @@ Couple things to note [Kaiyu's]:
   to apply a bit pressure on the top of the CORE (the center metal region). Or adjust the placement of the CORE slightly, so that the hole on the base plate lies flat on the mounting rail.
 
 - If installed correctly, you should not be able to shake the CORE at all with your hand.  How it looks:
- 
+
     <img src='https://user-images.githubusercontent.com/7720184/174303414-2a1d5179-f1e3-4b34-88e9-1255949939bd.png' width='350px'>
+
+## Authorize the Spot CORE
+
+See [the official guide on this](https://bostondynamics.force.com/SupportCenter/s/article/Spot-CORE-payload-reference#AuthorizingSpotCORE).
 
 
 
 ## Using Spot CORE
+
+### Turn on and off
+Spot CORE will power itself on and off automatically when Spot is powered on and
+off. However, in some circumstances you may need to turn Spot CORE on or off
+manually. ([reference](https://bostondynamics.force.com/SupportCenter/s/article/Spot-CORE-payload-reference#TurningSpotCoreOnAndOff))
+
+- To turn Spot CORE on, press the Power button on the front panel.
+- To turn Spot CORE off, press and hold the Power button for 5 seconds.
+- To put Spot CORE to sleep without turning it off, press the Power button. The button light will blink while Spot CORE is asleep. To wake Spot CORE, press the Power button again.
+
+
+### Using Software
 CORE reference:
 https://support.bostondynamics.com/s/article/Spot-CORE-payload-reference
 
