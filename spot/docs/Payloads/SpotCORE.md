@@ -8,6 +8,12 @@ It has a Lidar cable, an ethernet cable, and a "225mm ribbon cable."
 
 ## Attaching the Spot CORE
 
+Tools:
+
+   <img src='https://user-images.githubusercontent.com/7720184/174318758-e6fcb7d7-14f8-4433-8b6d-a1e12523d5c2.png' width='450px'>
+
+
+
 We should do "rearward mount" since our Spot has an arm.
 
 The CORE payload reference above contains the step-by-step attachment procedure.
