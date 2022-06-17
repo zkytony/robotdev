@@ -27,7 +27,7 @@ Couple things to note [Kaiyu's]:
 
 - If installed correctly, you should not be able to shake the CORE at all with your hand.  How it looks:
  
-    <img src='https://user-images.githubusercontent.com/7720184/174303414-2a1d5179-f1e3-4b34-88e9-1255949939bd.png' width='500px'>
+    <img src='https://user-images.githubusercontent.com/7720184/174303414-2a1d5179-f1e3-4b34-88e9-1255949939bd.png' width='350px'>
 
 
 
