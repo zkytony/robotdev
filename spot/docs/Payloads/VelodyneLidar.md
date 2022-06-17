@@ -52,3 +52,13 @@ Result:
 4. Wait and there will be a message that appears requesting payload authorization
 5. Click "Authorize". Select the correct configuration. (e.g. "Spot CORE with LiDAR mounted in the rear." The exact text may vary between Spot software versions.)
 
+After authorization is complete, you should see a badge like below
+
+![image](https://user-images.githubusercontent.com/7720184/174323719-a6a2c02e-07b4-4203-98a8-47e716ec1c10.png)
+
+
+and you are able to view the visualization of the payload:
+
+![image](https://user-images.githubusercontent.com/7720184/174323646-96426064-938f-4823-85f6-81baca33585c.png)
+
+
