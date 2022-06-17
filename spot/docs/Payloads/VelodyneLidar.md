@@ -41,7 +41,7 @@ If you have previously only installed the CORE, then you have to remove the two 
 
 Result:
 
-![image](https://user-images.githubusercontent.com/7720184/174323298-9382d706-b22c-44c5-97c5-4225e81b34dc.png)
+<img src='https://user-images.githubusercontent.com/7720184/174323298-9382d706-b22c-44c5-97c5-4225e81b34dc.png' width='450px'>
 
 
 
