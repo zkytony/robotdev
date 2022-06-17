@@ -10,7 +10,7 @@ Reference for Spot EAP: https://support.bostondynamics.com/s/article/Spot-Enhanc
 
 Tools:
 
-<img src='https://user-images.githubusercontent.com/7720184/174317694-2293e0b5-02fb-4f02-8078-06cb01ddee6e.png' width='500px'>
+<img src='https://user-images.githubusercontent.com/7720184/174318540-e441d3b0-fa8c-4f50-943e-d5bdad5148e7.png' width='500px'>
 
 
 **The step-by-step attaching procedure** (for the CORE combined with LiDAR) is [on the official documentation](https://support.bostondynamics.com/s/article/Spot-Enhanced-Autonomy-Package-EAP#AttachingSpotCOREandlidarunittotherobot). The main figure to look at is the one below (click to enlarge):
