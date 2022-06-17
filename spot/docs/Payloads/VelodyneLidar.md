@@ -39,4 +39,16 @@ If you have previously only installed the CORE, then you have to remove the two 
 
    <img src='https://user-images.githubusercontent.com/7720184/174316850-30de74b9-4017-45c9-8df8-c44926c98b90.png' width='400px'>
 
+Result:
+
+![image](https://user-images.githubusercontent.com/7720184/174323298-9382d706-b22c-44c5-97c5-4225e81b34dc.png)
+
+
+
+## Authorize the Payload
+1. Log in to Spot console as admin
+2. Go to "Payloads"
+3. If there is an existing payload that doesn't match what you currently have installed, click "Forget" to remove it.
+4. Wait and there will be a message that appears requesting payload authorization
+5. Click "Authorize". Select the correct configuration. (e.g. "Spot CORE with LiDAR mounted in the rear." The exact text may vary between Spot software versions.)
 
