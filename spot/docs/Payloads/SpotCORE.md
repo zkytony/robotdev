@@ -25,6 +25,7 @@ Couple things to note [Kaiyu's]:
 - Make sure the hex screws are screwed in to the nut. If you can't seem to screw in (i.e. you seem to be able to take out the screw with bare hands), try
   to apply a bit pressure on the top of the CORE (the center metal region). Or adjust the placement of the CORE slightly, so that the hole on the base plate lies flat on the mounting rail.
 
+- If installed correctly, you should not be able to shake the CORE at all with your hand.
 
 
 ## Using Spot CORE
