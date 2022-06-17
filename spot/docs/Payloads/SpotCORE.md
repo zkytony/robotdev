@@ -11,8 +11,16 @@ It has a Lidar cable, an ethernet cable, and a "225mm ribbon cable."
 We should do "rearward mount" since our Spot has an arm.
 
 The CORE payload reference above contains the step-by-step attachment procedure.
-Below is the documentation of Kaiyu's experience:
 
+Couple things to note [Kaiyu's]:
+
+- Terminology. See picture below.
+
+<img src='https://user-images.githubusercontent.com/7720184/174300757-dd6024e8-9c68-433d-a478-86457b91a2d6.png' width="500px">
+
+   Additional terminology: "payload cable" is the black cable with a wide port that has gazillion number of pins.
+
+- The official procedure says "Loosen the set screw, if needed, to fit the nut into the slot so that it lays flat and moves freely" and "Do not tighten the set screws" --> Indeed - I used a thin Allen Key to loosen the set screw (that means, the tip of the set screw comes back up a bit), so that the t-slot nut is flat when placed into the rail.
 
 
 
