@@ -121,7 +121,6 @@ def load_map_as_points(path):
     Given a string path to a folder that contains a downloaded GraphNav map,
     loads the map as point cloud and returns a 3xN numpy array
     """
-    print(path)
     (current_graph, current_waypoints, current_waypoint_snapshots, current_edge_snapshots,
      current_anchors, current_anchored_world_objects) = load_map(path)
 
