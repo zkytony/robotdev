@@ -16,6 +16,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+################## Setting up dependencies ##############################
 # Make Python headers available
 find_package(PythonLibs ${PYTHON_MIN_VERSION} REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
@@ -36,7 +37,17 @@ find_package(PCL ${PCL_MIN_VERSION} REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 message(STATUS "PCL_LIBRARIES: ${PCL_LIBRARIES}")
 
+# roscpp and std_msgs and sensor_msgs
+find_package(roscpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+include_directories(${roscpp_INCLUDE_DIRS})
+include_directories(${std_msgs_INCLUDE_DIRS})
+include_directories(${sensor_msgs_INCLUDE_DIRS})
 
+
+
+################ Building our libraries and executables ###################
 # c api utility functions
 add_library(c_api_utils
   src/rbd_spot_perception/utils/c_api_utils.cpp)
@@ -54,4 +65,7 @@ message(STATUS "Boost_LIBRARIES_USED: ${Boost_LIBRARIES_USED}")
 target_link_libraries(graphnav_map_publisher
   ${PYTHON_LIBRARIES}
   c_api_utils
-  ${PCL_LIBRARIES})
+  ${PCL_LIBRARIES}
+  ${roscpp_LIBRARIES}
+  ${std_msgs_LIBRARIES}
+  ${sensor_msgs_LIBRARIES})
