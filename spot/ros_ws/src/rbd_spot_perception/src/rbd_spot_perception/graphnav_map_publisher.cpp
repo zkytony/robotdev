@@ -36,17 +36,18 @@ void GraphNavMapPublisher::loadMap_() {
             auto size = PyArray_DIM(dataArray, 0);
             std::cout << size << std::endl;
         } else {
-            Py_DECREF(loadMapAsPointsFunc);
-            Py_DECREF(gnmModule);
-            PyErr_Print();
-            fprintf(stderr,"Call failed\n");
+            goto fail;
         }
     } else {
+        goto fail;
+    }
+    return;
+
+    fail:
         Py_DECREF(loadMapAsPointsFunc);
         Py_DECREF(gnmModule);
         PyErr_Print();
         fprintf(stderr,"Call failed\n");
-    }
 }
 
 void GraphNavMapPublisher::parse_points_array_(PyArrayObject *dataArray) {
