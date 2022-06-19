@@ -32,9 +32,7 @@ void GraphNavMapPublisher::loadMap_() {
     if (dataObj != NULL) {
         PyArrayObject *dataArray = obj_to_array_no_conversion(dataObj, NPY_DOUBLE);
         if (dataArray != NULL) {
-            std::cout << dataArray << std::endl;
-            auto size = PyArray_DIM(dataArray, 0);
-            std::cout << size << std::endl;
+            this->parse_points_array_(dataArray);
         } else {
             goto fail;
         }
@@ -53,6 +51,10 @@ void GraphNavMapPublisher::loadMap_() {
 void GraphNavMapPublisher::parse_points_array_(PyArrayObject *dataArray) {
     auto size = PyArray_DIM(dataArray, 0);
     std::cout << size << std::endl;
+    pcl::PointXYZ *points = (pcl::PointXYZ*) PyArray_DATA(dataArray);
+    for (int i=0; i<size; i++) {
+        std::cout << points[i].x << std::endl;
+    }
 }
 
 
