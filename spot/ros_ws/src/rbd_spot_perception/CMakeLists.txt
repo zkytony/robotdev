@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   spot_driver
   std_msgs
   sensor_msgs
+  pcl_ros
 )
 
 catkin_package()
@@ -64,8 +65,5 @@ target_include_directories(graphnav_map_publisher
 message(STATUS "Boost_LIBRARIES_USED: ${Boost_LIBRARIES_USED}")
 target_link_libraries(graphnav_map_publisher
   ${PYTHON_LIBRARIES}
-  c_api_utils
-  ${PCL_LIBRARIES}
-  ${roscpp_LIBRARIES}
-  ${std_msgs_LIBRARIES}
-  ${sensor_msgs_LIBRARIES})
+  ${catkin_LIBRARIES}
+  c_api_utils)
