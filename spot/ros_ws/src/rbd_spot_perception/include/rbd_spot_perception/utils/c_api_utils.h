@@ -4,6 +4,14 @@
 #include <Python.h>
 #include <numpy/arrayobject.h>
 
+// must do this (numpy c api mandate)
+// also must do this in a separate function
+PyMODINIT_FUNC
+init_numpy(){
+    import_array(); // PyError if not successful
+    return 0;
+}
+
 ///// The following functions are actually from SWIG https://swig.org/
 /*
  * Given a PyObject pointer, cast it to a PyArrayObject pointer if
@@ -37,7 +45,7 @@ const char* typecode_string(PyObject* py_obj) {
 }
 
 /* Given a numpy typecode, return a string describing the type, assuming
-the following numpy type codes:
+the following numpy type codes (this is already defined in numpy/arrayobject.h)
 source: https://github.com/PMBio/peer/blob/master/python/swig_typemaps.i#L31
 enum NPY_TYPES {    NPY_BOOL=0,
                     NPY_BYTE, NPY_UBYTE,
@@ -70,6 +78,34 @@ const char* typecode_string(int typecode) {
         return user_def;
     else
         return type_names[typecode];
+}
+
+// converts PyObject to PyArrayObject (a numpy type)
+// somehow this function throws segfault when placed in the .cpp file;
+// This has something to do with numpy c api's import_array() business,
+// but I still get segfault even if I call import_array in the .cpp file.
+PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
+    PyArrayObject* ary = NULL;
+    bool match = PyArray_EquivTypenums(array_type(input),
+                                       typecode);
+    if (is_array(input) && (typecode == PyArray_NOTYPE || match)) {
+        ary = (PyArrayObject*) input;
+    } else if (is_array(input)) {
+        const char* desired_type = typecode_string(typecode);
+        const char* actual_type = typecode_string(array_type(input));
+        PyErr_Format(PyExc_TypeError,
+                     "Array of type '%s' required.  Array of type '%s' given",
+                     desired_type, actual_type);
+        ary = NULL;
+    } else {
+        const char* desired_type = typecode_string(typecode);
+        const char* actual_type = typecode_string(input);
+        PyErr_Format(PyExc_TypeError,
+                     "Array of type '%s' required.  Array of type '%s' given",
+                     desired_type, actual_type);
+        ary = NULL;
+    }
+    return ary;
 }
 
 
