@@ -1,14 +1,15 @@
 #define PY_SSIZE_T_CLEAN
 
-#include <Python.h>
 #include <iostream>
+#include <vector>
+#include <Python.h>
 #include <numpy/arrayobject.h>
 #include <pcl_ros/point_cloud.h>
 #include "graphnav_map_publisher.h"
 #include "utils/c_api_utils.h"
 
 using std::string;
-
+using std::vector;
 
 GraphNavMapPublisher::GraphNavMapPublisher(string map_path, string pub_topic)
     : map_path_(map_path), pub_topic_(pub_topic) {
@@ -51,9 +52,12 @@ void GraphNavMapPublisher::loadMap_() {
 void GraphNavMapPublisher::parse_points_array_(PyArrayObject *dataArray) {
     auto size = PyArray_DIM(dataArray, 0);
     std::cout << size << std::endl;
-    pcl::PointXYZ *points = (pcl::PointXYZ*) PyArray_DATA(dataArray);
-    for (int i=0; i<size; i++) {
-        std::cout << points[i].x << std::endl;
+
+    pcl::PointXYZ* points_arr = (pcl::PointXYZ*) PyArray_DATA(dataArray);
+    vector<pcl::PointXYZ> point_cloud(points_arr, points_arr + size);
+    this->point_cloud_ = point_cloud;
+    for (pcl::PointXYZ point: this->point_cloud_) {
+        std::cout << "[" << point.x << ", " << point.y << ", " << point.z << "]" << std::endl;
     }
 }
 
