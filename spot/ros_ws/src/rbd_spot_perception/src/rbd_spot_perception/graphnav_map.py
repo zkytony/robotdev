@@ -121,13 +121,14 @@ def load_map_as_points(path):
     Given a string path to a folder that contains a downloaded GraphNav map,
     loads the map as point cloud and returns a 3xN numpy array
     """
+    print(path)
     (current_graph, current_waypoints, current_waypoint_snapshots, current_edge_snapshots,
-     current_anchors, current_anchored_world_objects) = mapping.load_map(args.path)
+     current_anchors, current_anchored_world_objects) = load_map(path)
 
     # Concatenate the data from all waypoints.
     data = None  # will be a 3XN numpy array
     for wp in current_graph.waypoints:
-        cloud_data = mapping.get_point_cloud_data_in_seed_frame(
+        cloud_data = get_point_cloud_data_in_seed_frame(
             current_waypoints, current_waypoint_snapshots, current_anchors, wp.id)
         if data is None:
             data = cloud_data
