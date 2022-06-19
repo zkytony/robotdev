@@ -16,9 +16,13 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-# graphnav map publisher
+# graphnav map publisher; needs python embedding
+find_package(PythonLibs ${PYTHON_MIN_VERSION} REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
 add_library(graphnav_map_publisher
   src/rbd_spot_perception/graphnav_map_publisher.cpp)
 target_include_directories(graphnav_map_publisher
   PUBLIC
   include/rbd_spot_perception)
+target_link_libraries(graphnav_map_publisher
+  ${PYTHON_LIBRARIES})

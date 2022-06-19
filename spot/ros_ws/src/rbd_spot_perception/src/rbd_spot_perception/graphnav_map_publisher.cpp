@@ -1,4 +1,6 @@
+#define PY_SSIZE_T_CLEAN
 #include "graphnav_map_publisher.h"
+#include <Python.h>
 
 using std::string;
 
