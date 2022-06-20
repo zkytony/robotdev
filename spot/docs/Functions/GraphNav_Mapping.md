@@ -43,3 +43,19 @@ example. Options:
     (a) Optimize the map's anchoring.
     (q) Exit.
 ```
+
+Typical procedure:
+
+1. Run the `recording_command_line` script.
+
+2. Press 1 to "Start recording a map"
+
+3. Use the controller to drive the robot around. Preferred if you drive the robot in loops.
+
+4. Press 2 to "Stop recording a map"
+
+5. Press 9 to "Automatically find and close loops" (IMPORTANT! this is loop closure)
+
+6. Press a to "Optimize the map's anchoring"
+
+7. Press 5 to save the map (It will be saved into a folder called 'downloaded_graph'); DO THIS, otherwise the map is not saved.
