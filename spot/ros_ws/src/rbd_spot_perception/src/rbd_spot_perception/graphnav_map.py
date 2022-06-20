@@ -42,7 +42,7 @@ def get_point_cloud_data_in_seed_frame(waypoints, snapshots, anchorings, waypoin
         raise Exception("{} not found in anchorings. Does the map have anchoring data?".format(waypoint_id))
     seed_tform_cloud = SE3Pose.from_obj(anchorings[waypoint_id].seed_tform_waypoint) * waypoint_tform_cloud
     point_cloud_data = np.frombuffer(cloud.data, dtype=np.float32).reshape(int(cloud.num_points), 3)
-    return seed_tform_cloud.transform_cloud(point_cloud_data)
+    return seed_tform_cloud.transform_cloud(point_cloud_data).astype(np.float32)
 
 
 
