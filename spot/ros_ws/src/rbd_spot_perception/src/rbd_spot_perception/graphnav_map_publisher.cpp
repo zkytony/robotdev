@@ -90,11 +90,8 @@ void GraphNavMapPublisher::parsePointsArray_(PyArrayObject *dataArray) {
 void GraphNavMapPublisher::run() {
 
     sensor_msgs::PointCloud2 pcl_msg;
-    pcl_msg.header.frame_id = this->pcl_frame_id_;
     pcl::toROSMsg(this->cloud_, pcl_msg);
-    // // sanity check; height should be 1 and width should be size
-    // std::cout << pcl_msg.height << std::endl;
-    // std::cout << pcl_msg.width << std::endl;
+    pcl_msg.header.frame_id = this->pcl_frame_id_;
     ros::Rate loop_rate(this->pcl_rate_);
     while (this->nh_.ok()) {
         pcl_msg.header.stamp = ros::Time::now();
