@@ -23,7 +23,7 @@ using std::string;
 using std::vector;
 
 GraphNavMapPublisher::GraphNavMapPublisher(string map_path)
-    : map_path_(map_path) {
+    : map_path_(map_path), nh_(ros::NodeHandle("~")) {
     loadMap_();
 
     pub_topic_ = "graphnav_map_points";
