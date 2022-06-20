@@ -41,7 +41,7 @@ GraphNavMapPublisher::GraphNavMapPublisher(string map_path)
         nh_.getParam("rate", pcl_rate_);
     }
 
-    pcl_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pub_topic_, 10);
+    pcl_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pub_topic_, 10, true);
 }
 
 
@@ -92,13 +92,9 @@ void GraphNavMapPublisher::run() {
     sensor_msgs::PointCloud2 pcl_msg;
     pcl::toROSMsg(this->cloud_, pcl_msg);
     pcl_msg.header.frame_id = this->pcl_frame_id_;
-    ros::Rate loop_rate(this->pcl_rate_);
-    while (this->nh_.ok()) {
-        pcl_msg.header.stamp = ros::Time::now();
-        this->pcl_pub_.publish(pcl_msg);
-        ros::spinOnce();
-        loop_rate.sleep();
-    }
+    pcl_msg.header.stamp = ros::Time::now();
+    this->pcl_pub_.publish(pcl_msg);
+    ros::spin();
 }
 
 
