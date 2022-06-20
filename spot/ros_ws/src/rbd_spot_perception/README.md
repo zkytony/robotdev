@@ -17,7 +17,7 @@ GraphNav mapping command line tool.
 In order to visualize the points in RVIZ, you need to
 publish a tf transform:
 ```
-rosrun tf static_transform_publisher 1 0 0 0 0 0 1 map graphnav_map 100
+rosrun tf static_transform_publisher 0 0 0 0 0 0 1 map graphnav_map 100
 ```
 
 

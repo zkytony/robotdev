@@ -116,7 +116,7 @@ def load_map(path):
                 current_edge_snapshots, current_anchors, current_anchored_world_objects)
 
 
-def load_map_as_points(path, asfloat=True):
+def load_map_as_points(path):
     """
     Given a string path to a folder that contains a downloaded GraphNav map,
     loads the map as point cloud and returns a (N,3) numpy array.
@@ -135,8 +135,6 @@ def load_map_as_points(path, asfloat=True):
             data = cloud_data
         else:
             data = np.concatenate((data, cloud_data))
-    if asfloat:
-        data = data.astype(np.float32)
     print(data[:10])
     print(data.shape)
     print(data.dtype)
