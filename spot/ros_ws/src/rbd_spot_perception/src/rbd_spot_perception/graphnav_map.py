@@ -133,4 +133,7 @@ def load_map_as_points(path):
             data = cloud_data
         else:
             data = np.concatenate((data, cloud_data))
+    print(data[:10])
+    print(data.shape)
+    print(data.dtype)
     return data
