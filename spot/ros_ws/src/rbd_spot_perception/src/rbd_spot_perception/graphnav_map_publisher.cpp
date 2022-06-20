@@ -81,20 +81,24 @@ void GraphNavMapPublisher::loadMap_() {
 void GraphNavMapPublisher::parsePointsArray_(PyArrayObject *dataArray) {
     auto size = PyArray_DIM(dataArray, 0);
     pcl::PointXYZ* points_arr = (pcl::PointXYZ*) PyArray_DATA(dataArray);
-    for (int i=0; i<size; i++) {
+    for (int i=0; i<10; i++) {
         this->cloud_.push_back(points_arr[i]);
+        float x = points_arr[i].x;
+        float y = points_arr[i].y;
+        float z = points_arr[i].z;
+        std::cout << "[" << x << ", " << y << ", " << z << "]" << std::endl;
     }
     std::cout << "Loaded " << this->cloud_.points.size() << " points." << std::endl;
 }
 
 void GraphNavMapPublisher::run() {
 
-    sensor_msgs::PointCloud2 pcl_msg;
-    pcl::toROSMsg(this->cloud_, pcl_msg);
-    pcl_msg.header.frame_id = this->pcl_frame_id_;
-    pcl_msg.header.stamp = ros::Time::now();
-    this->pcl_pub_.publish(pcl_msg);
-    ros::spin();
+    // sensor_msgs::PointCloud2 pcl_msg;
+    // pcl::toROSMsg(this->cloud_, pcl_msg);
+    // pcl_msg.header.frame_id = this->pcl_frame_id_;
+    // pcl_msg.header.stamp = ros::Time::now();
+    // this->pcl_pub_.publish(pcl_msg);
+    // ros::spin();
 }
 
 
