@@ -58,7 +58,7 @@ void GraphNavMapPublisher::loadMap_() {
     PyObject *dataObj = PyObject_CallObject(loadMapAsPointsFunc, pArgs);
 
     if (dataObj != NULL) {
-        PyArrayObject *dataArray = obj_to_array_no_conversion(dataObj, NPY_DOUBLE);
+        PyArrayObject *dataArray = obj_to_array_no_conversion(dataObj, NPY_FLOAT);
         if (dataArray != NULL) {
             this->parsePointsArray_(dataArray);
         } else {
@@ -84,7 +84,7 @@ void GraphNavMapPublisher::parsePointsArray_(PyArrayObject *dataArray) {
     for (int i=0; i<size; i++) {
         this->cloud_.push_back(points_arr[i]);
     }
-    std::cout << "Loaded " << size << " points." << std::endl;
+    std::cout << "Loaded " << this->cloud_.points.size() << " points." << std::endl;
 }
 
 void GraphNavMapPublisher::run() {

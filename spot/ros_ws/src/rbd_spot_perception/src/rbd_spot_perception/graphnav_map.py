@@ -116,10 +116,12 @@ def load_map(path):
                 current_edge_snapshots, current_anchors, current_anchored_world_objects)
 
 
-def load_map_as_points(path):
+def load_map_as_points(path, asfloat=True):
     """
     Given a string path to a folder that contains a downloaded GraphNav map,
-    loads the map as point cloud and returns a 3xN numpy array
+    loads the map as point cloud and returns a (N,3) numpy array.
+
+    If asfloat is True, the output numpy array will have type np.float32.
     """
     (current_graph, current_waypoints, current_waypoint_snapshots, current_edge_snapshots,
      current_anchors, current_anchored_world_objects) = load_map(path)
@@ -133,7 +135,19 @@ def load_map_as_points(path):
             data = cloud_data
         else:
             data = np.concatenate((data, cloud_data))
+    if asfloat:
+        data = data.astype(np.float32)
     print(data[:10])
     print(data.shape)
     print(data.dtype)
+    # import open3d as o3d
+    # pcd = o3d.geometry.PointCloud()
+    # pcd.points = o3d.utility.Vector3dVector(data)
+    # viz = o3d.visualization.Visualizer()
+    # viz.create_window()
+    # viz.add_geometry(pcd)
+    # opt = viz.get_render_option()
+    # opt.show_coordinate_frame = True
+    # viz.run()
+    # viz.destroy_window()
     return data
