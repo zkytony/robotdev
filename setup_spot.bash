@@ -65,13 +65,14 @@ function detect_spot_connection
 }
 
 SPOT_ADDITIONAL_BUILD_OPTIONS=""
+SPOT_CMAKE_BUILD_TYPE="Release"
 function build_spot
 {
     cd $repo_root/${SPOT_ROS_PATH}
 
     if catkin_make\
         --cmake-args\
-        -DCMAKE_BUILD_TYPE=Release\
+        -DCMAKE_BUILD_TYPE=${SPOT_CMAKE_BUILD_TYPE}\
         -DPYTHON_EXECUTABLE=/usr/bin/python3\
         -DPYTHON_INCLUDE_DIR=/usr/include/python3.8\
         -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so\
@@ -186,6 +187,9 @@ if first_time_build $SPOT_ROS_PATH; then
     # Downgrade yaml so that rqt_* stuff runs
     # reference: https://stackoverflow.com/a/69565230/2893053
     !pip install pyyaml==5.4.1
+
+    # PCL
+    sudo apt-get install python3-pcl pcl-tools
 fi
 
 # catkin make and end.

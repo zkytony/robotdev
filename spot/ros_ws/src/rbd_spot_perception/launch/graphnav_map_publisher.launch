@@ -1,0 +1,8 @@
+<launch>
+  <arg name="map_path" default="$(find rbd_spot_perception)/maps/bosdyn/cit_first_floor"/>
+
+  <node pkg="rbd_spot_perception" type="graphnav_map_publisher" name="graphnav_map_publisher" output="screen" args="$(arg map_path)">
+    <param name="frame_id" value="graphnav_map"/>
+    <param name="topic" value="graphnav_points"/>
+  </node>
+</launch>
