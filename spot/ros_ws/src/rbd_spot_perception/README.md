@@ -5,6 +5,9 @@ Functionalities are provided mainly through:
 - [`rbd_spot_perception.image`](./src/rbd_spot_perception/image.py)
 
 
+Check out the [docs/Functions](../../../docs/Functions) folder for notes
+(e.g. [GraphNav_Mapping.md](../../../docs/Functions/GraphNav_Mapping.md))
+
 
 ## Troubleshooting
 
