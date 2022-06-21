@@ -59,3 +59,17 @@ Typical procedure:
 6. Press a to "Optimize the map's anchoring"
 
 7. Press 5 to save the map (It will be saved into a folder called 'downloaded_graph'); DO THIS, otherwise the map is not saved.
+
+
+## Publish GraphNav Map as ROS Point Cloud
+If you just want to only visualize the map point cloud, run the following launch file
+```
+roslaunch rbd_spot_perception graphnav_map_publisher.launch
+```
+Note that you can set `map_path` to be the path to a directory
+that is generated after you save the GraphNav map using Spot SDK's
+GraphNav mapping command line tool.
+
+Now, if you open RVIZ and set the "Fixed Frame" in "Global Options"
+to be "graphnav_map" (you may have to manually type it if it is not
+in the drop-down). Or you can launch `roslaunch rbd_spot_perception view_graphnav_point_cloud.launch`.
