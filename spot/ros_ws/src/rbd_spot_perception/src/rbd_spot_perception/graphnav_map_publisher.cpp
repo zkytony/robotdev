@@ -49,7 +49,7 @@ GraphNavMapPublisher::GraphNavMapPublisher(string map_path)
 void GraphNavMapPublisher::loadMap_() {
     // run the python code to load the map as a point cloud represented
     // as a numpy array
-    PyObject *gnmModule = PyImport_ImportModule("rbd_spot_perception.graphnav_map_utils");
+    PyObject *gnmModule = PyImport_ImportModule("rbd_spot_perception.graphnav");
     PyObject *loadMapAsPointsFunc = PyObject_GetAttrString(gnmModule, "load_map_as_points");
     PyObject *mapPath = PyUnicode_FromFormat(this->map_path_.c_str());
     PyObject *pArgs = PyTuple_New(1);
