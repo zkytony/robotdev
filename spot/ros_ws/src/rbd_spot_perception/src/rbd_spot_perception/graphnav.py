@@ -1,4 +1,5 @@
 import time
+import os
 from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.api.graph_nav import map_pb2
 
@@ -140,7 +141,7 @@ def load_map_as_points(path):
 
 
 
-def upload(graphnav_client, map_path, lease=None):
+def uploadGraph(graphnav_client, graph, waypoint_snapshots, edge_snapshots, lease=None):
     """given path to graphnav map directory, upload this
     map to the robot. Modifed based on _upload_graph_and_snapshots in
     Spot SDK graphnav examples.
@@ -148,49 +149,44 @@ def upload(graphnav_client, map_path, lease=None):
     Args:
         map_path (str): path to graphnav map directory
         lease (Lease): The Lease to show ownership of graph-nav service. """
-
-    current_graph = None
-    current_waypoint_snapshots = dict()
-    current_edge_snapshots = dict()
-
-    # Upload the graph and snapshots to the robot.
-    print("Loading the graph from disk into local storage...")
-    with open(map_path + "/graph", "rb") as graph_file:
-        # Load the graph from disk.
-        data = graph_file.read()
-        current_graph = map_pb2.Graph()
-        current_graph.ParseFromString(data)
-        print("Loaded graph has {} waypoints and {} edges".format(
-            len(current_graph.waypoints), len(current_graph.edges)))
-    for waypoint in current_graph.waypoints:
-        # Load the waypoint snapshots from disk.
-        with open(map_path + "/waypoint_snapshots/{}".format(waypoint.snapshot_id),
-                  "rb") as snapshot_file:
-            waypoint_snapshot = map_pb2.WaypointSnapshot()
-            waypoint_snapshot.ParseFromString(snapshot_file.read())
-            current_waypoint_snapshots[waypoint_snapshot.id] = waypoint_snapshot
-    for edge in current_graph.edges:
-        if len(edge.snapshot_id) == 0:
-            continue
-        # Load the edge snapshots from disk.
-        with open(map_path + "/edge_snapshots/{}".format(edge.snapshot_id),
-                  "rb") as snapshot_file:
-            edge_snapshot = map_pb2.EdgeSnapshot()
-            edge_snapshot.ParseFromString(snapshot_file.read())
-            current_edge_snapshots[edge_snapshot.id] = edge_snapshot
-    # Upload the graph to the robot.
     print("Uploading the graph and snapshots to the robot...")
-    true_if_empty = not len(self._current_graph.anchoring.anchors)
-    response = graphnav_client.upload_graph(lease=lease.lease_proto,
-                                            graph=current_graph,
+    if lease is None:
+        lease_proto = None
+    else:
+        lease_proto = lease.lease_proto
+
+    true_if_empty = not len(graph.anchoring.anchors)
+    _start_time = time.time()
+    upload_result = graphnav_client.upload_graph(lease=lease_proto,
+                                            graph=graph,
                                             generate_new_anchoring=true_if_empty)
     # Upload the snapshots to the robot.
-    for snapshot_id in response.unknown_waypoint_snapshot_ids:
-        waypoint_snapshot = current_waypoint_snapshots[snapshot_id]
+    for snapshot_id in upload_result.unknown_waypoint_snapshot_ids:
+        waypoint_snapshot = waypoint_snapshots[snapshot_id]
         graphnav_client.upload_waypoint_snapshot(waypoint_snapshot)
         print("Uploaded {}".format(waypoint_snapshot.id))
-    for snapshot_id in response.unknown_edge_snapshot_ids:
-        edge_snapshot = current_edge_snapshots[snapshot_id]
+    for snapshot_id in upload_result.unknown_edge_snapshot_ids:
+        edge_snapshot = edge_snapshots[snapshot_id]
         graphnav_client.upload_edge_snapshot(edge_snapshot)
         print("Uploaded {}".format(edge_snapshot.id))
-    return response, current_graph, current_waypoint_snapshots, current_edge_snapshots
+    _used_time = time.time() - _start_time
+    return upload_result, _used_time
+
+
+def clearGraph(graphnav_client, lease=None):
+    """Clear the state of the map on the robot, removing all waypoints and edges."""
+    if lease is None:
+        lease_proto = None
+    else:
+        lease_proto = lease.lease_proto
+    _start_time = time.time()
+    result = graphnav_client.clear_graph(lease=lease_proto)
+    _used_time = time.time() - _start_time
+    return result, _used_time
+
+
+def downloadGraph(graphnav_client):
+    _start_time = time.time()
+    graph_result = graphnav_client.download_graph()
+    _used_time = time.time() - _start_time
+    return graph_result, _used_time
