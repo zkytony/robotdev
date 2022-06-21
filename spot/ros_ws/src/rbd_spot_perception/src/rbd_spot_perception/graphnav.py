@@ -1,7 +1,10 @@
 import time
 import os
-from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.api.graph_nav import map_pb2
+from bosdyn.api.graph_nav import nav_pb2
+from bosdyn.client.graph_nav import GraphNavClient
+from bosdyn.client.frame_helpers import get_odom_tform_body
+from . import graphnav_util
 
 def create_client(conn):
     """
@@ -187,6 +190,98 @@ def clearGraph(graphnav_client, lease=None):
 
 def downloadGraph(graphnav_client):
     _start_time = time.time()
-    graph_result = graphnav_client.download_graph()
+    # note that this gets the graph directly instead of a Response object
+    graph = graphnav_client.download_graph()
     _used_time = time.time() - _start_time
-    return graph_result, _used_time
+    return graph, _used_time
+
+def getLocalizationState(graphnav_client):
+    _start_time = time.time()
+    state_result = graphnav_client.get_localization_state()
+    _used_time = time.time() - _start_time
+    return state_result, _used_time
+
+def get_pose(state_result, frame='waypoint', stamped=False):
+    """
+    frame: the frame this pose is with respect to.
+        Either 'waypoint' or 'seed'
+
+    Returns:
+        if frame == 'waypoint', then
+            (waypoint id, pose)
+        if frame == 'seed', then
+            pose
+        if stamped is True, append timestamp to the return.
+    """
+    if frame != "waypoint" and frame != "seed":
+        raise ValueError("frame must be 'waypoint' or 'seed'")
+
+    if not state_result.localization.waypoint_id:
+        # The robot is not localized to the newly uploaded graph.
+        print("\n")
+        print("The robot is currently not localized to the map; please localize")
+        return
+
+    if frame == "waypoint":
+        if stamped:
+            return state_result.localization.waypoint_id,\
+                state_result.localization.waypoint_tform_body,\
+                state_result.localization.timestamp
+        else:
+            return state_result.localization.waypoint_id,\
+                state_result.localization.waypoint_tform_body
+    else:
+        if stamped:
+            return state_result.localization.seed_tform_body,\
+                state_result.localization.timestamp
+        else:
+            return state_result.localization.seed_tform_body
+
+
+def setLocalizationFiducial(graphnav_client, robot_state_client):
+    """Trigger localization when near a fiducial. Code taken from SDK example"""
+    robot_state = robot_state_client.get_robot_state()
+    current_odom_tform_body = get_odom_tform_body(
+        robot_state.kinematic_state.transforms_snapshot).to_proto()
+    # Create an empty instance for initial localization since we are asking it to localize
+    # based on the nearest fiducial.
+    localization = nav_pb2.Localization()
+    _start_time = time.time()
+    result = graphnav_client.set_localization(initial_guess_localization=localization,
+                                              ko_tform_body=current_odom_tform_body)
+    _used_time = time.time() - _start_time
+    return result, _used_time
+
+
+
+def setLocalizationWaypoint(graphnav_client, robot_state_client,
+                            waypoint_id=None, graph=None):
+    """Trigger localization to a waypoint. Code taken from SDK example"""
+    assert waypoint_id is not None, "waypoint_id required"
+    assert graph is not None, "graph required"
+    annotation_name_to_wp_id, edges =\
+        graphnav_util.update_waypoints_and_edges(current_graph, waypoint_id)
+
+    destination_waypoint = graph_navutil.find_unique_waypoint_id(
+        waypoint_id, graph, annotation_name_to_wp_id)
+    if not destination_waypoint:
+        # Failed to find the unique waypoint id.
+        return
+
+    robot_state = robot_state_client.get_robot_state()
+    current_odom_tform_body = get_odom_tform_body(
+        robot_state.kinematic_state.transforms_snapshot).to_proto()
+    # Create an initial localization to the specified waypoint as the identity.
+    localization = nav_pb2.Localization()
+    localization.waypoint_id = destination_waypoint
+    localization.waypoint_tform_body.rotation.w = 1.0
+    _start_time = time.time()
+    result = graphnav_client.set_localization(
+        initial_guess_localization=localization,
+        # It's hard to get the pose perfect, search +/-20 deg and +/-20cm (0.2m).
+        max_distance=0.2,
+        max_yaw=20.0 * math.pi / 180.0,
+        fiducial_init=graph_nav_pb2.SetLocalizationRequest.FIDUCIAL_INIT_NO_FIDUCIAL,
+        ko_tform_body=current_odom_tform_body)
+    _used_time = time.time() - _start_time
+    return result, _used_time

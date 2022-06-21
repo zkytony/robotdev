@@ -10,7 +10,7 @@ def main():
                         required=True)
     args = parser.parse_args()
 
-    conn = rbd_spot.SpotSDKConn(sdk_name="GraphNavPoseStreamer")
+    conn = rbd_spot.SpotSDKConn(sdk_name="GraphNavUploadGraphClient")
     graphnav_client = rbd_spot.graphnav.create_client(conn)
 
     # Check if there is already a graph. If so, abort
