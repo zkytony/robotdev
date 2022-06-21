@@ -5,20 +5,8 @@ Functionalities are provided mainly through:
 - [`rbd_spot_perception.image`](./src/rbd_spot_perception/image.py)
 
 
-## Publish GraphNav Map as ROS Point Cloud
-Run the following launch file
-```
-roslaunch rbd_spot_perception graphnav_map_publisher.launch
-```
-Note that you can set `map_path` to be the path to a directory
-that is generated after you save the GraphNav map using Spot SDK's
-GraphNav mapping command line tool.
-
-In order to visualize the points in RVIZ, you need to
-publish a tf transform:
-```
-rosrun tf static_transform_publisher 0 0 0 0 0 0 1 map graphnav_map 100
-```
+Check out the [docs/Functions](../../../docs/Functions) folder for notes
+(e.g. [GraphNav_Mapping.md](../../../docs/Functions/GraphNav_Mapping.md))
 
 
 ## Troubleshooting
