@@ -7,14 +7,13 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
-        - /RobotModel1/Status1
-        - /TF1/Status1
         - /DepthClouds1/FrontLeftDepthCloud1
         - /DepthClouds1/FrontRightDepthCloud1
         - /DepthClouds1/LeftDepthCloud1
         - /DepthClouds1/RightDepthCloud1
         - /DepthClouds1/RearDepthCloud1
         - /InteractiveMarkers1
+        - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 803
   - Class: rviz/Selection
@@ -35,7 +34,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
   - Class: spot_viz/SpotControlPanel
     Name: SpotControlPanel
 Preferences:
@@ -238,8 +237,6 @@ Visualization Manager:
           Value: true
         link_wr1:
           Value: true
-        map:
-          Value: true
         odom:
           Value: true
         rear_left_hip:
@@ -265,47 +262,48 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          graphnav_map:
-            body:
-              base_link:
-                arm0.link_sh0:
-                  arm0.link_sh1:
-                    arm0.link_el0:
-                      arm0.link_el1:
-                        arm0.link_wr0:
-                          arm0.link_wr1:
-                            arm0.link_fngr:
-                              {}
-              flat_body:
-                {}
-              front_left_hip:
-                front_left_upper_leg:
-                  front_left_lower_leg:
-                    {}
-              front_rail:
-                {}
-              front_right_hip:
-                front_right_upper_leg:
-                  front_right_lower_leg:
-                    {}
-              hand:
-                {}
-              link_wr1:
-                {}
-              odom:
-                gpe:
+        vision:
+          body:
+            base_link:
+              arm0.link_sh0:
+                arm0.link_sh1:
+                  arm0.link_el0:
+                    arm0.link_el1:
+                      arm0.link_wr0:
+                        arm0.link_wr1:
+                          arm0.link_fngr:
+                            {}
+            flat_body:
+              {}
+            front_left_hip:
+              front_left_upper_leg:
+                front_left_lower_leg:
                   {}
-              rear_left_hip:
-                rear_left_upper_leg:
-                  rear_left_lower_leg:
-                    {}
-              rear_rail:
+            front_rail:
+              {}
+            front_right_hip:
+              front_right_upper_leg:
+                front_right_lower_leg:
+                  {}
+            graphnav_map:
+              {}
+            hand:
+              {}
+            link_wr1:
+              {}
+            odom:
+              gpe:
                 {}
-              rear_right_hip:
-                rear_right_upper_leg:
-                  rear_right_lower_leg:
-                    {}
+            rear_left_hip:
+              rear_left_upper_leg:
+                rear_left_lower_leg:
+                  {}
+            rear_rail:
+              {}
+            rear_right_hip:
+              rear_right_upper_leg:
+                rear_right_lower_leg:
+                  {}
       Update Interval: 0
       Value: true
     - Class: rviz/Group
@@ -526,7 +524,7 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: RGB8
+      Color Transformer: Intensity
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -539,7 +537,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /spot/depthvisual/back/point_cloud2
+      Topic: /graphnav_map_publisher/graphnav_points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -548,7 +546,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: gpe
+    Fixed Frame: graphnav_map
     Frame Rate: 30
   Name: root
   Tools:
@@ -572,7 +570,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.364165782928467
+      Distance: 9.4162015914917
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -580,17 +578,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.3172205686569214
-        Y: -0.006978853605687618
-        Z: 0.46796271204948425
+        X: 2.103220224380493
+        Y: 0.2721056342124939
+        Z: 0.9930484890937805
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5203989148139954
+      Pitch: 0.6203987002372742
       Target Frame: <Fixed Frame>
-      Yaw: 0.7660295367240906
+      Yaw: 1.8310298919677734
     Saved: ~
 Window Geometry:
   Displays:

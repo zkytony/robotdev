@@ -16,8 +16,8 @@ def _body_pose_to_tf(body_pose, map_frame, base_frame):
     # publish body pose transform
     t = geometry_msgs.msg.TransformStamped()
     t.header.stamp = rospy.Time.now()
-    t.header.frame_id = map_frame
-    t.child_frame_id = base_frame
+    t.header.frame_id = base_frame
+    t.child_frame_id = map_frame
     t.transform.translation.x = body_pose.position.x
     t.transform.translation.y = body_pose.position.y
     t.transform.translation.z = body_pose.position.z
