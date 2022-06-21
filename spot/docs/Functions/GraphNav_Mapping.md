@@ -76,6 +76,9 @@ Now, if you open RVIZ and set the "Fixed Frame" in "Global Options"
 to be "graphnav_map" (you may have to manually type it if it is not
 in the drop-down). Or you can launch `roslaunch rbd_spot_perception view_graphnav_point_cloud.launch`.
 
+<img src='https://user-images.githubusercontent.com/7720184/174810099-b73515a1-e92c-4858-8373-4b7e7191bbba.png' width='650px'/>
+
+
 
 **If you also want to localize the robot model**, you need to:
 
@@ -106,3 +109,6 @@ in the drop-down). Or you can launch `roslaunch rbd_spot_perception view_graphna
    ```
    roslaunch rbd_spot_perception view_graphnav_point_cloud_with_localization.launch
    ```
+
+   <img src='https://user-images.githubusercontent.com/7720184/174810487-d02578e1-7a91-48cc-a4e5-7f0a173be43b.jpeg' width='650px'/>
+
