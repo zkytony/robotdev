@@ -1,9 +1,11 @@
 import time
 import os
+import numpy as np
 from bosdyn.api.graph_nav import map_pb2
 from bosdyn.api.graph_nav import nav_pb2
 from bosdyn.client.graph_nav import GraphNavClient
-from bosdyn.client.frame_helpers import get_odom_tform_body
+from bosdyn.client.frame_helpers import get_odom_tform_body, get_a_tform_b, ODOM_FRAME_NAME
+from bosdyn.client.math_helpers import SE3Pose
 from . import graphnav_util
 
 def create_client(conn):
@@ -35,7 +37,7 @@ def _get_point_cloud_data_in_seed_frame(waypoints, snapshots, anchorings, waypoi
         raise Exception("{} not found in anchorings. Does the map have anchoring data?".format(waypoint_id))
     seed_tform_cloud = SE3Pose.from_obj(anchorings[waypoint_id].seed_tform_waypoint) * waypoint_tform_cloud
     point_cloud_data = np.frombuffer(cloud.data, dtype=np.float32).reshape(int(cloud.num_points), 3)
-    return seed_tform_cloud.transform_cloud(point_cloud_data)
+    return seed_tform_cloud.transform_cloud(point_cloud_data).astype(np.float32)
 
 
 def load_map(path):
