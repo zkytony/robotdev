@@ -62,10 +62,12 @@ Typical procedure:
 
 
 ## Publish GraphNav Map as ROS Point Cloud
-If you just want to only visualize the map point cloud, run the following launch file
+**If you just want to only visualize the map point cloud**, run the following launch file
 ```
 roslaunch rbd_spot_perception graphnav_map_publisher.launch
 ```
+The point cloud will live in the `graphnav_map` frame.
+
 Note that you can set `map_path` to be the path to a directory
 that is generated after you save the GraphNav map using Spot SDK's
 GraphNav mapping command line tool.
@@ -73,3 +75,34 @@ GraphNav mapping command line tool.
 Now, if you open RVIZ and set the "Fixed Frame" in "Global Options"
 to be "graphnav_map" (you may have to manually type it if it is not
 in the drop-down). Or you can launch `roslaunch rbd_spot_perception view_graphnav_point_cloud.launch`.
+
+
+**If you also want to localize the robot model**, you need to:
+
+1. Run spot_ros driver: `roslaunch rbd_spot_robot driver.launch`
+
+2. Upload the map and localize the robot by calling corresponding gRPC services (we have scripts for that):
+   ```
+   roscd rbd_spot_perception/scripts
+   ./graphnav_upload_graph.py -p ../maps/bosdyn/cit_first_floor
+   ./graphnav_localize.py
+   ```
+   Note that `graphnav_localize.py` can set localization based on fiducial marker (default) or waypoint.
+   It is more convenient to use the fiducial marker method - especially when the robot is
+   next to its dock, and the map includes the fiducial marker on the dock.
+
+3. Publish the GraphNav map as point cloud (same as above)
+   ```
+   roslaunch rbd_spot_perception graphnav_map_publisher.launch
+   ```
+
+4. Stream the localized poses as tf transforms between `graphnav_map` and `body`.
+   ```
+   roscd rbd_spot_perception/scripts
+   ./stream_graphnav_pose.py --pub
+   ```
+
+5. Visualize
+   ```
+   roslaunch rbd_spot_perception view_graphnav_point_cloud_with_localization.launch
+   ```
