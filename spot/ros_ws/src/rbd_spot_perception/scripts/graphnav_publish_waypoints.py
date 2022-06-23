@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 # Upload graph to GraphNav
+#
+# Example usage:
+#
+#    python graphnav_publish_waypoints.py -p ../maps/bosdyn/cit_first_floor --viz
 
 import rospy
 import rbd_spot
 import argparse
 from rbd_spot_perception.msg import GraphNavWaypoint, GraphNavWaypointArray
 from visualization_msgs.msg import Marker, MarkerArray
+from std_msgs.msg import Header
 
+from bosdyn.client.frame_helpers import get_odom_tform_body, get_a_tform_b, ODOM_FRAME_NAME
 from bosdyn.client.math_helpers import SE3Pose
 
 
@@ -23,18 +29,20 @@ def waypoint_to_msg(waypoint, snapshot, anchoring, frame_id, viz=False):
     wpmsg = GraphNavWaypoint()
     wpmsg.header.stamp = rospy.Time.now()
     wpmsg.header.frame_id = frame_id
+    wpmsg.id = waypoint.id
     wpmsg.snapshot_id = waypoint.snapshot_id
-    wpmsg.pose_sf.position.x = seed_tf_cloud.position.x
-    wpmsg.pose_sf.position.y = seed_tf_cloud.position.y
-    wpmsg.pose_sf.position.z = seed_tf_cloud.position.z
-    wpmsg.pose_sf.orientation.x = seed_tf_cloud.rotation.x
-    wpmsg.pose_sf.orientation.y = seed_tf_cloud.rotation.y
-    wpmsg.pose_sf.orientation.z = seed_tf_cloud.rotation.z
-    wpmsg.pose_sf.orientation.w = seed_tf_cloud.rotation.w
+    wpmsg.pose_sf.position.x = seed_tform_cloud.position.x
+    wpmsg.pose_sf.position.y = seed_tform_cloud.position.y
+    wpmsg.pose_sf.position.z = seed_tform_cloud.position.z
+    wpmsg.pose_sf.orientation.x = seed_tform_cloud.rotation.x
+    wpmsg.pose_sf.orientation.y = seed_tform_cloud.rotation.y
+    wpmsg.pose_sf.orientation.z = seed_tform_cloud.rotation.z
+    wpmsg.pose_sf.orientation.w = seed_tform_cloud.rotation.w
     wpmsg.name = waypoint.annotations.name
 
     if viz:
         # Also make a marker
+        marker = Marker()
         marker.header = wpmsg.header
         marker.id = int(waypoint.annotations.name.split("_")[1]);
         marker.type = Marker.CYLINDER;
@@ -47,9 +55,9 @@ def waypoint_to_msg(waypoint, snapshot, anchoring, frame_id, viz=False):
         marker.color.r = 0.0
         marker.color.g = 1.0
         marker.color.b = 0.0
-        return msg, marker
+        return wpmsg, marker
     else:
-        return msg
+        return wpmsg
 
 
 def main():
@@ -71,14 +79,16 @@ def main():
      current_edge_snapshots, current_anchors, current_anchored_world_objects)\
      = rbd_spot.graphnav.load_map(args.path)
 
-    pub_waypoints = rospy.Publisher(args.topic, GraphNavWaypoint, queue=10, latch=True)
+    pub_waypoints = rospy.Publisher(args.topic, GraphNavWaypointArray,
+                                    queue_size=10, latch=True)
     if args.viz:
-        pub_markers = rospy.Publisher(args.topic, GraphNavWaypoint, queue=10, latch=True)
+        pub_markers = rospy.Publisher(args.topic + "_markers",
+                                      MarkerArray, queue_size=10, latch=True)
     waypoint_msgs = []
     marker_msgs = []
     for wpid in current_waypoints:
         waypoint = current_waypoints[wpid]
-        snapshot = current_edge_snapshots[wpid]
+        snapshot = current_waypoint_snapshots[waypoint.snapshot_id]
         anchoring = current_anchors[wpid]
         res = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id)
         if args.viz:
@@ -89,8 +99,10 @@ def main():
         waypoint_msgs.append(waypoint_msg)
 
     waypoint_array_msg = GraphNavWaypointArray()
+    waypoint_array_msg.header = Header()
     waypoint_array_msg.header.stamp = rospy.Time.now()
-    waypoint_array_msg.frame_id = args.frame_id
+    waypoint_array_msg.header.frame_id = args.frame_id
+    waypoint_array_msg.waypoints = waypoint_msgs
     pub_waypoints.publish(waypoint_array_msg)
     print("Published waypoints")
     if args.viz:
