@@ -70,6 +70,7 @@ def main():
                         "i.e. what frame are the waypoint poses with respect to.",
                         default="graphnav_map")
     parser.add_argument("--viz", action="store_true", help="visualize waypoints as rviz markers")
+    parser.add_argument("--rate", type=float, help="rate to publish", default=4.0)
     args, _ = parser.parse_known_args()
 
     rospy.init_node("graphnav_waypoint_publisher")
@@ -79,36 +80,41 @@ def main():
      current_edge_snapshots, current_anchors, current_anchored_world_objects)\
      = rbd_spot.graphnav.load_map(args.path)
 
-    pub_waypoints = rospy.Publisher(args.topic, GraphNavWaypointArray,
-                                    queue_size=10, latch=True)
+    pub_waypoints = rospy.Publisher(args.topic, GraphNavWaypointArray, queue_size=10)
     if args.viz:
-        pub_markers = rospy.Publisher(args.topic + "_markers",
-                                      MarkerArray, queue_size=10, latch=True)
-    waypoint_msgs = []
-    marker_msgs = []
-    for wpid in current_waypoints:
-        waypoint = current_waypoints[wpid]
-        snapshot = current_waypoint_snapshots[waypoint.snapshot_id]
-        anchoring = current_anchors[wpid]
-        res = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id)
-        if args.viz:
-            waypoint_msg, marker_msg = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id, viz=True)
-            marker_msgs.append(marker_msg)
-        else:
-            waypoint_msg = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id)
-        waypoint_msgs.append(waypoint_msg)
+        pub_markers = rospy.Publisher(args.topic + "_markers", MarkerArray, queue_size=10)
 
-    waypoint_array_msg = GraphNavWaypointArray()
-    waypoint_array_msg.header = Header()
-    waypoint_array_msg.header.stamp = rospy.Time.now()
-    waypoint_array_msg.header.frame_id = args.frame_id
-    waypoint_array_msg.waypoints = waypoint_msgs
-    pub_waypoints.publish(waypoint_array_msg)
-    print("Published waypoints")
-    if args.viz:
-        marker_array_msg = MarkerArray(marker_msgs)
-        pub_markers.publish(marker_array_msg)
-        print("Published markers")
+    rate = rospy.Rate(args.rate)
+    while not rospy.is_shutdown():
+        waypoint_msgs = []
+        marker_msgs = []
+        for wpid in current_waypoints:
+            waypoint = current_waypoints[wpid]
+            snapshot = current_waypoint_snapshots[waypoint.snapshot_id]
+            anchoring = current_anchors[wpid]
+            res = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id)
+            if args.viz:
+                waypoint_msg, marker_msg = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id, viz=True)
+                marker_msgs.append(marker_msg)
+            else:
+                waypoint_msg = waypoint_to_msg(waypoint, snapshot, anchoring, args.frame_id)
+            waypoint_msgs.append(waypoint_msg)
+
+        waypoint_array_msg = GraphNavWaypointArray()
+        waypoint_array_msg.header = Header()
+
+        waypoint_array_msg.header.stamp = rospy.Time.now()
+        waypoint_array_msg.header.frame_id = args.frame_id
+        waypoint_array_msg.waypoints = waypoint_msgs
+        pub_waypoints.publish(waypoint_array_msg)
+        print("Published waypoints")
+        if args.viz:
+            marker_array_msg = MarkerArray(marker_msgs)
+            pub_markers.publish(marker_array_msg)
+            print("Published markers")
+        rate.sleep()
+
+
     rospy.spin()
 
 if __name__ == "__main__":
