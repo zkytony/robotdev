@@ -70,7 +70,7 @@ def main():
                         "i.e. what frame are the waypoint poses with respect to.",
                         default="graphnav_map")
     parser.add_argument("--viz", action="store_true", help="visualize waypoints as rviz markers")
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
 
     rospy.init_node("graphnav_waypoint_publisher")
 
