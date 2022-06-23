@@ -9,10 +9,28 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   pcl_ros
   pcl_conversions
-)
-
-catkin_package()
+  geometry_msgs
+  visualization_msgs)
 catkin_python_setup()
+
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+add_message_files(
+  DIRECTORY msg
+  FILES
+  GraphNavWaypoint.msg
+  GraphNavWaypointArray.msg)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  visualization_msgs)
+
+###################################
+## catkin specific configuration ##
+###################################
+catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}

@@ -1,0 +1,2 @@
+std_msgs/Header header
+rbd_spot_perception/GraphNavWaypoint[] waypoints
