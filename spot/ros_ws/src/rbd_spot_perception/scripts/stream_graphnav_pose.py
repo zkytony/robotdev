@@ -27,22 +27,38 @@ def _body_pose_to_tf(body_pose, map_frame, base_frame):
     t.transform.rotation.w = body_pose.rotation.w
     return t
 
+def _body_pose_to_msg(body_pose, map_frame):
+    posestamped = geometry_msgs.msg.PoseStamped()
+    posestamped.header.stamp = rospy.Time.now()
+    posestamped.header.frame_id = map_frame
+    posestamped.pose.transition.x = body_pose.translation.x
+    posestamped.pose.transition.y = body_pose.translation.y
+    posestamped.pose.transition.z = body_pose.translation.z
+    posestamped.pose.orientation.x = body_pose.rotation.x
+    posestamped.pose.orientation.y = body_pose.rotation.y
+    posestamped.pose.orientation.z = body_pose.rotation.z
+    posestamped.pose.orientation.w = body_pose.rotation.w
+    return posestamped
+
+
 
 def main():
     parser = argparse.ArgumentParser("stream graphnav pose")
-    parser.add_argument("-p", "--pub", action="store_true", help="publish stamped poses as"
+    parser.add_argument("-p", "--pub-tf", action="store_true", help="publish stamped poses as"
                         "tf transforms between map frame and base link frame")
+    parser.add_argument("--pub-pose", action="store_true", help="publish stamped poses as messages")
     parser.add_argument("--base-frame", type=str, help="tf frame of the robot base. Default 'body'",
                         default='body')
     parser.add_argument("--map-frame", type=str, help="tf frame of the map. Default 'graphnav_map'",
                         default='graphnav_map')
     parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
-    args = parser.parse_args()
+    args = parser.parse_known_args()
 
-    if args.pub:
+    if args.pub_tf:
         rospy.init_node("stream_graphnav_pose")
         tf_br = TransformBroadcaster()
-
+    if args.pub_pose:
+        pose_pub = rospy.Publisher("/spot_body_pose", geometry_msgs.msg.PoseStamped, queue_size=10)
 
     conn = rbd_spot.SpotSDKConn(sdk_name="StreamImageClient")
     graphnav_client = rbd_spot.graphnav.create_client(conn)
@@ -59,9 +75,12 @@ def main():
             print(f"waypoint id: {waypoint_id}")
             print("----")
 
-            if args.pub:
+            if args.pub_tf:
                 t = _body_pose_to_tf(body_pose, args.map_frame, args.base_frame)
                 tf_br.sendTransform(t)
+            if args.pub_pose:
+                m = _body_pose_to_msg(body_pose, args.map_frame)
+                pose_pub.publish(m)
             _used_time = time.time() - _start_time
             if args.timeout and _used_time > args.timeout:
                 break
