@@ -33,9 +33,9 @@ def _body_pose_to_msg(body_pose, map_frame):
     posestamped = geometry_msgs.msg.PoseStamped()
     posestamped.header.stamp = rospy.Time.now()
     posestamped.header.frame_id = map_frame
-    posestamped.pose.transition.x = body_pose.translation.x
-    posestamped.pose.transition.y = body_pose.translation.y
-    posestamped.pose.transition.z = body_pose.translation.z
+    posestamped.pose.position.x = body_pose.position.x
+    posestamped.pose.position.y = body_pose.position.y
+    posestamped.pose.position.z = body_pose.position.z
     posestamped.pose.orientation.x = body_pose.rotation.x
     posestamped.pose.orientation.y = body_pose.rotation.y
     posestamped.pose.orientation.z = body_pose.rotation.z
