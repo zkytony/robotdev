@@ -15,8 +15,8 @@ def main():
 
     # Check if there is already a graph. If so, abort
     graph, _ = rbd_spot.graphnav.downloadGraph(graphnav_client)
-    if graph is not None:
-        print("Robot has graph already. You may want to clear it first.")
+    if graph is not None and len(graph.waypoints) > 0:
+        print(f"Robot has graph already (with {len(graph.waypoints)} waypoints). You may want to clear it first.")
         return
 
     # load the graph

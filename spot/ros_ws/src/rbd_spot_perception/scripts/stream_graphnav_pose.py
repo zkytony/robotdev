@@ -11,6 +11,8 @@ import geometry_msgs.msg
 
 import rbd_spot
 
+DEBUG = False
+
 
 def _body_pose_to_tf(body_pose, map_frame, base_frame):
     # publish body pose transform
@@ -52,7 +54,7 @@ def main():
     parser.add_argument("--map-frame", type=str, help="tf frame of the map. Default 'graphnav_map'",
                         default='graphnav_map')
     parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
-    args = parser.parse_known_args()
+    args = parser.parse_known_args()[0]
 
     if args.pub_tf:
         rospy.init_node("stream_graphnav_pose")
@@ -69,11 +71,18 @@ def main():
             state_result, _used_time = rbd_spot.graphnav.getLocalizationState(graphnav_client)
             print("GetLocalizationState took %.3fs" % _used_time)
             body_pose = rbd_spot.graphnav.get_pose(state_result, frame='seed')
-            waypoint_id, _ = rbd_spot.graphnav.get_pose(state_result, frame='waypoint')
-            print("body pose (seed frame):")
-            print(body_pose)
-            print(f"waypoint id: {waypoint_id}")
-            print("----")
+            res = rbd_spot.graphnav.get_pose(state_result, frame='waypoint')
+            if res is None:
+                print("Unable to get pose. Is the robot localized?")
+                time.sleep(1)
+            else:
+                waypoint_id, _ = res
+
+            if DEBUG:
+                print("body pose (seed frame):")
+                print(body_pose)
+                print(f"waypoint id: {waypoint_id}")
+                print("----")
 
             if args.pub_tf:
                 t = _body_pose_to_tf(body_pose, args.map_frame, args.base_frame)
@@ -85,7 +94,7 @@ def main():
             if args.timeout and _used_time > args.timeout:
                 break
         finally:
-            if args.pub and rospy.is_shutdown():
+            if (args.pub_tf or args.pub_pose) and rospy.is_shutdown():
                 sys.exit(1)
 
 

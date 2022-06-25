@@ -145,7 +145,6 @@ def load_map_as_points(path):
     return data
 
 
-
 def uploadGraph(graphnav_client, graph, waypoint_snapshots, edge_snapshots, lease=None):
     """given path to graphnav map directory, upload this
     map to the robot. Modifed based on _upload_graph_and_snapshots in
