@@ -1,16 +1,16 @@
 <launch>
   <!-- Uses octomap_server to publish an Octomap representation of
        the point cloud and a projected 2D occupancy grid map -->
-  <arg name="map_path" default="$(find rbd_spot_perception)/maps/bosdyn/cit_first_floor"/>
+  <arg name="map_name" default="cit_first_floor"/>
   <arg name="output" default="screen" />
 
   <include file="$(find rbd_spot_perception)/launch/graphnav_map_publisher.launch">
-    <arg name="map_path" value="$(arg map_path)"/>
+    <arg name="map_name" value="$(arg map_name)"/>
   </include>
 
   <node pkg="rbd_spot_perception" type="graphnav_publish_waypoints.py"
         name="graphnav_waypoints_publisher"
-        args="--path $(arg map_path) --viz" output="$(arg output)">
+        args="--path $(find rbd_spot_perception)/maps/bosdyn/$(arg map_name) --viz" output="$(arg output)">
   </node>
 
 </launch>
