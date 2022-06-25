@@ -190,6 +190,15 @@ if first_time_build $SPOT_ROS_PATH; then
 
     # PCL
     sudo apt-get install python3-pcl pcl-tools
+
+    # Octomap
+    sudo apt-get install ros-noetic-octomap
+    sudo apt-get install ros-noetic-octomap-mapping
+    sudo apt-get install ros-noetic-octomap-server
+    sudo apt-get install ros-noetic-octomap-rviz-plugins
+
+    # scikit-iamge
+    pip install -U scikit-image
 fi
 
 # catkin make and end.
