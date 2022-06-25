@@ -1,8 +1,13 @@
 <launch>
   <arg name="map_path" default="$(find rbd_spot_perception)/maps/bosdyn/cit_first_floor"/>
+  <!-- The frame_id of the point cloud -->
+  <arg name="frame_id" default="graphnav_map"/>
+  <!-- The topic that the point cloud will be published at -->
+  <arg name="topic" default="graphnav_points"/>
 
   <node pkg="rbd_spot_perception" type="graphnav_map_publisher" name="graphnav_map_publisher" output="screen" args="$(arg map_path)">
-    <param name="frame_id" value="graphnav_map"/>
-    <param name="topic" value="graphnav_points"/>
+    <param name="frame_id" value="$(arg frame_id)"/>
+    <param name="topic" value="$(arg topic)"/>
   </node>
+
 </launch>
