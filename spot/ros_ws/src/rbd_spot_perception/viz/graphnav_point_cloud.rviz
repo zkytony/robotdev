@@ -7,7 +7,6 @@ Panels:
         - /Global Options1
         - /Status1
         - /PointCloud21
-        - /PointCloud21/Status1
       Splitter Ratio: 0.5
     Tree Height: 962
   - Class: rviz/Selection
@@ -82,6 +81,14 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /graphnav_waypoints_markers
+      Name: MarkerArray
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -110,7 +117,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 41.10478973388672
+      Distance: 16.845693588256836
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -118,17 +125,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 2.7421212196350098
+        Y: 0.1585303395986557
+        Z: -0.04944927617907524
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.785398006439209
+      Pitch: 1.1753977537155151
       Target Frame: <Fixed Frame>
-      Yaw: 0.785398006439209
+      Yaw: 1.5853979587554932
     Saved: ~
 Window Geometry:
   Displays:
@@ -146,5 +153,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1669
-  X: 60
-  Y: 27
+  X: 762
+  Y: 58
