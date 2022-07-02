@@ -121,3 +121,12 @@ in the drop-down). Or you can launch `roslaunch rbd_spot_perception view_graphna
    <img src='https://user-images.githubusercontent.com/7720184/174810487-d02578e1-7a91-48cc-a4e5-7f0a173be43b.jpeg' width='650px'/>
 
 Note that if you created the map with LiDAR, then you must have LiDAR installed when performing localization. Otherwise, you get "The map was recorded with using a sensor configuration which is incompatible with the robot (for example, LIDAR configuration)."
+
+### One-commandder
+Run the following launch file:
+```
+roslaunch rbd_spot_perception graphnav_map_publisher_with_localization.launch map_name:=<map_name>
+```
+This publishes the map as point cloud; publishes waypoints; starts a graphnav pose streamer for body localization.
+
+To see the robot in RVIZ, you need to start the driver.launch.
