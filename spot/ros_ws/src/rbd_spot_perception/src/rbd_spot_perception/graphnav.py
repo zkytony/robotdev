@@ -6,12 +6,13 @@ from bosdyn.api.graph_nav import map_pb2
 from bosdyn.api.graph_nav import nav_pb2, graph_nav_pb2
 from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.client.frame_helpers import get_odom_tform_body, get_a_tform_b, ODOM_FRAME_NAME
-from bosdyn.client.math_helpers import SE3Pose
+from bosdyn.client.math_helpers import SE3Pose, Quat
+from bosdyn.client.exceptions import ResponseError
 from . import graphnav_util
 
 def create_client(conn):
     """
-    Given conn (SpotSDKConn) returns a ImageClient.
+    Given conn (SpotSDKConn) returns a GraphNavClient.
     """
     return conn.ensure_client(GraphNavClient.default_service_name)
 
@@ -287,3 +288,92 @@ def setLocalizationWaypoint(graphnav_client, robot_state_client,
         ko_tform_body=current_odom_tform_body)
     _used_time = time.time() - _start_time
     return result, _used_time
+
+
+def navigateTo(goal, graphnav_client, conn, sleep=0.5):
+    """
+    Navigate to a pose in the seed frame (i.e. global pose).
+    Calls the NavigateToAnchor service. Blocking call until
+    navigation is complete.
+
+    Args:
+        goal (tuple or str): If tuple, the goal can be either (x, y)
+            or (x, y, yaw)
+            or (x, y, z, qx, qy, qz, qw)
+
+            If str, the goal is treated as a waypoint ID
+
+        graphnav_client: GraphNavClient
+        conn (SpotSDKConn): expecting this SpotSDKConn to have a lease.
+        sleep (float): time to sleep after each cycle of navigation request
+
+        probably don't need:
+        +callback: function to be called per cycle+
+        +callback_args+
+    """
+    navigate_to_waypoint = type(goal) != str
+
+    if len(goal) not in {2, 3, 7}:
+        raise ValueError("unrecognized goal format.")
+
+    seed_T_goal = SE3Pose(goal[0], goal[1], 0.0, Quat())
+    if len(goal) == 7:
+        seed_T_goal.z = float(goal[2])
+    else:
+        localization_state, _ = getLocalizationState(graphnav_client)
+        if not localization_state.localization.waypoint_id:
+            print("Robot not localized")
+            return
+        seed_T_goal.z = localization_state.localization.seed_tform_body.position.z
+
+    if len(goal) == 3:
+        seed_T_goal.rot = Quat.from_yaw(float(goal[2]))
+    elif len(goal) == 7:
+        seed_T_goal.rot = Quat(w=float(goal[3]), x=float(goal[4]), y=float(goal[5]),
+                               z=float(goal[6]))
+
+
+    nav_to_cmd_id = None
+    is_finished = False
+    while not is_finished:
+        # Issue the navigation command about twice a second such that it is easy to terminate the
+        # navigation command (with estop or killing the program).
+        try:
+            if navigate_to_waypoint:
+                nav_to_cmd_id = graphnav_client.navigate_to(
+                    goal, 1.0, leases=[conn.lease.lease_proto],
+                    command_id=nav_to_cmd_id)
+            else:
+                nav_to_cmd_id = graphnav_client.navigate_to_anchor(
+                    seed_T_goal.to_proto(), 1.0, leases=[conn.lease.lease_proto],
+                    command_id=nav_to_cmd_id)
+        except ResponseError as e:
+            print("Error while navigating {}".format(e))
+            break
+        time.sleep(.5)  # Sleep for half a second to allow for command execution.
+        # Poll the robot for feedback to determine if the navigation command is complete. Then sit
+        # the robot down once it is finished.
+        is_finished = _check_nav_success(graphnav_client, nav_to_cmd_id)
+
+
+def _check_nav_success(graphnav_client, command_id=-1):
+    """Use a navigation command id to get feedback from the robot and sit when command succeeds."""
+    if command_id == -1:
+        # No command, so we have no status to check.
+        return False
+    status = graphnav_client.navigation_feedback(command_id)
+    if status.status == graph_nav_pb2.NavigationFeedbackResponse.STATUS_REACHED_GOAL:
+        # Successfully completed the navigation commands!
+        return True
+    elif status.status == graph_nav_pb2.NavigationFeedbackResponse.STATUS_LOST:
+        print("Robot got lost when navigating the route, the robot will now sit down.")
+        return True
+    elif status.status == graph_nav_pb2.NavigationFeedbackResponse.STATUS_STUCK:
+        print("Robot got stuck when navigating the route, the robot will now sit down.")
+        return True
+    elif status.status == graph_nav_pb2.NavigationFeedbackResponse.STATUS_ROBOT_IMPAIRED:
+        print("Robot is impaired.")
+        return True
+    else:
+        # Navigation command is not complete yet.
+        return False
