@@ -18,4 +18,7 @@
         args="$(arg map_name)" output="$(arg output)">
   </node>
 
+  <!-- robot state as TF and URDF description -->
+  <include file="$(find rbd_spot_robot)/launch/state_publisher.launch"></include>
+
 </launch>

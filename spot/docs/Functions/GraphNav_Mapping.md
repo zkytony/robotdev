@@ -127,6 +127,8 @@ Run the following launch file:
 ```
 roslaunch rbd_spot_perception graphnav_map_publisher_with_localization.launch map_name:=<map_name>
 ```
-This publishes the map as point cloud; publishes waypoints; starts a graphnav pose streamer for body localization.
-
-To see the robot in RVIZ, you need to start the driver.launch.
+This launch file:
+- publishes the map as point cloud;
+- publishes waypoints;
+- publishes robot state as TF transforms with URDF;
+- starts a graphnav pose streamer for body localization.
