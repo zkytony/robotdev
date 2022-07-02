@@ -11,22 +11,30 @@ import geometry_msgs.msg
 
 import rbd_spot
 
-DEBUG = False
-
 
 def _body_pose_to_tf(body_pose, map_frame, base_frame):
     # publish body pose transform
     t = geometry_msgs.msg.TransformStamped()
     t.header.stamp = rospy.Time.now()
+    # Note that technically, the body pose is the pose of the base_frame with
+    # respect to the map_frame, which is "map_frame->base_frame," so the parent
+    # is map_frame and child is base_frame. However, because spot_ros publishes
+    # a fixed 'vision' frame for the odometry, and we have no way to publish
+    # transform between the map frame and the vision frame (as done by amcl),
+    # we have to invert the transform -- invert both the frames and the pose;
+    # So essentially, we are still describing the same transform T like
+    #    map_frame->T->base_frame
+    # but we are publishing
+    #    base_frame->-T->map_frame
     t.header.frame_id = base_frame
     t.child_frame_id = map_frame
-    t.transform.translation.x = body_pose.position.x
-    t.transform.translation.y = body_pose.position.y
-    t.transform.translation.z = body_pose.position.z
-    t.transform.rotation.x = body_pose.rotation.x
-    t.transform.rotation.y = body_pose.rotation.y
-    t.transform.rotation.z = body_pose.rotation.z
-    t.transform.rotation.w = body_pose.rotation.w
+    t.transform.translation.x = -body_pose.position.x
+    t.transform.translation.y = -body_pose.position.y
+    t.transform.translation.z = -body_pose.position.z
+    t.transform.rotation.x = -body_pose.rotation.x
+    t.transform.rotation.y = -body_pose.rotation.y
+    t.transform.rotation.z = -body_pose.rotation.z
+    t.transform.rotation.w = -body_pose.rotation.w
     return t
 
 def _body_pose_to_msg(body_pose, map_frame):
@@ -54,6 +62,7 @@ def main():
     parser.add_argument("--map-frame", type=str, help="tf frame of the map. Default 'graphnav_map'",
                         default='graphnav_map')
     parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
+    parser.add_argument("--debug", action="store_true", help="print more info")
     args = parser.parse_known_args()[0]
 
     if args.pub_tf:
@@ -78,7 +87,7 @@ def main():
             else:
                 waypoint_id, _ = res
 
-            if DEBUG:
+            if args.debug:
                 print("body pose (seed frame):")
                 print(body_pose)
                 print(f"waypoint id: {waypoint_id}")
