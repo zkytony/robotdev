@@ -12,3 +12,8 @@ else
     echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
     return 1
 fi
+
+# Environment variables used by Spot SDK examples)
+export ROBOT_IP=$SPOT_IP
+export BOSDYN_CLIENT_USERNAME="user"
+export BOSDYN_CLIENT_PASSWORD=$SPOT_USER_PASSWORD
