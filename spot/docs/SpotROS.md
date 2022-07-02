@@ -86,3 +86,8 @@ The Clearpath robotics support provided a convincing answer: odometry drift.
 
 This is why, even when the robot was floating in the air, if I left the rtabmap localization running for long enough, it seems to be able to localize itse.f
 
+
+### visual odometry frame
+When using visual odometry (setting `mode_parent_odom_tf` to `vision`), the TF frame of odometry will
+be called 'vision'. Like the odom frame (as defined in [REP 105](https://www.ros.org/reps/rep-0105.html#odom)),
+the 'vision' frame is a world-fixed frame.
