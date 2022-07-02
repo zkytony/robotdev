@@ -60,6 +60,15 @@ Typical procedure:
 
 7. Press 5 to save the map (It will be saved into a folder called 'downloaded_graph'); DO THIS, otherwise the map is not saved.
 
+### One-commandder
+`rbd_spot_perception/scripts` contains a useful script `graphnav_mapper.sh` that
+is meant to make it easy and streamlined to create a map. It (1) starts the command line
+interface above, (2) saves the map to a conventional location: `rbd_spot_perception/maps/bosdyn`,
+and (3) asks if you'd like to visualize the map. To run it:
+```
+rosrun rbd_spot_perception /graphnav_mapper.sh <map_name>
+```
+
 
 ## Publish GraphNav Map as ROS Point Cloud
 **If you just want to only visualize the map point cloud**, run the following launch file
