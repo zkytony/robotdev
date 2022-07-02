@@ -5,7 +5,7 @@
 # This will run the recording GraphNav map example, and the resulting
 # map will be saved at lab121.
 
-if [ "$#" -ne 1 ]; then
+if [ "$#" -lt 1 ]; then
     echo "Usage: graphnav_mapper <map_name>"
     exit 1
 fi
