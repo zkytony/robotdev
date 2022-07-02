@@ -5,7 +5,8 @@ if [[ ! $PWD = *robotdev ]]; then
 else
     . "./tools.sh"
 fi
-export repo_root=$PWD
+repo_root=$PWD
+export REPO_ROOT=${repo_root}
 
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
