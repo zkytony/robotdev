@@ -1,8 +1,9 @@
+import math
 import time
 import os
 import numpy as np
 from bosdyn.api.graph_nav import map_pb2
-from bosdyn.api.graph_nav import nav_pb2
+from bosdyn.api.graph_nav import nav_pb2, graph_nav_pb2
 from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.client.frame_helpers import get_odom_tform_body, get_a_tform_b, ODOM_FRAME_NAME
 from bosdyn.client.math_helpers import SE3Pose
@@ -261,9 +262,9 @@ def setLocalizationWaypoint(graphnav_client, robot_state_client,
     assert waypoint_id is not None, "waypoint_id required"
     assert graph is not None, "graph required"
     annotation_name_to_wp_id, edges =\
-        graphnav_util.update_waypoints_and_edges(current_graph, waypoint_id)
+        graphnav_util.update_waypoints_and_edges(graph, waypoint_id)
 
-    destination_waypoint = graph_navutil.find_unique_waypoint_id(
+    destination_waypoint = graphnav_util.find_unique_waypoint_id(
         waypoint_id, graph, annotation_name_to_wp_id)
     if not destination_waypoint:
         # Failed to find the unique waypoint id.
