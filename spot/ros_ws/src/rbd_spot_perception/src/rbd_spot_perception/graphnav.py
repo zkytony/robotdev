@@ -289,6 +289,42 @@ def setLocalizationWaypoint(graphnav_client, robot_state_client,
     _used_time = time.time() - _start_time
     return result, _used_time
 
+def getWaypointId(waypoint, graphnav_client, **kwargs):
+    """
+    Args:
+       waypoint (str): could be a short code
+    """
+    graph = kwargs.get("graph", None)
+    if graph is None:
+        graph, _ = downloadGraph(graphnav_client)
+
+    name_to_id = kwargs.get("name_to_id", None)  # short_code to id
+    if name_to_id is None:
+        localization_id = getLocalizationState(graphnav_client)[0].localization.waypoint_id
+        name_to_id, _ =\
+            graphnav_util.update_waypoints_and_edges(graph, localization_id)
+    waypoint_id = graphnav_util.find_unique_waypoint_id(
+        waypoint, graph, name_to_id)
+    return waypoint_id
+
+def listGraphWaypoints(graphnav_client):
+    """
+    Modified based on spot sdk example. Intended to be stand-alone function,
+    meaning that this function will obtain all necessary data from the client.
+    List the waypoint ids and edge ids of the graph currently on the robot."""
+
+    # Download current graph
+    graph = graphnav_client.download_graph()
+    if graph is None:
+        print("Empty graph.")
+        return
+
+    localization_id = graphnav_client.get_localization_state().localization.waypoint_id
+
+    # Update and print waypoints and edges
+    current_annotation_name_to_wp_id, current_edges = graphnav_util.update_waypoints_and_edges(
+        graph, localization_id)  # THIS FUNCTION DOES THE PRINTING.
+
 
 def navigateTo(goal, graphnav_client, conn, sleep=0.5):
     """
@@ -311,27 +347,27 @@ def navigateTo(goal, graphnav_client, conn, sleep=0.5):
         +callback: function to be called per cycle+
         +callback_args+
     """
-    navigate_to_waypoint = type(goal) != str
+    navigate_to_waypoint = type(goal) == str
+    if not navigate_to_waypoint:
+        # navigate to a pose
+        if len(goal) not in {2, 3, 7}:
+            raise ValueError("unrecognized goal format.")
 
-    if len(goal) not in {2, 3, 7}:
-        raise ValueError("unrecognized goal format.")
+        seed_T_goal = SE3Pose(goal[0], goal[1], 0.0, Quat())
+        if len(goal) == 7:
+            seed_T_goal.z = float(goal[2])
+        else:
+            localization_state, _ = getLocalizationState(graphnav_client)
+            if not localization_state.localization.waypoint_id:
+                print("Robot not localized")
+                return
+            seed_T_goal.z = localization_state.localization.seed_tform_body.position.z
 
-    seed_T_goal = SE3Pose(goal[0], goal[1], 0.0, Quat())
-    if len(goal) == 7:
-        seed_T_goal.z = float(goal[2])
-    else:
-        localization_state, _ = getLocalizationState(graphnav_client)
-        if not localization_state.localization.waypoint_id:
-            print("Robot not localized")
-            return
-        seed_T_goal.z = localization_state.localization.seed_tform_body.position.z
-
-    if len(goal) == 3:
-        seed_T_goal.rot = Quat.from_yaw(float(goal[2]))
-    elif len(goal) == 7:
-        seed_T_goal.rot = Quat(w=float(goal[3]), x=float(goal[4]), y=float(goal[5]),
-                               z=float(goal[6]))
-
+        if len(goal) == 3:
+            seed_T_goal.rot = Quat.from_yaw(float(goal[2]))
+        elif len(goal) == 7:
+            seed_T_goal.rot = Quat(w=float(goal[3]), x=float(goal[4]), y=float(goal[5]),
+                                   z=float(goal[6]))
 
     nav_to_cmd_id = None
     is_finished = False
@@ -354,6 +390,7 @@ def navigateTo(goal, graphnav_client, conn, sleep=0.5):
         # Poll the robot for feedback to determine if the navigation command is complete. Then sit
         # the robot down once it is finished.
         is_finished = _check_nav_success(graphnav_client, nav_to_cmd_id)
+    return nav_to_cmd_id
 
 
 def _check_nav_success(graphnav_client, command_id=-1):
