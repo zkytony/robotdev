@@ -23,3 +23,8 @@
    * fl.kn refers to the front left knee (actuator('s reading))
 
 ([Here are some specs](https://support.bostondynamics.com/s/article/Robot-specifications)).
+
+
+Coordinate system of the arm's end effector ([reference](https://dev.bostondynamics.com/docs/concepts/arm/arm_concepts)):
+
+![image](https://user-images.githubusercontent.com/7720184/177043651-9fa7471e-8503-4029-86ad-438dc2e659f3.png)

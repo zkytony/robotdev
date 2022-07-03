@@ -62,3 +62,22 @@ and you are able to view the visualization of the payload:
 ![image](https://user-images.githubusercontent.com/7720184/174323646-96426064-938f-4823-85f6-81baca33585c.png)
 
 
+## Using the LiDAR
+
+**Velodyne service**
+The Spot CORE comes preloaded with software to interface with the lidar. This program is called velodyne_service and launches automatically at boot. Once authorized, the Velodyne service registers the lidar payload as well as a RemotePointCloud service that sends processed and filtered data to one or more clients (requires v2.1 or higher). The GraphNav service reads this data when creating or navigating maps.
+
+
+As described above, the LiDAR is automatically used by the GraphNav service. I followed the [docs for GraphNav](https://dev.bostondynamics.com/docs/concepts/autonomy/graphnav_map_structure) and created a map using the `recording_command_line.py` script in the graph_nav_command_line example:
+```
+python recording_command_line.py $SPOT_IP
+```
+It provides a simple-to-use interface. Press 1 to "Start recording a map,"  then use the controller to drive the robot around. When finished, press 2 to "Stop recording a map". Finally, press 5 to "Download the map after recording." The file is saved under a directory called "downloaded_graph".
+
+Then, I view the map using the "graph_nav_view_map" example: 
+```
+python view_map.py ../graph_nav_command_line/downloaded_graph/
+```
+I mapped teh CIT first floor. The result shows:
+![image](https://user-images.githubusercontent.com/7720184/174335917-b8ca0bf5-83a2-47e1-9361-d1be8f1e8c47.png)
+
