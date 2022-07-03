@@ -42,3 +42,20 @@ Recall that _seed frame_ in GraphNav means some global reference frame ([doc](ht
 
 Note that for "Navigate to", you have to supply the waypoint ID (which is a string),
 or a short code. You cannot specify the number (although the `view_map` program displays the number).
+
+
+## Custom Functions and Scripts
+A function `navigateTo` can be found under rbd_spot_perception/graphnav.py. This
+function can take in either a waypoint or a pose, and make the robot navigate there.
+
+You could also run this program:
+```
+rosrun rbd_spot_action graph_nav.py [options]
+```
+Run `-h` to see the options. Note that the first time you run this, you need to make
+sure a GraphNav graph is uploaded to the robot; You do that by specifying the `--map-name`
+parameter.
+
+## Caveats from using GraphNav navigation
+- The robot will prefer to go along the waypoints on the graph
+- The robot is not precise in reaching the goal pose. It can be off by couple centimeters; rotation seems quite accurate.
