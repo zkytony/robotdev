@@ -339,6 +339,8 @@ def navigateTo(goal, graphnav_client, conn, sleep=0.5):
 
             If str, the goal is treated as a waypoint ID
 
+            Note that yaw is specified in radians.
+
         graphnav_client: GraphNavClient
         conn (SpotSDKConn): expecting this SpotSDKConn to have a lease.
         sleep (float): time to sleep after each cycle of navigation request
