@@ -53,12 +53,12 @@ def main():
 
     # Navigate to waypoint
     if args.waypoint:
-        waypoint_id = rbd_spot.graphnav.getWaypointId(args.waypoint, graphnav_client, graph=graph)
-        rbd_spot.graphnav.navigateTo(waypoint_id, graphnav_client, conn)
+        waypoint_id = rbd_spot.graphnav.getWaypointId(graphnav_client, args.waypoint, graph=graph)
+        rbd_spot.graphnav.navigateTo(conn, graphnav_client, waypoint_id)
 
     elif args.pose:
         goal = tuple(args.pose)
-        rbd_spot.graphnav.navigateTo(goal, graphnav_client, conn)
+        rbd_spot.graphnav.navigateTo(conn, graphnav_client, goal)
 
     elif args.list:
         rbd_spot.graphnav.listGraphWaypoints(graphnav_client)

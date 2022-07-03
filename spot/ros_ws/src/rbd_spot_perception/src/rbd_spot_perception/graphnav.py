@@ -289,7 +289,7 @@ def setLocalizationWaypoint(graphnav_client, robot_state_client,
     _used_time = time.time() - _start_time
     return result, _used_time
 
-def getWaypointId(waypoint, graphnav_client, **kwargs):
+def getWaypointId(graphnav_client, waypoint, **kwargs):
     """
     Args:
        waypoint (str): could be a short code
@@ -326,7 +326,7 @@ def listGraphWaypoints(graphnav_client):
         graph, localization_id)  # THIS FUNCTION DOES THE PRINTING.
 
 
-def navigateTo(goal, graphnav_client, conn, sleep=0.5):
+def navigateTo(conn, graphnav_client, goal, sleep=0.5):
     """
     Navigate to a pose in the seed frame (i.e. global pose).
     Calls the NavigateToAnchor service. Blocking call until
