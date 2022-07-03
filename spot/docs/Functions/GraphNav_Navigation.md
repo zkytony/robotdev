@@ -50,7 +50,7 @@ function can take in either a waypoint or a pose, and make the robot navigate th
 
 You could also run this program:
 ```
-rosrun rbd_spot_action graph_nav.py [options]
+rosrun rbd_spot_action graphnav_nav.py [options]
 ```
 Run `-h` to see the options. Note that the first time you run this, you need to make
 sure a GraphNav graph is uploaded to the robot; You do that by specifying the `--map-name`
