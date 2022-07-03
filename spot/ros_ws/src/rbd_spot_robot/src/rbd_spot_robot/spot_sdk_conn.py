@@ -34,7 +34,7 @@ class SpotSDKConn:
         self.robot = sdk.create_robot(self.hostname)
         try:
             self.robot.authenticate(self.username, self.password)
-            self.robot.start_time_sync()
+            self.robot.time_sync.wait_for_sync()
         except RpcError as err:
             self.logger.error("Failed to communicate with robot: %s", err)
             return
