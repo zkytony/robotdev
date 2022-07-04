@@ -6,10 +6,12 @@
 # This setup relies on the nice ros:kinetic image provided
 # on Docker Hub.
 #
+# Note that for this to work, you need to install nvidia-container-runtime
+#
 # Example: source build.noetic.sh --nvidia --tag-suffix=nvidia
 #
 # /author: Kaiyu Zheng
-FROM nvidia/cudagl:11.2.1-base-ubuntu20.04
+FROM nvidia/cudagl:11.2.2-devel-ubuntu20.04
 
 ENV UBUNTU_RELEASE=focal
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $UBUNTU_RELEASE main" > /etc/apt/sources.list.d/ros-latest.list'
