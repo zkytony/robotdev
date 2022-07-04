@@ -238,5 +238,5 @@ def _convert_imgmsg(msg):
 
 def _convert_img(img):
     bridge = cv_bridge.CvBridge()
-    cv2_image = bridge.cv2_to_imgmsg(img, encoding='passthrough')
+    cv2_image = bridge.cv2_to_imgmsg(img, encoding='rgb8')
     return cv2_image

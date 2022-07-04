@@ -48,7 +48,7 @@ class SegmentationPublisher:
             result_img = maskrcnn_draw_result(pred, visual_img_upright)
         else:
             result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
-        result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.numpy())
+        result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
         self._segimg_pub.publish(result_img_msg)
         rospy.loginfo("Published segmentation result (image)")
 
