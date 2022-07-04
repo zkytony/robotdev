@@ -1,5 +1,6 @@
 # ROS Utilities
 import math
+import numpy as np
 
 import sys
 import rospy
@@ -223,12 +224,19 @@ def remap(oldval, oldmin, oldmax, newmin, newmax):
 ### Sensor Messages ###
 import sensor_msgs.msg as sensor_msgs
 import cv_bridge
-def convert(msg):
-    if isinstance(msg, sensor_msgs.Image):
-        return _convert_imgmsg(msg)
-    raise ValueError("Cannot handle message type {}".format(msg))
+def convert(msg_or_img):
+    if isinstance(msg_or_img, sensor_msgs.Image):
+        return _convert_imgmsg(msg_or_img)
+    elif isinstance(msg_or_img, np.ndarray):
+        return _convert_img(msg_or_img)
+    raise ValueError("Cannot handle message type {}".format(msg_or_img))
 
 def _convert_imgmsg(msg):
     bridge = cv_bridge.CvBridge()
     cv2_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    return cv2_image
+
+def _convert_img(img):
+    bridge = cv_bridge.CvBridge()
+    cv2_image = bridge.cv2_to_imgmsg(img, encoding='passthrough')
     return cv2_image

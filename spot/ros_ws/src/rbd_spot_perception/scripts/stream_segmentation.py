@@ -12,11 +12,14 @@ import rospy
 import struct
 import torch
 import torchvision
-from sensor_msgs.msg import Image, CameraInfo, PointCloud2
+from sensor_msgs import point_cloud2
+from sensor_msgs.msg import Image, CameraInfo, PointCloud2, PointField
+from std_msgs.msg import Header
 
 import rbd_spot
 from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
-                                                       maskrcnn_filter_by_score)
+                                                       maskrcnn_filter_by_score,
+                                                       maskrcnn_draw_result)
 
 def get_intrinsics(P):
     return dict(fx=P[0],
@@ -35,9 +38,20 @@ class SegmentationPublisher:
         """
         Args:
             pred (Tensor): output of MaskRCNN model
-            visual_img (np.ndarray): Image from the visual source
+            visual_img (np.ndarray): Image from the visual source (not rotated)
             depth_img (np.ndarray): Image from the corresponding depth source
         """
+        # because the prediction is based on an upright image, we need to make sure
+        # the drawn result is on an upright image
+        if self._camera == "front":
+            visual_img_upright = torch.tensor(cv2.rotate(visual_img, cv2.ROTATE_90_CLOCKWISE)).permute(2, 0, 1)
+            result_img = maskrcnn_draw_result(pred, visual_img_upright)
+        else:
+            result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
+        result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.numpy())
+        self._segimg_pub.publish(result_img_msg)
+        rospy.loginfo("Published segmentation result (image)")
+
         # For each mask, obtain a set of points.
         masks = pred['masks'].squeeze()
         masks = masks.reshape(-1, masks.shape[-2], masks.shape[-1])   # make sure shape is (N, H, W) where N is number of masks
@@ -62,7 +76,20 @@ class SegmentationPublisher:
                                                   mask_visual[i][1],
                                                   mask_visual[i][2], 255))[0]
                    for i in range(len(mask_visual))]
-            points.append(np.array([x, y, z, rgb]).transpose())
+            points.extend([[x[i], y[i], z[i], rgb[i]]
+                           for i in range(len(mask_visual))])
+        fields = [PointField('x', 0, PointField.FLOAT32, 1),
+                  PointField('y', 4, PointField.FLOAT32, 1),
+                  PointField('z', 8, PointField.FLOAT32, 1),
+                  PointField('rgb', 12, PointField.UINT32, 1)]
+        header = Header()
+        header.stamp = caminfo.header.stamp
+        header.frame_id = caminfo.header.frame_id
+        pc2 = point_cloud2.create_cloud(header, fields, points)
+        # static transform is already published by ros_publish_image_result, so no need here.
+        self._segpcl_pub.publish(pc2)
+        rospy.loginfo("Published segmentation result (points)")
+
 
 
 def main():
@@ -158,8 +185,9 @@ def main():
                 pred = maskrcnn_filter_by_score(pred, 0.7)
                 # Print out a summary
                 print("detected objects: {}".format(list(sorted(COCO_CLASS_NAMES[l] for l in pred['labels']))))
-                if args.pub:
-                    seg_publisher.publish_result(pred, image, depth_image, caminfo)
+                if len(pred['labels']) > 0:
+                    if args.pub:
+                        seg_publisher.publish_result(pred, image, depth_image, caminfo)
 
             _used_time = time.time() - _start_time
             if args.timeout and _used_time > args.timeout:
