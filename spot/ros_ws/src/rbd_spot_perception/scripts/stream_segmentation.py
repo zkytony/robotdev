@@ -40,10 +40,11 @@ class SegmentationPublisher:
         """
         # For each mask, obtain a set of points.
         masks = pred['masks'].squeeze()
+        masks = masks.reshape(-1, masks.shape[-2], masks.shape[-1])   # make sure shape is (N, H, W) where N is number of masks
         masks = torch.greater(masks, self._mask_threshold)
         # We need to roate the masks cw by 90 deg if camera is front
         if self._camera == "front":
-            masks = torch.rot90(masks, 1, (0,1))
+            masks = torch.rot90(masks, -1, (1,2))
         points = []
         for i, mask in enumerate(masks):
             mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
@@ -140,15 +141,19 @@ def main():
                 depth_msg, caminfo = rbd_spot.image.imgmsg_from_response(depth_response, conn)
 
                 image = rbd_spot.image.imgarray_from_imgmsg(visual_msg)
+                if args.camera != "hand":
+                    # grayscale image; make it 3 channels
+                    image = cv2.merge([image, image, image])
                 depth_image = rbd_spot.image.imgarray_from_imgmsg(depth_msg)
 
                 image_input = torch.tensor(image)
                 if args.camera == "front":
                     # we need to rotate the images by 90 degrees ccw to make it upright
-                    image_input = torch.tensor(cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE))
+                    image_input = torch.tensor(cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE))
                 image_input = torch.div(image_input, 255)
                 if device.type == 'cuda':
                     image_input = image_input.cuda(device)
+
                 pred = model([image_input.permute(2, 0, 1)])[0]
                 pred = maskrcnn_filter_by_score(pred, 0.7)
                 # Print out a summary
