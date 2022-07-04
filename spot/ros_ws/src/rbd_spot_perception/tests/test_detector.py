@@ -39,18 +39,16 @@ def test_mask_rcnn():
     for filename in os.listdir("./images"):
         if filename.endswith(".jpg") or filename.endswith(".png"):
             img = torchvision.io.read_image(f"./images/{filename}")
-            img = torch.div(img, 255)
-            img = img.cuda(device)
+            img_input = torch.div(img, 255)
+            img_input = img_input.cuda(device)
 
             print(f"predicting for {filename}...")
-            pred = model([img])
-            for i in range(len(pred[0]['masks'])):
-                mask = pred[0]['masks'][i].permute(1, 2, 0).detach().cpu().numpy()
-                label = pred[0]['labels'][i]
-                mask = mask.reshape(mask.shape[0], -1)
-                plt.imshow(mask, interpolation='none', cmap='gray', vmin=0, vmax=1)
-                plt.title(class_names[label.item()])
-                plt.show()
+            pred = model([img_input])
+            # wants (batch_size, H, W) with dtype bool
+            masks = pred[0]['masks'].squeeze().type(torch.bool)
+            result_img = torchvision.utils.draw_segmentation_masks(img, masks)
+            plt.imshow(result_img.permute(1, 2, 0), interpolation='none')
+            plt.show()
 
 
 if __name__ == "__main__":
