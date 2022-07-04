@@ -1,10 +1,13 @@
-# This image allows you to have a Ubuntu 16.04 + ROS Kinetic setup.
+# This image allows you to have a Ubuntu 20.04 + ROS Noetic setup.
 # You can mount the path to the 'robotdev' repository in your host
 # machine to the same path in the container. We ask you to use the
 # same username in the container as in your host machine. This
 # simplifies the maintenance of the 'robotdev' repository.
 # This setup relies on the nice ros:kinetic image provided
 # on Docker Hub.
+#
+# Example: source build.noetic.sh --nvidia --tag-suffix=nvidia
+#
 # /author: Kaiyu Zheng
 FROM nvidia/cudagl:11.2.1-base-ubuntu20.04
 
@@ -12,16 +15,14 @@ ENV UBUNTU_RELEASE=focal
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $UBUNTU_RELEASE main" > /etc/apt/sources.list.d/ros-latest.list'
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
-RUN apt-get update && apt-get install -y \
-    ros-noetic-desktop-full \
- && rm -rf /var/lib/apt/lists/*
-
 # do this to avoid hanging
 ENV DEBIAN_FRONTEND=noninteractive
 # Install software
 RUN apt-get clean
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends apt-utils
+# actually install ROS
+RUN apt-get install -y ros-noetic-desktop-full
 RUN apt-get install -y emacs
 RUN apt-get install -y sudo
 RUN apt-get install -y python3-pip
@@ -63,7 +64,7 @@ ENV HOME=/home/$hostuser
 RUN mkdir $HOME/repo
 
 # Different shell color
-RUN echo "export PS1='\e[33;1m\u@\h:\e[31m\w\e[0m\$ '" >> $HOME/.bashrc
+RUN echo "export PS1='\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\[\033[00m\]$ '" >> $HOME/.bashrc
 
 # print some info on start
 RUN echo "echo -e 'Welcome! You are now in a docker container ().'" >> $HOME/.bashrc
