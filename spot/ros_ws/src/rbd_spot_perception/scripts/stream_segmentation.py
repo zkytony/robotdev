@@ -5,15 +5,63 @@
 import time
 import sys
 import argparse
+import numpy as np
 
 import cv2
 import rospy
+import struct
 import torch
 import torchvision
+from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 
 import rbd_spot
 from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
                                                        maskrcnn_filter_by_score)
+
+def get_intrinsics(P):
+    return dict(fx=P[0],
+                fy=P[5],
+                cx=P[2],
+                cy=P[6])
+
+class SegmentationPublisher:
+    def __init__(self, camera, mask_threshold=0.7):
+        self._camera = camera
+        self._mask_threshold = mask_threshold
+        self._segimg_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result", Image, queue_size=10)
+        self._segpcl_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_points", PointCloud2, queue_size=10)
+
+    def publish_result(self, pred, visual_img, depth_img, caminfo):
+        """
+        Args:
+            pred (Tensor): output of MaskRCNN model
+            visual_img (np.ndarray): Image from the visual source
+            depth_img (np.ndarray): Image from the corresponding depth source
+        """
+        # For each mask, obtain a set of points.
+        masks = pred['masks'].squeeze()
+        masks = torch.greater(masks, self._mask_threshold)
+        # We need to roate the masks cw by 90 deg if camera is front
+        if self._camera == "front":
+            masks = torch.rot90(masks, 1, (0,1))
+        points = []
+        for i, mask in enumerate(masks):
+            mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
+            mask_coords_T = mask_coords.T
+            mask_visual = visual_img[mask_coords_T[0], mask_coords_T[1], :].reshape(-1, 3)  # colors on the mask
+            mask_depth = depth_img[mask_coords_T[0], mask_coords_T[1]]  # depth on the mask
+
+            u, v = mask_coords_T[0], mask_coords_T[1]
+            I = get_intrinsics(caminfo.P)
+            z = mask_depth / 1000.0
+            x = (u - I['cx']) * z / I['fx']
+            y = (v - I['cy']) * z / I['fy']
+            rgb = [struct.unpack('I', struct.pack('BBBB',
+                                                  mask_visual[i][0],
+                                                  mask_visual[i][1],
+                                                  mask_visual[i][2], 255))[0]
+                   for i in range(len(mask_visual))]
+            points.append(np.array([x, y, z, rgb]).transpose())
 
 
 def main():
@@ -47,6 +95,17 @@ def main():
         sources = [f"{args.camera}_fisheye_image",
                    f"{args.camera}_depth_in_visual_frame"]
 
+    # create ros publishers; we publish: (1) raw image (2) depth (3) image with
+    # segmentation drawn (4) segmentation point cloud
+    if args.pub:
+        # create ros publishers; we publish: (1) raw image (2) depth (3) camera info
+        # (4) image with segmentation result drawn (5) segmentation point cloud
+        # The first 3 are done through rbd_spot.image, while the last two are
+        # handled by SegmentationPublisher.
+        rospy.init_node("stream_segmentation")
+        image_publishers = rbd_spot.image.ros_create_publishers(sources, name_space="segmentation")
+        seg_publisher = SegmentationPublisher(args.camera)
+
     print(f"Will stream images from {sources}")
     image_requests = rbd_spot.image.build_image_requests(
         sources, quality=args.quality, fmt=args.format)
@@ -64,33 +123,39 @@ def main():
             result, time_taken = rbd_spot.image.getImage(image_client, image_requests)
             print("GetImage took: {:.3f}".format(time_taken))
 
-            # get the images
-            images_to_feed = []
+            if args.pub:
+                rbd_spot.image.ros_publish_image_result(conn, result, image_publishers)
+
+            # Get visual, depth and camera info
             if args.camera == "front":
-                # we run the detection for both frontleft and frontright;
-                # we also need to rotate the images by 90 degrees counter-clockwise
-                frontleft_fisheye = rbd_spot.image.imgarray_from_response(result[0], conn)   # frontleft
-                frontright_fisheye = rbd_spot.image.imgarray_from_response(result[2], conn)  # frontright
-                frontleft_fisheye = cv2.rotate(frontleft_fisheye, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                frontright_fisheye = cv2.rotate(frontright_fisheye, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                images_to_feed = [frontleft_fisheye, frontright_fisheye]
+                # contains each element is (Image, CameraInfo)
+                visual_depths = [(result[0], result[2]),
+                                 (result[1], result[3])]
             else:
-                images_to_feed = [rbd_spot.image.imgarray_from_response(result[0], conn)]
+                visual_depths = [(result[0], result[1])]
 
             # run through model
-            predictions = []
-            for image in images_to_feed:
-                image_input = torch.div(torch.tensor(image), 255)
+            for visual_response, depth_response in visual_depths:
+                visual_msg, caminfo = rbd_spot.image.imgmsg_from_response(visual_response, conn)
+                depth_msg, caminfo = rbd_spot.image.imgmsg_from_response(depth_response, conn)
+
+                image = rbd_spot.image.imgarray_from_imgmsg(visual_msg)
+                depth_image = rbd_spot.image.imgarray_from_imgmsg(depth_msg)
+
+                image_input = torch.tensor(image)
+                if args.camera == "front":
+                    # we need to rotate the images by 90 degrees ccw to make it upright
+                    image_input = torch.tensor(cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE))
+                image_input = torch.div(image_input, 255)
                 if device.type == 'cuda':
                     image_input = image_input.cuda(device)
                 pred = model([image_input.permute(2, 0, 1)])[0]
                 pred = maskrcnn_filter_by_score(pred, 0.7)
-                predictions.append(pred)
                 # Print out a summary
                 print("detected objects: {}".format(list(sorted(COCO_CLASS_NAMES[l] for l in pred['labels']))))
+                if args.pub:
+                    seg_publisher.publish_result(pred, image, depth_image, caminfo)
 
-            # if args.pub:
-            #     rbd_spot.image.ros_publish_image_result(conn, result, publishers)
             _used_time = time.time() - _start_time
             if args.timeout and _used_time > args.timeout:
                 break

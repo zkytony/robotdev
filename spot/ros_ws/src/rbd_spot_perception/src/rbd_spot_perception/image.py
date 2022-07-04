@@ -96,6 +96,7 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
         if broadcast_tf:
             populate_camera_static_transforms(conn, image_response, tf_frames)
 
+
 def imgarray_from_response(image_response, conn):
     """
     Given an image_response (GetImageResponse), returns a numpy
@@ -106,6 +107,16 @@ def imgarray_from_response(image_response, conn):
     img_msg, _ = spot_driver.ros_helpers._getImageMsg(image_response, local_time)
     img = ros_utils.convert(img_msg)
     return img
+
+def imgmsg_from_response(image_response, conn):
+    """Returns a tuple (sensor_msgs.Image, sensor_msgs.CameraInfo) givne
+    ImageResponse proto"""
+    local_time = conn.spot_time_to_local(
+        image_response.shot.acquisition_time)
+    return spot_driver.ros_helpers._getImageMsg(image_response, local_time)
+
+def imgarray_from_imgmsg(img_msg):
+    return ros_utils.convert(img_msg)
 
 
 def _get_odom_tf_frames():
