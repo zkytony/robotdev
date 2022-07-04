@@ -157,8 +157,8 @@ def main():
             # Get visual, depth and camera info
             if args.camera == "front":
                 # contains each element is (Image, CameraInfo)
-                visual_depths = [(result[0], result[2]),
-                                 (result[1], result[3])]
+                visual_depths = [(result[0], result[1]),
+                                 (result[2], result[3])]
             else:
                 visual_depths = [(result[0], result[1])]
 
