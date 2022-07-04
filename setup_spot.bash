@@ -200,6 +200,9 @@ if first_time_build $SPOT_ROS_PATH; then
 
     # scikit-iamge
     pip install -U scikit-image
+
+    # vision-msgs
+    sudo apt-get install ros-noetic-vision-msgs
 fi
 
 # catkin make and end.
