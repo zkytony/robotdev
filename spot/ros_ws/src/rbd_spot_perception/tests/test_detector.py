@@ -26,7 +26,10 @@ def test_mask_rcnn():
 
             print(f"predicting for {filename}...")
             pred = model([img_input])[0]
-            pred = maskrcnn_filter_by_score(pred)
+            pred = maskrcnn_filter_by_score(pred, 0.7)
+            if len(pred['scores']) == 0:
+                print("no object detected.")
+                continue
             result_img = maskrcnn_draw_result(pred, img)
             plt.imshow(result_img.permute(1, 2, 0), interpolation='none')
             plt.show()
