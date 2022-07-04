@@ -7,10 +7,13 @@ import sensor_msgs
 import tf2_ros
 import sys
 
+from sensor_msgs.msg import Image, CameraInfo
+
 from bosdyn.api import image_pb2
 from bosdyn.client.image import ImageClient, build_image_request
 
 import spot_driver.ros_helpers
+from rbd_spot_robot.utils import ros_utils
 
 # Note that if you don't specify image format (None) when
 # sending GetImageRequest, the response will be in JPEG format.
@@ -92,6 +95,17 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
 
         if broadcast_tf:
             populate_camera_static_transforms(conn, image_response, tf_frames)
+
+def imgarray_from_response(image_response, conn):
+    """
+    Given an image_response (GetImageResponse), returns a numpy
+    array of the image.
+    """
+    local_time = conn.spot_time_to_local(
+        image_response.shot.acquisition_time)
+    img_msg, _ = spot_driver.ros_helpers._getImageMsg(image_response, local_time)
+    img = ros_utils.convert(img_msg)
+    return img
 
 
 def _get_odom_tf_frames():
