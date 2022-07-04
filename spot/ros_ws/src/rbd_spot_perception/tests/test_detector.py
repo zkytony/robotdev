@@ -4,7 +4,8 @@ import cv2
 import numpy as np
 import torch
 import torchvision
-from rbd_spot_perception.utils.vision.plotting import maskrcnn_draw_result
+from rbd_spot_perception.utils.vision.detector import (maskrcnn_draw_result,
+                                                       maskrcnn_filter_by_score)
 import matplotlib.pyplot as plt
 
 def test_mask_rcnn():
@@ -24,8 +25,9 @@ def test_mask_rcnn():
             img_input = img_input.cuda(device)
 
             print(f"predicting for {filename}...")
-            pred = model([img_input])
-            result_img = maskrcnn_draw_result(pred[0], img)
+            pred = model([img_input])[0]
+            pred = maskrcnn_filter_by_score(pred)
+            result_img = maskrcnn_draw_result(pred, img)
             plt.imshow(result_img.permute(1, 2, 0), interpolation='none')
             plt.show()
 

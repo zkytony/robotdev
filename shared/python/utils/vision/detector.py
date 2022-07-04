@@ -73,3 +73,15 @@ def maskrcnn_draw_result(prediction, img,
     result_img = torchvision.utils.draw_bounding_boxes(
         result_img, boxes, labels, font_size=15)
     return result_img
+
+def maskrcnn_filter_by_score(prediction, score_threshold=0.7):
+    """
+    returns segmentation detections with score greather than threhold
+    """
+    accepted = torch.greater(prediction['scores'], score_threshold)
+    result = {}
+    result['scores'] = prediction['scores'][accepted]
+    result['boxes'] = prediction['boxes'][accepted]
+    result['masks'] = prediction['masks'][accepted]
+    result['labels'] = prediction['labels'][accepted]
+    return result
