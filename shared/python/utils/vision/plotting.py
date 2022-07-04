@@ -1,5 +1,7 @@
 from PIL import Image
 import cv2
+import torchvision
+import torch
 
 def plot_one_box(img, xyxy, label, color, line_thickness=3, show_label=True):
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) # line/font thickness
@@ -20,3 +22,51 @@ def plot_one_box(img, xyxy, label, color, line_thickness=3, show_label=True):
                     (x1, y1 - 2), 0, tl / 3, [255, 255, 255],
                     thickness=tf, lineType=cv2.LINE_AA)
     return img
+
+
+# COCO Class names
+# Index of the class in the list is its ID. For example, to get ID of
+# the teddy bear class, use: class_names.index('teddy bear')
+# sourec: https://github.com/matterport/Mask_RCNN/blob/master/samples/demo.ipynb
+COCO_CLASS_NAMES = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
+                    'bus', 'train', 'truck', 'boat', 'traffic light',
+                    'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
+                    'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear',
+                    'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
+                    'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+                    'kite', 'baseball bat', 'baseball glove', 'skateboard',
+                    'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup',
+                    'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+                    'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+                    'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed',
+                    'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
+                    'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
+                    'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
+                    'teddy bear', 'hair drier', 'toothbrush']
+
+
+def maskrcnn_draw_result(prediction, img, mask_threshold=0.5, class_names=COCO_CLASS_NAMES):
+    """
+    Let's say you do:
+
+        model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+        img = torchvision.io.read_image(f"./images/{filename}")
+        img_input = torch.div(img, 255)
+        pred = model([img_input])
+
+    Then you can visualize the result by:
+        img = maskrcnn_visualize_result(pred[0], img, ...)
+
+    The output is an ndarray of shape (H, W, 3) with masks, boxes and labels
+
+    Note that 'img' is the original image of shape (3, H, W)
+    """
+    masks = prediction['masks'].squeeze()
+    # need to threshold the mask otherwise will get a box.
+    masks = torch.greater(masks, mask_threshold)
+    result_img = torchvision.utils.draw_segmentation_masks(img, masks, alpha=0.6)
+
+    boxes = prediction['boxes']
+    labels = [class_names[label_index] for label_index in prediction['labels']]
+    result_img = torchvision.utils.draw_bounding_boxes(result_img, boxes, labels, font_size=15)
+    return result_img

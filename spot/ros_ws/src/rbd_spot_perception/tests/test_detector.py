@@ -4,27 +4,8 @@ import cv2
 import numpy as np
 import torch
 import torchvision
+from rbd_spot_perception.utils.vision.plotting import maskrcnn_draw_result
 import matplotlib.pyplot as plt
-
-# COCO Class names
-# Index of the class in the list is its ID. For example, to get ID of
-# the teddy bear class, use: class_names.index('teddy bear')
-# sourec: https://github.com/matterport/Mask_RCNN/blob/master/samples/demo.ipynb
-class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
-               'bus', 'train', 'truck', 'boat', 'traffic light',
-               'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
-               'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear',
-               'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
-               'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-               'kite', 'baseball bat', 'baseball glove', 'skateboard',
-               'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup',
-               'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-               'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-               'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed',
-               'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
-               'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
-               'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
-               'teddy bear', 'hair drier', 'toothbrush']
 
 def test_mask_rcnn():
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -44,11 +25,10 @@ def test_mask_rcnn():
 
             print(f"predicting for {filename}...")
             pred = model([img_input])
-            # wants (batch_size, H, W) with dtype bool
-            masks = pred[0]['masks'].squeeze().type(torch.bool)
-            result_img = torchvision.utils.draw_segmentation_masks(img, masks)
+            result_img = maskrcnn_draw_result(pred[0], img)
             plt.imshow(result_img.permute(1, 2, 0), interpolation='none')
             plt.show()
+
 
 
 if __name__ == "__main__":
