@@ -132,7 +132,7 @@ def main():
         # (4) image with segmentation result drawn (5) segmentation point cloud
         # The first 3 are done through rbd_spot.image, while the last two are
         # handled by SegmentationPublisher.
-        rospy.init_node("stream_segmentation")
+        rospy.init_node(f"stream_segmentation_{args.camera}")
         image_publishers = rbd_spot.image.ros_create_publishers(sources, name_space="segmentation")
         seg_publisher = SegmentationPublisher(args.camera)
         rate = rospy.Rate(args.rate)
