@@ -60,7 +60,7 @@ class SegmentationPublisher:
         masks = torch.greater(masks, self._mask_threshold)
         # We need to roate the masks cw by 90 deg if camera is front
         if self._camera == "front":
-            masks = torch.rot90(masks, -1, (1,2))
+            masks = torch.rot90(masks, 1, (1,2))
         points = []
         for i, mask in enumerate(masks):
             mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
