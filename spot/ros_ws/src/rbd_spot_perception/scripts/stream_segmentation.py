@@ -49,6 +49,8 @@ class SegmentationPublisher:
         else:
             result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
         result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
+        result_img_msg.header.stamp = caminfo.header.stamp
+        result_img_msg.header.frame_id = caminfo.header.frame_id
         self._segimg_pub.publish(result_img_msg)
         rospy.loginfo("Published segmentation result (image)")
 
@@ -133,6 +135,7 @@ def main():
         rospy.init_node("stream_segmentation")
         image_publishers = rbd_spot.image.ros_create_publishers(sources, name_space="segmentation")
         seg_publisher = SegmentationPublisher(args.camera)
+        rate = rospy.Rate(args.rate)
 
     print(f"Will stream images from {sources}")
     image_requests = rbd_spot.image.build_image_requests(
@@ -188,7 +191,8 @@ def main():
                 if len(pred['labels']) > 0:
                     if args.pub:
                         seg_publisher.publish_result(pred, image, depth_image, caminfo)
-
+            if args.pub:
+                rate.sleep()
             _used_time = time.time() - _start_time
             if args.timeout and _used_time > args.timeout:
                 break
