@@ -68,7 +68,7 @@ class SegmentationPublisher:
             mask_visual = visual_img[mask_coords_T[0], mask_coords_T[1], :].reshape(-1, 3)  # colors on the mask
             mask_depth = depth_img[mask_coords_T[0], mask_coords_T[1]]  # depth on the mask
 
-            u, v = mask_coords_T[0], mask_coords_T[1]
+            v, u = mask_coords_T[0], mask_coords_T[1]
             I = get_intrinsics(caminfo.P)
             z = mask_depth / 1000.0
             x = (u - I['cx']) * z / I['fx']
