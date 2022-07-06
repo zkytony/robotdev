@@ -18,6 +18,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 from vision_msgs.msg import BoundingBox3D, BoundingBox3DArray
 from geometry_msgs.msg import Point, Quaternion, Vector3
 from std_msgs.msg import Header
+from std_msgs.msg import ColorRGBA
 
 import rbd_spot
 from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
@@ -37,8 +38,8 @@ def make_bbox_msg(center, sizes):
     s1, s2, s3 = sizes
     msg = BoundingBox3D()
     msg.center.position = Point(x=x, y=y, z=z)
-    msg.center.orientation = Quaternion(x=qx, y=qy, z=qz)
-    msg.sizes = Vector3(x=s1, y=s2, z=s3)
+    msg.center.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    msg.size = Vector3(x=s1, y=s2, z=s3)
     return msg
 
 def make_bbox_marker_msg(center, sizes, marker_id, header):
@@ -49,8 +50,10 @@ def make_bbox_marker_msg(center, sizes, marker_id, header):
     marker.id = marker_id
     marker.type = Marker.CUBE
     marker.pose.position = Point(x=x, y=y, z=z)
-    marker.pose.orientation = Quaternion(x=qx, y=qy, z=qz)
-    marker.sizes = Vector3(x=s1, y=s2, z=s3)
+    marker.pose.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    marker.scale = Vector3(x=s1, y=s2, z=s3)
+    marker.action = Marker.ADD;
+    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=1.0)
     return marker
 
 
@@ -116,9 +119,12 @@ class SegmentationPublisher:
             mask_points = [[x[i], y[i], z[i], rgb[i]]
                            for i in range(len(mask_visual))]
             points.extend(mask_points)
-            box_center, box_sizes = bbox3d_from_points([x, y, z])
-            boxes.append(make_bbox_msg(box_center, box_sizes))
-            markers.append(make_bbox_marker_msg(box_center, box_sizes, f"bbox_{i}", result_img_msg.header))
+            try:
+                box_center, box_sizes = bbox3d_from_points([x, y, z])
+                boxes.append(make_bbox_msg(box_center, box_sizes))
+                markers.append(make_bbox_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
+            except Exception as ex:
+                rospy.logerr(f"Error: {ex}")
 
         fields = [PointField('x', 0, PointField.FLOAT32, 1),
                   PointField('y', 4, PointField.FLOAT32, 1),

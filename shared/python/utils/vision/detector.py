@@ -4,7 +4,8 @@ import torchvision
 import torch
 import numpy as np
 import open3d as o3d
-from ..math import R_from_mat, R_to_quat
+from ..math import R_to_quat
+from scipy.spatial.transform import Rotation as scipyR
 
 def plot_one_box(img, xyxy, label, color, line_thickness=3, show_label=True):
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) # line/font thickness
@@ -128,7 +129,7 @@ def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False):
     else:
         bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d_points)
     center_pos = bbox.get_center()
-    center_quat = R_to_quat(R_from_mat(bbox.R))
+    center_quat = R_to_quat(scipyR.from_matrix(np.array(bbox.R)))
     center = (*center_pos, *center_quat)
     max_bound = bbox.get_max_bound()
     min_bound = bbox.get_min_bound()

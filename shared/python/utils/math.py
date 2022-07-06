@@ -171,9 +171,6 @@ def R_quat(x, y, z, w, affine=False):
         R = aR
     return R
 
-def R_from_mat(mat):
-    return scipyR.from_matrix(mat)
-
 def R_to_euler(R, order='xyz'):
     """
     Obtain the thx,thy,thz angles that result in the rotation matrix Rz(thx) * Ry(thy) * Rx(thz)
