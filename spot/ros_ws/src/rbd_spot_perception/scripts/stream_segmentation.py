@@ -68,7 +68,7 @@ def make_bbox_marker_msg(center, sizes, marker_id, header):
     # The actual bounding box seems tooo large - for now just draw the center;
     marker.scale = Vector3(x=s1, y=s2, z=s3)  #0.2, y=0.2, z=0.2)
     marker.action = Marker.MODIFY
-    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.6)
+    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.3)
     return marker
 
 
