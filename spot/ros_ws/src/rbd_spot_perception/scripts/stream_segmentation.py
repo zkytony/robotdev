@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 #
 # Stream object segmentation results using Mask RCNN
+#
+# Note that because the 3D projection contains only
+# part of the object, the 3D bounding box will not be
+# accurate. You might want to rely on the 3D pose only.
 
 import time
 import sys
@@ -34,27 +38,37 @@ def get_intrinsics(P):
 
 
 def make_bbox_msg(center, sizes):
-    x, y, z, qx, qy, qz, qw = center
+    if len(center) == 7:
+        x, y, z, qx, qy, qz, qw = center
+        q = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    else:
+        x, y, z = center
+        q = Quaternion(x=0, y=0, z=0, w=1)
     s1, s2, s3 = sizes
     msg = BoundingBox3D()
     msg.center.position = Point(x=x, y=y, z=z)
-    msg.center.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    msg.center.orientation = q
     msg.size = Vector3(x=s1, y=s2, z=s3)
     return msg
 
 def make_bbox_marker_msg(center, sizes, marker_id, header):
-    x, y, z, qx, qy, qz, qw = center
+    if len(center) == 7:
+        x, y, z, qx, qy, qz, qw = center
+        q = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    else:
+        x, y, z = center
+        q = Quaternion(x=0, y=0, z=0, w=1)
     s1, s2, s3 = sizes
     marker = Marker()
     marker.header = header
     marker.id = marker_id
     marker.type = Marker.CUBE
     marker.pose.position = Point(x=x, y=y, z=z)
-    marker.pose.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
+    marker.pose.orientation = q
     # The actual bounding box seems tooo large - for now just draw the center;
-    marker.scale = Vector3(x=0.2, y=0.2, z=0.2) #s1, y=s2, z=s3)
-    marker.action = Marker.ADD;
-    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.7)
+    marker.scale = Vector3(x=s1, y=s2, z=s3)  #0.2, y=0.2, z=0.2)
+    marker.action = Marker.MODIFY
+    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.6)
     return marker
 
 
@@ -111,17 +125,24 @@ class SegmentationPublisher:
             z = mask_depth / 1000.0
             x = (u - I['cx']) * z / I['fx']
             y = (v - I['cy']) * z / I['fy']
+            # filter out points too close to the gripper (most likely noise)
+            keep_indices = np.argwhere(z > 0.06).flatten()
+            z = z[keep_indices]
+            if len(z) == 0:
+                continue  # we won't have points for this mask
+            x = x[keep_indices]
+            y = y[keep_indices]
             rgb = [struct.unpack('I', struct.pack('BBBB',
                                                   mask_visual[i][0],
                                                   mask_visual[i][1],
                                                   mask_visual[i][2], 255))[0]
-                   for i in range(len(mask_visual))]
+                   for i in keep_indices]
             # The points for a single detection mask
             mask_points = [[x[i], y[i], z[i], rgb[i]]
-                           for i in range(len(mask_visual))]
+                           for i in range(len(x))]
             points.extend(mask_points)
             try:
-                box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True)
+                box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True, no_rotation=True)
                 boxes.append(make_bbox_msg(box_center, box_sizes))
                 markers.append(make_bbox_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
             except Exception as ex:

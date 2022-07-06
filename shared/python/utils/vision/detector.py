@@ -90,7 +90,7 @@ def maskrcnn_filter_by_score(prediction, score_threshold=0.7):
     result['labels'] = prediction['labels'][accepted]
     return result
 
-def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False):
+def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False, no_rotation=False):
     """
     Returns a bounding box for given point cloud.
     Note: uses Open3D.
@@ -106,10 +106,13 @@ def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False):
            of shape (N, 3)
        ignore_outliers (bool): Ignore outlier points when
            making the box.
+       no_rotation (bool): If True, the returned center will only be x, y, z
     Returns:
        tuple (center, sizes): the center of the box and the sizes of the box.
-           the center is a 7-element array [x, y, z, qx, qy, qz, qw]
+           the center is a 7-element array [x, y, z, qx, qy, qz, qw],
+               unless no_rotation is True, in which case it will be [x, y, z]
            the sizes is an array of shape (3, 1)
+
     """
     if type(points) == list or type(points) == tuple:
         if len(points) != 3:
@@ -129,8 +132,11 @@ def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False):
     else:
         bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d_points)
     center_pos = bbox.get_center()
-    center_quat = R_to_quat(scipyR.from_matrix(np.array(bbox.R)))
-    center = (*center_pos, *center_quat)
+    if no_rotation:
+        center = center_pos
+    else:
+        center_quat = R_to_quat(scipyR.from_matrix(np.array(bbox.R)))
+        center = (*center_pos, *center_quat)
     max_bound = bbox.get_max_bound()
     min_bound = bbox.get_min_bound()
     sizes = max_bound - min_bound
