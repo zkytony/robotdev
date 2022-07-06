@@ -4,6 +4,7 @@ import torchvision
 import torch
 import numpy as np
 import open3d as o3d
+from ..math import R_from_mat, R_to_quat
 
 def plot_one_box(img, xyxy, label, color, line_thickness=3, show_label=True):
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) # line/font thickness
@@ -88,7 +89,7 @@ def maskrcnn_filter_by_score(prediction, score_threshold=0.7):
     result['labels'] = prediction['labels'][accepted]
     return result
 
-def points_to_bbox3d(points, ignore_outliers=True, axis_aligned=False):
+def bbox3d_from_points(points, ignore_outliers=True, axis_aligned=False):
     """
     Returns a bounding box for given point cloud.
     Note: uses Open3D.
@@ -105,9 +106,11 @@ def points_to_bbox3d(points, ignore_outliers=True, axis_aligned=False):
        ignore_outliers (bool): Ignore outlier points when
            making the box.
     Returns:
-       tuple (center, vertices): the center of the box and the vertices of the box.
+       tuple (center, sizes): the center of the box and the sizes of the box.
+           the center is a 7-element array [x, y, z, qx, qy, qz, qw]
+           the sizes is an array of shape (3, 1)
     """
-    if type(points) == list:
+    if type(points) == list or type(points) == tuple:
         if len(points) != 3:
             raise ValueError("expect points to be [x,y,z] or np.array of shape (N,3)")
         x, y, z = points
@@ -121,8 +124,13 @@ def points_to_bbox3d(points, ignore_outliers=True, axis_aligned=False):
         o3d_points = pcd.points
     if axis_aligned:
         bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(o3d_points)
+        bbox = bbox.get_oriented_bounding_box()  # so that we have rotation matrix access
     else:
         bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d_points)
-    center = bbox.get_center()
-    vertices = np.asarray(bbox.get_box_points())
-    return center, vertices
+    center_pos = bbox.get_center()
+    center_quat = R_to_quat(R_from_mat(bbox.R))
+    center = (*center_pos, *center_quat)
+    max_bound = bbox.get_max_bound()
+    min_bound = bbox.get_min_bound()
+    sizes = max_bound - min_bound
+    return center, sizes

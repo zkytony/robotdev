@@ -14,12 +14,16 @@ import torch
 import torchvision
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2, PointField
+from visualization_msgs.msg import Marker, MarkerArray
+from vision_msgs.msg import BoundingBox3D, BoundingBox3DArray
+from geometry_msgs.msg import Point, Quaternion, Vector3
 from std_msgs.msg import Header
 
 import rbd_spot
 from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
                                                        maskrcnn_filter_by_score,
-                                                       maskrcnn_draw_result)
+                                                       maskrcnn_draw_result,
+                                                       bbox3d_from_points)
 
 def get_intrinsics(P):
     return dict(fx=P[0],
@@ -27,12 +31,40 @@ def get_intrinsics(P):
                 cx=P[2],
                 cy=P[6])
 
+
+def make_bbox_msg(center, sizes):
+    x, y, z, qx, qy, qz, qw = center
+    s1, s2, s3 = sizes
+    msg = BoundingBox3D()
+    msg.center.position = Point(x=x, y=y, z=z)
+    msg.center.orientation = Quaternion(x=qx, y=qy, z=qz)
+    msg.sizes = Vector3(x=s1, y=s2, z=s3)
+    return msg
+
+def make_bbox_marker_msg(center, sizes, marker_id, header):
+    x, y, z, qx, qy, qz, qw = center
+    s1, s2, s3 = sizes
+    marker = Marker()
+    marker.header = header
+    marker.id = marker_id
+    marker.type = Marker.CUBE
+    marker.pose.position = Point(x=x, y=y, z=z)
+    marker.pose.orientation = Quaternion(x=qx, y=qy, z=qz)
+    marker.sizes = Vector3(x=s1, y=s2, z=s3)
+    return marker
+
+
 class SegmentationPublisher:
     def __init__(self, camera, mask_threshold=0.7):
         self._camera = camera
         self._mask_threshold = mask_threshold
+        # Publishes the image with segmentation drawn
         self._segimg_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result", Image, queue_size=10)
+        # Publishes the point cloud of the back-projected segmentations
         self._segpcl_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_points", PointCloud2, queue_size=10)
+        # Publishes bounding boxes of detected objects with reasonable filtering done.
+        self._segbox_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes", BoundingBox3DArray,  queue_size=10)
+        self._segbox_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
 
     def publish_result(self, pred, visual_img, depth_img, caminfo):
         """
@@ -62,6 +94,8 @@ class SegmentationPublisher:
         if self._camera == "front":
             masks = torch.rot90(masks, 1, (1,2))
         points = []
+        markers = []
+        boxes = []
         for i, mask in enumerate(masks):
             mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
             mask_coords_T = mask_coords.T
@@ -78,8 +112,14 @@ class SegmentationPublisher:
                                                   mask_visual[i][1],
                                                   mask_visual[i][2], 255))[0]
                    for i in range(len(mask_visual))]
-            points.extend([[x[i], y[i], z[i], rgb[i]]
-                           for i in range(len(mask_visual))])
+            # The points for a single detection mask
+            mask_points = [[x[i], y[i], z[i], rgb[i]]
+                           for i in range(len(mask_visual))]
+            points.extend(mask_points)
+            box_center, box_sizes = bbox3d_from_points([x, y, z])
+            boxes.append(make_bbox_msg(box_center, box_sizes))
+            markers.append(make_bbox_marker_msg(box_center, box_sizes, f"bbox_{i}", result_img.header))
+
         fields = [PointField('x', 0, PointField.FLOAT32, 1),
                   PointField('y', 4, PointField.FLOAT32, 1),
                   PointField('z', 8, PointField.FLOAT32, 1),
