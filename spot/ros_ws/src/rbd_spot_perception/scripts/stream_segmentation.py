@@ -160,7 +160,7 @@ class SegmentationPublisher:
         self._segpcl_pub.publish(pc2)
         rospy.loginfo("Published segmentation result (points)")
         # publish bounding boxes and markers
-        bboxes_array = BoundingBox3DArray(header=result_img_msg.header,
+        bboxes_array = BoundingBox3DArray(header=header,
                                           boxes=boxes)
         self._segbox_pub.publish(bboxes_array)
         rospy.loginfo("Published segmentation result (bboxes)")
