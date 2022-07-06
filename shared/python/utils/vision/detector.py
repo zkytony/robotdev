@@ -2,6 +2,8 @@ from PIL import Image
 import cv2
 import torchvision
 import torch
+import numpy as np
+import open3d as o3d
 
 def plot_one_box(img, xyxy, label, color, line_thickness=3, show_label=True):
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) # line/font thickness
@@ -85,3 +87,42 @@ def maskrcnn_filter_by_score(prediction, score_threshold=0.7):
     result['masks'] = prediction['masks'][accepted]
     result['labels'] = prediction['labels'][accepted]
     return result
+
+def points_to_bbox3d(points, ignore_outliers=True, axis_aligned=False):
+    """
+    Returns a bounding box for given point cloud.
+    Note: uses Open3D.
+
+    Axis aligned bounding box: the edges of the box align with axes of the coordinate system
+    Oriented bounding box: the edges of the box fit the points tightly (approximately) and are not
+        necessarily aligned with the axes of the coordinate system.
+
+    Args:
+       points (np.array or list): Either a list [x, y, z]
+           where each of x, y, z is a numpy array representing
+           a coordinate of all points. Or, a numpy array
+           of shape (N, 3)
+       ignore_outliers (bool): Ignore outlier points when
+           making the box.
+    Returns:
+       tuple (center, vertices): the center of the box and the vertices of the box.
+    """
+    if type(points) == list:
+        if len(points) != 3:
+            raise ValueError("expect points to be [x,y,z] or np.array of shape (N,3)")
+        x, y, z = points
+        o3d_points = o3d.utility.Vector3dVector(np.array([x, y, z]).transpose())
+    else:
+        o3d_points = o3d.utility.Vector3dVector(points)
+    if ignore_outliers:
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d_points
+        pcd.remove_statistical_outlier(nb_neighbors=50, std_ratio=1.0)
+        o3d_points = pcd.points
+    if axis_aligned:
+        bbox = o3d.geometry.AxisAlignedBoundingBox.create_from_points(o3d_points)
+    else:
+        bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d_points)
+    center = bbox.get_center()
+    vertices = np.asarray(bbox.get_box_points())
+    return center, vertices
