@@ -51,9 +51,10 @@ def make_bbox_marker_msg(center, sizes, marker_id, header):
     marker.type = Marker.CUBE
     marker.pose.position = Point(x=x, y=y, z=z)
     marker.pose.orientation = Quaternion(x=qx, y=qy, z=qz, w=qw)
-    marker.scale = Vector3(x=s1, y=s2, z=s3)
+    # The actual bounding box seems tooo large - for now just draw the center;
+    marker.scale = Vector3(x=0.2, y=0.2, z=0.2) #s1, y=s2, z=s3)
     marker.action = Marker.ADD;
-    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=1.0)
+    marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.7)
     return marker
 
 
@@ -120,7 +121,7 @@ class SegmentationPublisher:
                            for i in range(len(mask_visual))]
             points.extend(mask_points)
             try:
-                box_center, box_sizes = bbox3d_from_points([x, y, z])
+                box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True)
                 boxes.append(make_bbox_msg(box_center, box_sizes))
                 markers.append(make_bbox_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
             except Exception as ex:
