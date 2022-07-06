@@ -64,7 +64,7 @@ class SegmentationPublisher:
         self._segpcl_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_points", PointCloud2, queue_size=10)
         # Publishes bounding boxes of detected objects with reasonable filtering done.
         self._segbox_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes", BoundingBox3DArray,  queue_size=10)
-        self._segbox_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
+        self._segbox_markers_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
 
     def publish_result(self, pred, visual_img, depth_img, caminfo):
         """
@@ -118,7 +118,7 @@ class SegmentationPublisher:
             points.extend(mask_points)
             box_center, box_sizes = bbox3d_from_points([x, y, z])
             boxes.append(make_bbox_msg(box_center, box_sizes))
-            markers.append(make_bbox_marker_msg(box_center, box_sizes, f"bbox_{i}", result_img.header))
+            markers.append(make_bbox_marker_msg(box_center, box_sizes, f"bbox_{i}", result_img_msg.header))
 
         fields = [PointField('x', 0, PointField.FLOAT32, 1),
                   PointField('y', 4, PointField.FLOAT32, 1),
@@ -131,7 +131,14 @@ class SegmentationPublisher:
         # static transform is already published by ros_publish_image_result, so no need here.
         self._segpcl_pub.publish(pc2)
         rospy.loginfo("Published segmentation result (points)")
-
+        # publish bounding boxes and markers
+        bboxes_array = BoundingBox3DArray(header=result_img_msg.header,
+                                          boxes=boxes)
+        self._segbox_pub.publish(bboxes_array)
+        rospy.loginfo("Published segmentation result (bboxes)")
+        markers_array = MarkerArray(markers=markers)
+        self._segbox_markers_pub.publish(markers_array)
+        rospy.loginfo("Published segmentation result (markers)")
 
 
 def main():
