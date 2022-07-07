@@ -206,12 +206,13 @@ def getLocalizationState(graphnav_client):
 
 def get_pose(state_result, frame='waypoint', stamped=False):
     """
+    Returns the body pose in the state_result (GetLocalizationStateResponse)
     frame: the frame this pose is with respect to.
         Either 'waypoint' or 'seed'
 
     Returns:
         if frame == 'waypoint', then
-            (waypoint id, pose)
+            (waypoint id, body pose)
         if frame == 'seed', then
             pose
         if stamped is True, append timestamp to the return.
