@@ -43,9 +43,7 @@ def ros_broadcast_fiducials_tf(br, conn, fiducials_result):
 
         # publish body pose transform
         t = geometry_msgs.msg.TransformStamped()
-        local_time = conn.spot_time_to_local(
-            fiducial.acquisition_time)
-        t.header.stamp = rospy.Time(local_time.seconds, local_time.nanos)
+        t.header.stamp = rospy.Time.now()
         # We are publishing transform of the body with respect to the map frame
         #    map_frame->T->base_frame
         t.header.frame_id = parent_frame_name
