@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #
-# Stream fiducial markers
+# Stream fiducial markers as TF transforms
+#
+# Note that in order to obtain necessary TF frames, you
+# need to stream images from body cameras.
 
 import sys
 import time
@@ -37,7 +40,8 @@ def main():
     while not rospy.is_shutdown():
         fiducials_result, used_time = rbd_spot.fiducial.detectFiducials(world_object_client)
         print("detectFiducials took {:.3f}s".format(used_time))
-        fiducials = []
+        fiducials = [fiducial.name for fiducial in fiducials_result]
+        rbd_spot.fiducial.ros_broadcast_fiducials_tf
         for fiducial in fiducials_result:
             fiducial_number = fiducial.name.split("_")[-1]
             fiducial_name = "fiducial_"+str(fiducial_number)
