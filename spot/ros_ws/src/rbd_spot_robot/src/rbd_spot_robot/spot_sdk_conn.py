@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass, field
 
 from bosdyn.client import create_standard_sdk, ResponseError, RpcError
+from bosdyn.client.lease import LeaseClient, LeaseKeepAlive, LeaseWallet, ResourceAlreadyClaimedError
 from google.protobuf.timestamp_pb2 import Timestamp
 
 import logging
@@ -19,6 +20,8 @@ class SpotSDKConn:
     password: str = os.environ['SPOT_USER_PASSWORD']
     conn_type: str = os.environ['SPOT_CONN'].replace(" ", "_")
     logto: str = "rosout"
+    acquire_lease: bool = False
+    take_lease: bool = False
 
     def __post_init__(self):
         self.logger = logging.getLogger(self.logto)
@@ -31,13 +34,40 @@ class SpotSDKConn:
         self.robot = sdk.create_robot(self.hostname)
         try:
             self.robot.authenticate(self.username, self.password)
-            self.robot.start_time_sync()
+            self.robot.time_sync.wait_for_sync()
         except RpcError as err:
             self.logger.error("Failed to communicate with robot: %s", err)
             return
 
+        self._lease = None
+        if self.acquire_lease or self.take_lease:
+            self._lease_client = self.robot.ensure_client(LeaseClient.default_service_name)
+            self.getLease()
+
     def ensure_client(self, service_name):
         return self.robot.ensure_client(service_name)
+
+    def getLease(self):
+        try:
+            if self.take_lease:
+                self.logger.info("Take lease!")
+                self._lease = self._lease_client.take()
+            else:
+                self._lease = self._lease_client.acquire()
+        except (ResponseError, RpcError) as err:
+            self.logger.error("Failed to obtain lease: ", err)
+            raise ValueError("Failed to obtain lease: ", err)
+        self._lease_keepalive = LeaseKeepAlive(self._lease_client)
+
+    def __del__(self):
+        """Give up the lease"""
+        if self._lease is not None:
+            self._lease_keepalive.shutdown()
+            self._lease_client.return_lease(self._lease)
+
+    @property
+    def lease(self):
+        return self._lease
 
     @property
     def clock_skew(self):

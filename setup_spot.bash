@@ -6,6 +6,7 @@ else
     . "./tools.sh"
 fi
 repo_root=$PWD
+export REPO_ROOT=${repo_root}
 
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
@@ -199,6 +200,9 @@ if first_time_build $SPOT_ROS_PATH; then
 
     # scikit-iamge
     pip install -U scikit-image
+
+    # vision-msgs
+    sudo apt-get install ros-noetic-vision-msgs
 fi
 
 # catkin make and end.

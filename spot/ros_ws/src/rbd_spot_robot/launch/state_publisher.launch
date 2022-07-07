@@ -1,0 +1,12 @@
+<launch>
+  <!-- Doesn't run the driver; only runs the minimum components
+       that will publish the robot state as TF transforms as
+       well as publish the robot description (i.e. urdf) -->
+  <arg name="root_frame" default="body"/>
+  <node pkg="rbd_spot_robot"
+        type="state_publisher.py"
+        name="state_publisher"
+        args="--root-frame $(arg root_frame)">
+  </node>
+  <include file="$(find spot_description)/launch/description.launch" />
+</launch>

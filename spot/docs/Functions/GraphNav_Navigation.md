@@ -1,5 +1,16 @@
 # GraphNav Navigation
 
+## Localization
+Remember to **upload the graph and its snapshots**.
+
+To localize the robot, there are two options:
+
+  - Initialize localization to the nearest fiducial (must be in sight of a fiducial).
+    **The robot needs to see a fiducial marker**
+
+  - Initialize localization to a specific waypoint (must be exactly at the waypoint).
+
+
 ## Command Line Example
 Use the command line example
 ```
@@ -31,3 +42,20 @@ Recall that _seed frame_ in GraphNav means some global reference frame ([doc](ht
 
 Note that for "Navigate to", you have to supply the waypoint ID (which is a string),
 or a short code. You cannot specify the number (although the `view_map` program displays the number).
+
+
+## Custom Functions and Scripts
+A function `navigateTo` can be found under rbd_spot_perception/graphnav.py. This
+function can take in either a waypoint or a pose, and make the robot navigate there.
+
+You could also run this program:
+```
+rosrun rbd_spot_action graphnav_nav.py [options]
+```
+Run `-h` to see the options. Note that the first time you run this, you need to make
+sure a GraphNav graph is uploaded to the robot; You do that by specifying the `--map-name`
+parameter.
+
+## Caveats from using GraphNav navigation
+- The robot will prefer to go along the waypoints on the graph
+- The robot is not precise in reaching the goal pose. It can be off by couple centimeters; rotation seems quite accurate.

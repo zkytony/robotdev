@@ -32,11 +32,9 @@ do
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
     elif is_flag $arg; then
-        # we are not there yet (with nvidia)
-        # if [[ $arg = "--nvidia" ]]; then
-        #     nvidia=".nvidia"
-        # fi
-        echo "unhandled arg: $arg"
+        if [[ $arg = "--nvidia" ]]; then
+            nvidia=".nvidia"
+        fi
     fi
 done
 

@@ -39,6 +39,16 @@ to be usable with minor fixes. ROS Noetic on Ubuntu 20.04 works.
   TODO: how to control the arm? (That is not the standard of Spot; would this Spot ROS stack still work?)
 
 
+## Publish robot state and URDF without driver (NEW 07/02/2022)
+If you want control over the TF tree structure, or you just don't want the
+"heaviness" of running the spot_ros driver, you can just do:
+```
+roslaunch rbd_spot_robot state_publisher.launch
+```
+This will make gRPC calls to get Spot state, and then publish TF transforms
+and joint states. The root of the TF tree can be configured by the "root_frame"
+argument (default "body").
+
 
 ## Image / Depth Topics
 
@@ -86,3 +96,8 @@ The Clearpath robotics support provided a convincing answer: odometry drift.
 
 This is why, even when the robot was floating in the air, if I left the rtabmap localization running for long enough, it seems to be able to localize itse.f
 
+
+### visual odometry frame
+When using visual odometry (setting `mode_parent_odom_tf` to `vision`), the TF frame of odometry will
+be called 'vision'. Like the odom frame (as defined in [REP 105](https://www.ros.org/reps/rep-0105.html#odom)),
+the 'vision' frame is a world-fixed frame.

@@ -1,82 +1,73 @@
 #!/usr/bin/env python
+# Note that this code relies on spot ros
+#
+# Takes pictures from specified camera sources and saves them.
+#
+# Usage:
+#   ./take_snapshot.py <output_dir> -s [sources ... ]
+#
+# a source could be, e.g., hand_color_in_hand_depth_frame, frontleft_fisheye_image
+# For example:
+#    ./take_snapshot.py tmp/ -s hand_color_image frontleft_fisheye_image
 
+import os
 import cv2
-import rospy
-import pickle
-import message_filters
-from sensor_msgs.msg import Image, CameraInfo
+import argparse
+import time
+import pytz
+from datetime import datetime
+import pandas as pd
 from rbd_spot_robot.utils import ros_utils
+import rbd_spot
 
-ALL_SIDES = ["frontleft", "frontright", "left", "right", "back"]
 
-class SnapShotter:
-    """
-    Saves the first message received from all cameras.
-    Timestamp will be in filename. Synchronize the image
-    and camera info.
-    """
-    def __init__(self):
-        self._saved = {}
-        for side in ALL_SIDES:
-            fisheye_sub = message_filters.Subscriber(
-                f"/spot/camera/{side}/image", Image)
-            fisheye_caminfo_sub = message_filters.Subscriber(
-                f"/spot/camera/{side}/camera_info", CameraInfo)
-            fisheye_ts = message_filters.TimeSynchronizer(
-                [fisheye_sub, fisheye_caminfo_sub], 10)
-            fisheye_ts.registerCallback(self._fisheye_callback)
+def main():
+    parser = argparse.ArgumentParser("Take pictures from given camera sources and save them."\
+                                     "File names will of the format <spot>_<timestamp>_<source>.png")
+    parser.add_argument("output_dir", type=str, help="output directory")
+    parser.add_argument("-s", "--sources", nargs="+", help="image sources; or 'list'")
+    parser.add_argument("-q", "--quality", type=int,
+                        help="image quality [0-100]", default=75)
+    formats = ["UNKNOWN", "JPEG", "RAW", "RLE"]
+    parser.add_argument("-f", "--format", type=str, default="RAW",
+                        help="format", choices=formats)
+    parser.add_argument("-p", "--pub", action="store_true", help="publish as ROS messages")
+    parser.add_argument("-t", "--timeout", type=float, help="time to keep streaming")
+    args = parser.parse_args()
 
-            depth_sub = message_filters.Subscriber(
-                f"/spot/depth/{side}/image", Image)
-            depth_caminfo_sub = message_filters.Subscriber(
-                f"/spot/depth/{side}/camera_info", CameraInfo)
-            depth_ts = message_filters.TimeSynchronizer(
-                [depth_sub, depth_caminfo_sub], 10)
-            depth_ts.registerCallback(self._depth_callback)
+    conn = rbd_spot.SpotSDKConn(sdk_name="StreamImageClient")
+    image_client = rbd_spot.image.create_client(conn)
 
-            self._saved[side] = {
-                "fisheye": False,
-                "depth": False
-            }
+    sources_result, _used_time = rbd_spot.image.listImageSources(image_client)
+    print("ListImageSources took %.3fs" % _used_time)
+    sources_df = pd.DataFrame(rbd_spot.image.sources_result_to_dict(sources_result))
+    print("Available image sources:")
+    print(sources_df, "\n")
 
-    @property
-    def done(self):
-        return all(self._saved[s]['fisheye'] and self._saved[s]['depth']
-                   for s in ALL_SIDES)
+    if args.sources is None or len(args.sources) == 0:
+        # nothing to do.
+        return
 
-    def _fisheye_callback(self, fisheye_img, caminfo):
-        side = caminfo.header.frame_id.split("_")[0]
-        if side not in self._saved:
-            raise ValueError(f"Unexpected side: {side}")
-        if not self._saved[side]['fisheye']:
-            self._saved[side]['fisheye'] = True
-            secs = caminfo.header.stamp.secs
-            nsecs = caminfo.header.stamp.nsecs
-            timestamp = f"{secs}.{nsecs}"
-            img = ros_utils.convert(fisheye_img)
-            print(f"Saving fisheye image from {side}")
-            cv2.imwrite(f"fisheye_{timestamp}_{side}.png", img)
-            with open(f"fisheye_{timestamp}_{side}_caminfo.pkl", "wb") as f:
-                pickle.dump(caminfo, f)
+    # Check if the sources are valid
+    ok, bad_sources = rbd_spot.image.check_sources_valid(args.sources, sources_result)
+    if not ok:
+        print(f"Invalid source name(s): {bad_sources}")
+        return
 
-    def _depth_callback(self, depth_img, caminfo):
-        side = caminfo.header.frame_id.split("_")[0]
-        if side not in self._saved:
-            raise ValueError(f"Unexpected side: {side}")
-        if not self._saved[side]['depth']:
-            self._saved[side]['depth'] = True
-            secs = caminfo.header.stamp.secs
-            nsecs = caminfo.header.stamp.nsecs
-            timestamp = f"{secs}.{nsecs}"
-            img = ros_utils.convert(depth_img)
-            print(f"Saving depth image from {side}")
-            cv2.imwrite(f"depth_{timestamp}_{side}.png", img)
-            with open(f"depth_{timestamp}_{side}_caminfo.pkl", "wb") as f:
-                pickle.dump(caminfo, f)
+    image_requests = rbd_spot.image.build_image_requests(
+        args.sources, quality=args.quality, fmt=args.format)
+
+    # get image and save
+    result, time_taken = rbd_spot.image.getImage(image_client, image_requests)
+    print("Get image took %.3fs" % time_taken)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%z") + time.tzname[0]
+    for image_response in result:
+        img = rbd_spot.image.imgarray_from_response(image_response, conn)
+        source = image_response.source.name
+        print(f"Saving image from {source}")
+        cv2.imwrite(os.path.join(args.output_dir, f"spot_{timestamp}_{source}.png"),
+                    cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+
 
 if __name__ == "__main__":
-    rospy.init_node("test_node")
-    ss = SnapShotter()
-    rate = rospy.Rate(10)
-    while not ss.done:
-        rate.sleep()
+    main()
