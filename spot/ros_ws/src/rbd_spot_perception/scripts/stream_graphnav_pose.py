@@ -67,6 +67,7 @@ def main():
     graphnav_client = rbd_spot.graphnav.create_client(conn)
 
     _start_time = time.time()
+    rate = rospy.Rate(30)
     while True:
         try:
             state_result, _used_time = rbd_spot.graphnav.getLocalizationState(graphnav_client)
@@ -74,7 +75,7 @@ def main():
             body_pose = rbd_spot.graphnav.get_pose(state_result, frame='seed')
             res = rbd_spot.graphnav.get_pose(state_result, frame='waypoint')
             if res is None:
-                print("Unable to get pose. Is the robot localized?")
+                rospy.logerr("Unable to get pose. Is the robot localized?")
                 time.sleep(1)
             else:
                 waypoint_id, _ = res
@@ -92,6 +93,7 @@ def main():
                 m = _body_pose_to_msg(body_pose, args.map_frame)
                 pose_pub.publish(m)
             _used_time = time.time() - _start_time
+            rate.sleep()
             if args.timeout and _used_time > args.timeout:
                 break
         finally:
