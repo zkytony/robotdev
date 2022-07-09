@@ -19,7 +19,7 @@ def main():
     tf_pub = rospy.Publisher('/tf', TFMessage, queue_size=10)
     js_pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         state = rbd_spot.state.getRobotState(robot_state_client)
         tf_msg = rbd_spot.state.get_tf_from_state(state, conn, args.root_frame)

@@ -67,7 +67,7 @@ def main():
     graphnav_client = rbd_spot.graphnav.create_client(conn)
 
     _start_time = time.time()
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(10)
     while True:
         try:
             state_result, _used_time = rbd_spot.graphnav.getLocalizationState(graphnav_client)
