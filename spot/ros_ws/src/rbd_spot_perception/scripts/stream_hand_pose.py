@@ -16,7 +16,7 @@ def main():
     listener = tf2_ros.TransformListener(tfBuffer)
     pose_pub = rospy.Publisher("/spot_hand_pose", geometry_msgs.msg.PoseStamped, queue_size=10)
 
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(10)
     last_ex = None
     message_printed = False
     while not rospy.is_shutdown():
