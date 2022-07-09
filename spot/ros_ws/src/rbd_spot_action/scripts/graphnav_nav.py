@@ -22,6 +22,8 @@ def main():
                         help="waypoint to navigate to")
     parser.add_argument("--list", action="store_true", help="list all waypoints in the current graph")
     parser.add_argument("--take", action="store_true", help="take lease (forcefully)")
+    parser.add_argument("--slow", action="store_true", help="move slowly")
+    parser.add_argument("--fast", action="store_true", help="move quickly (overrides --slow)")
     parser.add_argument("--map-name", type=str, help="upload this map, if provided")
     args, _ = parser.parse_known_args()
 
@@ -51,14 +53,20 @@ def main():
         print("No graph uploaded to robot.")
         return
 
+    speed = "medium"
+    if args.slow:
+        speed = "slow"
+    if args.fast:
+        speed = "fast"
+
     # Navigate to waypoint
     if args.waypoint:
         waypoint_id = rbd_spot.graphnav.getWaypointId(graphnav_client, args.waypoint, graph=graph)
-        rbd_spot.graphnav.navigateTo(conn, graphnav_client, waypoint_id)
+        rbd_spot.graphnav.navigateTo(conn, graphnav_client, waypoint_id, speed=speed)
 
     elif args.pose:
         goal = tuple(args.pose)
-        rbd_spot.graphnav.navigateTo(conn, graphnav_client, goal)
+        rbd_spot.graphnav.navigateTo(conn, graphnav_client, goal, speed=speed)
 
     elif args.list:
         rbd_spot.graphnav.listGraphWaypoints(graphnav_client)

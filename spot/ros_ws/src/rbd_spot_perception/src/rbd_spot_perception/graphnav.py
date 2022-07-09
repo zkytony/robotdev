@@ -4,11 +4,25 @@ import os
 import numpy as np
 from bosdyn.api.graph_nav import map_pb2
 from bosdyn.api.graph_nav import nav_pb2, graph_nav_pb2
+from bosdyn.api.geometry_pb2 import Vec2, Vec3, SE2VelocityLimit, SE2Velocity
 from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.client.frame_helpers import get_odom_tform_body, get_a_tform_b, ODOM_FRAME_NAME
 from bosdyn.client.math_helpers import SE3Pose, Quat
 from bosdyn.client.exceptions import ResponseError
 from . import graphnav_util
+
+NAV_VELOCITY_LIMITS_SLOW = SE2VelocityLimit(
+    min_vel=SE2Velocity(linear=Vec2(x=-0.3, y=-0.15), angular=-0.5),
+    max_vel=SE2Velocity(linear=Vec2(x=0.3, y=0.15), angular=0.5))
+
+NAV_VELOCITY_LIMITS_MEDIUM = SE2VelocityLimit(
+    min_vel=SE2Velocity(linear=Vec2(x=-0.6, y=-0.3), angular=-0.8),
+    max_vel=SE2Velocity(linear=Vec2(x=0.6, y=0.3), angular=0.8))
+
+NAV_VELOCITY_LIMITS_FAST = SE2VelocityLimit(
+    min_vel=SE2Velocity(linear=Vec2(x=-1.0, y=-0.5), angular=-1.2),
+    max_vel=SE2Velocity(linear=Vec2(x=1.0, y=0.5), angular=1.2))
+
 
 def create_client(conn):
     """
@@ -327,7 +341,7 @@ def listGraphWaypoints(graphnav_client):
         graph, localization_id)  # THIS FUNCTION DOES THE PRINTING.
 
 
-def navigateTo(conn, graphnav_client, goal, sleep=0.5):
+def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None, speed="medium"):
     """
     Navigate to a pose in the seed frame (i.e. global pose).
     Calls the NavigateToAnchor service. Blocking call until
@@ -345,7 +359,10 @@ def navigateTo(conn, graphnav_client, goal, sleep=0.5):
         graphnav_client: GraphNavClient
         conn (SpotSDKConn): expecting this SpotSDKConn to have a lease.
         sleep (float): time to sleep after each cycle of navigation request
-
+        tolerance (tuple): 3-element tuple that indicates the tolerance of reaching
+            the goal in x, y, z axes. Sets the 'goal_waypoint_rt_seed_ewrt_seed_tolerance'
+            parameter. Applicable only for seed frame goals.
+        speed (str): "medium", "slow", "fast", or "default".
         probably don't need:
         +callback: function to be called per cycle+
         +callback_args+
@@ -372,20 +389,37 @@ def navigateTo(conn, graphnav_client, goal, sleep=0.5):
             seed_T_goal.rot = Quat(w=float(goal[3]), x=float(goal[4]), y=float(goal[5]),
                                    z=float(goal[6]))
 
+    goal_waypoint_rt_seed_ewrt_seed_tolerance = None
+    if tolerance is not None:
+        goal_waypoint_rt_seed_ewrt_seed_tolerance = Vec3(x=tolerance[0], y=tolerance[1], z=tolerance[2])
+
+    travel_params = None
+    if speed not in {"default", "medium", "slow", "fast"}:
+        raise ValueError("Invalid speed for navigation:", speed)
+    if speed == "slow":
+        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_SLOW)
+    elif speed == "medium":
+        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_MEDIUM)
+    elif speed == "fast":
+        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_FAST)
+
     nav_to_cmd_id = None
     is_finished = False
     while not is_finished:
         # Issue the navigation command about twice a second such that it is easy to terminate the
         # navigation command (with estop or killing the program).
+        print("navigation in progress...")
         try:
             if navigate_to_waypoint:
                 nav_to_cmd_id = graphnav_client.navigate_to(
                     goal, 1.0, leases=[conn.lease.lease_proto],
-                    command_id=nav_to_cmd_id)
+                    command_id=nav_to_cmd_id, travel_params=travel_params)
             else:
                 nav_to_cmd_id = graphnav_client.navigate_to_anchor(
                     seed_T_goal.to_proto(), 1.0, leases=[conn.lease.lease_proto],
-                    command_id=nav_to_cmd_id)
+                    command_id=nav_to_cmd_id,
+                    goal_waypoint_rt_seed_ewrt_seed_tolerance=goal_waypoint_rt_seed_ewrt_seed_tolerance,
+                    travel_params=travel_params)
         except ResponseError as e:
             print("Error while navigating {}".format(e))
             break
