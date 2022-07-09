@@ -7,7 +7,7 @@ if [ $SPOT_ID = "12" ]; then
 elif [ $SPOT_ID = "2" ]; then
     export SPOT_USER_PASSWORD="dungnydsc8su"
     export SPOT_WIFI_PASSWORD="i2xqd7k9r8zj"
-    export SPOT_ADMIN_PASSWORD="qf75j5tn79es"
+    export SPOT_ADMIN_PASSWORD="qf75j5tn70es"
 else
     echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
     return 1
