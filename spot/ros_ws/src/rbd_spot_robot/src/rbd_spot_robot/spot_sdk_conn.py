@@ -62,8 +62,8 @@ class SpotSDKConn:
     def __del__(self):
         """Give up the lease"""
         if self._lease is not None:
-            self._lease_keepalive.shutdown()
             self._lease_client.return_lease(self._lease)
+            self._lease_keepalive.shutdown()
 
     @property
     def lease(self):
