@@ -76,17 +76,19 @@ def make_bbox3d_marker_msg(center, sizes, marker_id, header):
     marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.3)
     return marker
 
-def rotate_bbox2d(bbox, deg, d="counterclockwise"):
+def rotate_bbox2d_90(bbox, dim, d="counterclockwise"):
     """deg: angle in degrees; d specifies direction, either
     'counterclockwise' or 'clockwise'"""
     if d != "counterclockwise" and d != "clockwise":
         raise ValueError("Invalid direction", d)
     x1, y1, x2, y2 = bbox
+    h, w = dim
     if d == "clockwise":
-        deg = -deg
-    new_p1 = np.dot(R2d(deg), np.array([x1, y1]))
-    new_p2 = np.dot(R2d(deg), np.array([x2, y2]))
-    return np.array([new_p1[0], new_p1[1], new_p2[0], new_p2[1]])
+        return np.array([w - y1, x1,
+                         w - y2, x2])
+    else:
+        return np.array([y1, h - x1,
+                         y2, h - x2])
 
 
 class SegmentationPublisher:
@@ -118,7 +120,10 @@ class SegmentationPublisher:
             # maskrcnn bounding box has format x1, y1, x2, y2
             bbox2d = bbox2d.detach().cpu().numpy()
             if self._camera == "front":
-                bbox2d = rotate_bbox2d(bbox2d, 90, d="clockwise")
+                # We need to roate the bounding boxes clockwise by 90 deg if camera is front
+                # because boudning boxes was generated for an image that was rotated 90 degrees clockwise
+                # with respect to the original image from Spot.
+                bbox2d = rotate_bbox2d_90(bbox2d, visual_img.shape[:2], d="counterclockwise")
             bbox2d = bbox2d.astype(int)
             label = COCO_CLASS_NAMES[pred['labels'][i].item()]
             score = pred['scores'][i].item()
@@ -130,19 +135,18 @@ class SegmentationPublisher:
                                              detections=det2d_msgs)
         self._segdet2d_pub.publish(det2d_array)
 
-
         # because the prediction is based on an upright image, we need to make sure
         # the drawn result is on an upright image
         if self._camera == "front":
             visual_img_upright = torch.tensor(cv2.rotate(visual_img, cv2.ROTATE_90_CLOCKWISE)).permute(2, 0, 1)
             result_img = maskrcnn_draw_result(pred, visual_img_upright)
-            # debuggging
+
+            print(torch.tensor(boxes2d))
             result_img = torchvision.utils.draw_bounding_boxes(
-                imm, torch.tensor(boxes2d), colors="#FFFF00")
+                torch.tensor(visual_img).permute(2,0,1), torch.tensor(boxes2d), colors="#FFFF00")
 
         else:
-            imm = torch.tensor(visual_img).permute(2, 0, 1)
-            result_img = maskrcnn_draw_result(pred, imm)
+            result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
 
         result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
         result_img_msg.header.stamp = caminfo.header.stamp
@@ -154,8 +158,11 @@ class SegmentationPublisher:
         masks = pred['masks'].squeeze()
         masks = masks.reshape(-1, masks.shape[-2], masks.shape[-1])   # make sure shape is (N, H, W) where N is number of masks
         masks = torch.greater(masks, self._mask_threshold)
-        # We need to roate the masks cw by 90 deg if camera is front
+
         if self._camera == "front":
+            # We need to roate the masks counter clockwise by 90 deg if camera is front
+            # because masks was generated for an image that was rotated 90 degrees clockwise
+            # with respect to the original image from Spot.
             masks = torch.rot90(masks, 1, (1,2))
         points = []
         markers = []
