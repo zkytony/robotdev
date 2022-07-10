@@ -1,0 +1,8 @@
+string label
+float32 score
+
+# bounding box
+int32 x1
+int32 y1
+int32 x2
+int32 y2

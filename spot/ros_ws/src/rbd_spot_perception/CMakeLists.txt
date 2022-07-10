@@ -10,7 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   pcl_conversions
   geometry_msgs
-  visualization_msgs)
+  visualization_msgs
+  vision_msgs)
 catkin_python_setup()
 
 ################################################
@@ -20,12 +21,17 @@ add_message_files(
   DIRECTORY msg
   FILES
   GraphNavWaypoint.msg
-  GraphNavWaypointArray.msg)
+  GraphNavWaypointArray.msg
+  SimpleDetection2D.msg
+  SimpleDetection2DArray.msg
+  SimpleDetection3D.msg
+  SimpleDetection3DArray.msg)
 
 generate_messages(
   DEPENDENCIES
   std_msgs
-  visualization_msgs)
+  visualization_msgs
+  vision_msgs)
 
 ###################################
 ## catkin specific configuration ##
