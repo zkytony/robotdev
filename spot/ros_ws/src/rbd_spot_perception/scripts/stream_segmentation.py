@@ -141,10 +141,6 @@ class SegmentationPublisher:
             visual_img_upright = torch.tensor(cv2.rotate(visual_img, cv2.ROTATE_90_CLOCKWISE)).permute(2, 0, 1)
             result_img = maskrcnn_draw_result(pred, visual_img_upright)
 
-            print(torch.tensor(boxes2d))
-            result_img = torchvision.utils.draw_bounding_boxes(
-                torch.tensor(visual_img).permute(2,0,1), torch.tensor(boxes2d), colors="#FFFF00")
-
         else:
             result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
 
