@@ -19,16 +19,21 @@ import torchvision
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2, PointField
 from visualization_msgs.msg import Marker, MarkerArray
-from vision_msgs.msg import BoundingBox3D, BoundingBox3DArray
+from vision_msgs.msg import BoundingBox3D
 from geometry_msgs.msg import Point, Quaternion, Vector3
 from std_msgs.msg import Header
 from std_msgs.msg import ColorRGBA
+from rbd_spot_perception.msg import (SimpleDetection2D,
+                                     SimpleDetection2DArray,
+                                     SimpleDetection3D,
+                                     SimpleDetection3DArray)
 
 import rbd_spot
 from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
                                                        maskrcnn_filter_by_score,
                                                        maskrcnn_draw_result,
                                                        bbox3d_from_points)
+from rbd_spot_perception.utils.math import R2d
 
 def get_intrinsics(P):
     return dict(fx=P[0],
@@ -37,7 +42,7 @@ def get_intrinsics(P):
                 cy=P[6])
 
 
-def make_bbox_msg(center, sizes):
+def make_bbox3d_msg(center, sizes):
     if len(center) == 7:
         x, y, z, qx, qy, qz, qw = center
         q = Quaternion(x=qx, y=qy, z=qz, w=qw)
@@ -51,7 +56,7 @@ def make_bbox_msg(center, sizes):
     msg.size = Vector3(x=s1, y=s2, z=s3)
     return msg
 
-def make_bbox_marker_msg(center, sizes, marker_id, header):
+def make_bbox3d_marker_msg(center, sizes, marker_id, header):
     if len(center) == 7:
         x, y, z, qx, qy, qz, qw = center
         q = Quaternion(x=qx, y=qy, z=qz, w=qw)
@@ -71,6 +76,20 @@ def make_bbox_marker_msg(center, sizes, marker_id, header):
     marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.3)
     return marker
 
+def rotate_bbox2d_90(bbox, dim, d="counterclockwise"):
+    """deg: angle in degrees; d specifies direction, either
+    'counterclockwise' or 'clockwise'"""
+    if d != "counterclockwise" and d != "clockwise":
+        raise ValueError("Invalid direction", d)
+    x1, y1, x2, y2 = bbox
+    h, w = dim
+    if d == "clockwise":
+        return np.array([w - y1, x1,
+                         w - y2, x2])
+    else:
+        return np.array([y1, h - x1,
+                         y2, h - x2])
+
 
 class SegmentationPublisher:
     def __init__(self, camera, mask_threshold=0.7):
@@ -81,7 +100,10 @@ class SegmentationPublisher:
         # Publishes the point cloud of the back-projected segmentations
         self._segpcl_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_points", PointCloud2, queue_size=10)
         # Publishes bounding boxes of detected objects with reasonable filtering done.
-        self._segbox_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes", BoundingBox3DArray,  queue_size=10)
+        self._segdet3d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes3d", SimpleDetection3DArray,  queue_size=10)
+        # Publishes the detected classes, confidence scores, and boudning boxes
+        self._segdet2d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes2d", SimpleDetection2DArray, queue_size=10)
+        # Bounding box visualization markers
         self._segbox_markers_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
 
     def publish_result(self, pred, visual_img, depth_img, caminfo):
@@ -91,13 +113,37 @@ class SegmentationPublisher:
             visual_img (np.ndarray): Image from the visual source (not rotated)
             depth_img (np.ndarray): Image from the corresponding depth source
         """
+        # publish the 2D bounding boxes
+        det2d_msgs = []
+        boxes2d = []
+        for i, bbox2d in enumerate(pred['boxes']):
+            # maskrcnn bounding box has format x1, y1, x2, y2
+            bbox2d = bbox2d.detach().cpu().numpy()
+            if self._camera == "front":
+                # We need to roate the bounding boxes clockwise by 90 deg if camera is front
+                # because boudning boxes was generated for an image that was rotated 90 degrees clockwise
+                # with respect to the original image from Spot.
+                bbox2d = rotate_bbox2d_90(bbox2d, visual_img.shape[:2], d="counterclockwise")
+            bbox2d = bbox2d.astype(int)
+            label = COCO_CLASS_NAMES[pred['labels'][i].item()]
+            score = pred['scores'][i].item()
+            det2d = SimpleDetection2D(label=label, score=score,
+                                      x1=bbox2d[0], y1=bbox2d[1],x2=bbox2d[2], y2=bbox2d[3])
+            det2d_msgs.append(det2d)
+            boxes2d.append(bbox2d)
+        det2d_array = SimpleDetection2DArray(header=caminfo.header,
+                                             detections=det2d_msgs)
+        self._segdet2d_pub.publish(det2d_array)
+
         # because the prediction is based on an upright image, we need to make sure
         # the drawn result is on an upright image
         if self._camera == "front":
             visual_img_upright = torch.tensor(cv2.rotate(visual_img, cv2.ROTATE_90_CLOCKWISE)).permute(2, 0, 1)
             result_img = maskrcnn_draw_result(pred, visual_img_upright)
+
         else:
             result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
+
         result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
         result_img_msg.header.stamp = caminfo.header.stamp
         result_img_msg.header.frame_id = caminfo.header.frame_id
@@ -108,12 +154,15 @@ class SegmentationPublisher:
         masks = pred['masks'].squeeze()
         masks = masks.reshape(-1, masks.shape[-2], masks.shape[-1])   # make sure shape is (N, H, W) where N is number of masks
         masks = torch.greater(masks, self._mask_threshold)
-        # We need to roate the masks cw by 90 deg if camera is front
+
         if self._camera == "front":
+            # We need to roate the masks counter clockwise by 90 deg if camera is front
+            # because masks was generated for an image that was rotated 90 degrees clockwise
+            # with respect to the original image from Spot.
             masks = torch.rot90(masks, 1, (1,2))
         points = []
         markers = []
-        boxes = []
+        det3d_msgs = []
         for i, mask in enumerate(masks):
             mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
             mask_coords_T = mask_coords.T
@@ -143,8 +192,14 @@ class SegmentationPublisher:
             points.extend(mask_points)
             try:
                 box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True, no_rotation=True)
-                boxes.append(make_bbox_msg(box_center, box_sizes))
-                markers.append(make_bbox_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
+                bbox3d_msg = make_bbox3d_msg(box_center, box_sizes)
+                label = COCO_CLASS_NAMES[pred['labels'][i].item()]
+                score = pred['scores'][i].item()
+                det3d = SimpleDetection3D(label=label,
+                                          score=score,
+                                          box=bbox3d_msg)
+                det3d_msgs.append(det3d)
+                markers.append(make_bbox3d_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
             except Exception as ex:
                 rospy.logerr(f"Error: {ex}")
 
@@ -152,21 +207,19 @@ class SegmentationPublisher:
                   PointField('y', 4, PointField.FLOAT32, 1),
                   PointField('z', 8, PointField.FLOAT32, 1),
                   PointField('rgb', 12, PointField.UINT32, 1)]
-        header = Header()
-        header.stamp = caminfo.header.stamp
-        header.frame_id = caminfo.header.frame_id
-        pc2 = point_cloud2.create_cloud(header, fields, points)
+        pc2 = point_cloud2.create_cloud(caminfo.header, fields, points)
         # static transform is already published by ros_publish_image_result, so no need here.
         self._segpcl_pub.publish(pc2)
         rospy.loginfo("Published segmentation result (points)")
         # publish bounding boxes and markers
-        bboxes_array = BoundingBox3DArray(header=header,
-                                          boxes=boxes)
-        self._segbox_pub.publish(bboxes_array)
+        det3d_array = SimpleDetection3DArray(header=caminfo.header,
+                                       detections=det3d_msgs)
+        self._segdet3d_pub.publish(det3d_array)
         rospy.loginfo("Published segmentation result (bboxes)")
         markers_array = MarkerArray(markers=markers)
         self._segbox_markers_pub.publish(markers_array)
         rospy.loginfo("Published segmentation result (markers)")
+
 
 
 def main():
