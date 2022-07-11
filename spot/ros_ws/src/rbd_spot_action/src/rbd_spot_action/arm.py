@@ -40,8 +40,8 @@ def gazeAt(conn, command_client, x, y, z):
 
 def moveEETo(conn, command_client, pose, seconds=3.0):
     """Moves arm end-effector to given pose. By default, the pose is
-    with respect to the robot's body frame. The pose could be either
-    x, y, z or x, y, z, qx, qy, qz, qw."""
+    with respect to the robot's body frame (+x forward, +y left, +z up).
+    The pose could be either x, y, z or x, y, z, qx, qy, qz, qw."""
     if len(pose) not in {3, 7}:
         raise ValueError("Invalid pose.")
 
