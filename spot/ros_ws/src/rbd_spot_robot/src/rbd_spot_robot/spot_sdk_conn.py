@@ -41,7 +41,7 @@ class SpotSDKConn:
 
         self._lease = None
         if self.acquire_lease or self.take_lease:
-            self._lease_client = self.robot.ensure_client(LeaseClient.default_service_name)
+            self.lease_client = self.robot.ensure_client(LeaseClient.default_service_name)
             self.getLease()
 
     def ensure_client(self, service_name):
@@ -51,18 +51,18 @@ class SpotSDKConn:
         try:
             if self.take_lease:
                 self.logger.info("Take lease!")
-                self._lease = self._lease_client.take()
+                self._lease = self.lease_client.take()
             else:
-                self._lease = self._lease_client.acquire()
+                self._lease = self.lease_client.acquire()
         except (ResponseError, RpcError) as err:
             self.logger.error("Failed to obtain lease: ", err)
             raise ValueError("Failed to obtain lease: ", err)
-        self._lease_keepalive = LeaseKeepAlive(self._lease_client)
+        self._lease_keepalive = LeaseKeepAlive(self.lease_client)
 
     def __del__(self):
         """Give up the lease"""
         if self._lease is not None:
-            self._lease_client.return_lease(self._lease)
+            self.lease_client.return_lease(self._lease)
             self._lease_keepalive.shutdown()
 
     @property
