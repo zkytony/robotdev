@@ -9,7 +9,6 @@ def main():
                                 take_lease=True)
     command_client = rbd_spot.arm.create_client(conn)
     rbd_spot.arm.open_gripper(conn, command_client)
-    time.sleep(2.0)
     rbd_spot.arm.close_gripper(conn, command_client)
     time.sleep(2.0)
 
