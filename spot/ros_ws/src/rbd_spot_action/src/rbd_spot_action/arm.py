@@ -20,6 +20,19 @@ def stow(conn, command_client):
     stow = RobotCommandBuilder.arm_stow_command()
     return _execute_arm_command(stow, command_client, conn.lease_client)
 
+def open_gripper(conn, command_client, level=None):
+    """
+    opens the gripper to the given leve. If level=None, then th
+    gripper will fuly open
+    """
+    if level is None:
+        gripper_command = RobotCommandBuilder.claw_gripper_open_command()
+    else:
+        gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(level)
+    return _execute_arm_command(gripper_command, command_client, conn.lease_client)
+
+def close_gripper(conn, command_client):
+    return open_gripper(conn, command_client, level=0.0)
 
 def moveEETo(conn, command_client, robot_state_client, pose, seconds=3.0):
     """Moves arm end-effector to given pose. The pose should be
@@ -89,6 +102,9 @@ def gazeAt(conn, command_client, robot_state_client, x, y, z):
     return _execute_arm_command(synchro_command, command_client, conn.lease_client, wait=4.0)
 
 
+
+
+
 def moveEEToWithBodyFollow(conn, command_client, robot_state_client, pose, seconds=3.0):
     """Moves arm end effector to given pose, with the body following the
     arm and moving to good positions. (See arm_with_body_follow SDK example).
@@ -142,6 +158,6 @@ def _execute_arm_command(command, command_client, lease_client, wait=3.0):
     # which seems to occur for arm following command
     with bosdyn.client.lease.LeaseKeepAlive(lease_client, must_acquire=True):
         command_id = command_client.robot_command(command)
-        block_until_arm_arrives(command_client, command_id, wait)
+        command_success = block_until_arm_arrives(command_client, command_id, wait)
     _used_time = time.time() - _start_time
-    return command_id, _used_time
+    return command_success, _used_time
