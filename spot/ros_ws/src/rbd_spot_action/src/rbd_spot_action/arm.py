@@ -29,7 +29,7 @@ def open_gripper(conn, command_client, level=None):
         gripper_command = RobotCommandBuilder.claw_gripper_open_command()
     else:
         gripper_command = RobotCommandBuilder.claw_gripper_open_fraction_command(level)
-    return _execute_arm_command(gripper_command, command_client, conn.lease_client)
+    return _execute_arm_command(gripper_command, command_client, conn.lease_client, wait=1.0)
 
 def close_gripper(conn, command_client):
     return open_gripper(conn, command_client, level=0.0)
