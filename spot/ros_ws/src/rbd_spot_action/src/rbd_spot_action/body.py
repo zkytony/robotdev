@@ -11,7 +11,7 @@ def create_client(conn):
     return conn.ensure_client(RobotCommandClient.default_service_name)
 
 def velocityCommand(conn, command_client, v_x, v_y, v_rot,
-                    cmd_duration=0.125, mobility_params=None):
+                    duration=0.125, mobility_params=None):
     """
     Send a velocity motion command to the robot.
 
@@ -25,7 +25,7 @@ def velocityCommand(conn, command_client, v_x, v_y, v_rot,
     """
     if mobility_params is None:
         mobility_params = RobotCommandBuilder.mobility_params()
-    end_time = time.time() + cmd_duration
+    end_time = time.time() + duration
     synchro_velocity_command = RobotCommandBuilder.synchro_velocity_command(
         v_x=v_x, v_y=v_y, v_rot=v_rot, params=mobility_params)
 
