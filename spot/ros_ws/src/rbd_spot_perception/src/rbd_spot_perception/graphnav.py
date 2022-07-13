@@ -12,8 +12,8 @@ from bosdyn.client.exceptions import ResponseError
 from . import graphnav_util
 
 NAV_VELOCITY_LIMITS_SLOW = SE2VelocityLimit(
-    min_vel=SE2Velocity(linear=Vec2(x=-0.3, y=-0.15), angular=-0.5),
-    max_vel=SE2Velocity(linear=Vec2(x=0.3, y=0.15), angular=0.5))
+    min_vel=SE2Velocity(linear=Vec2(x=-0.3, y=-0.15), angular=-0.25),
+    max_vel=SE2Velocity(linear=Vec2(x=0.3, y=0.15), angular=0.25))
 
 NAV_VELOCITY_LIMITS_MEDIUM = SE2VelocityLimit(
     min_vel=SE2Velocity(linear=Vec2(x=-0.6, y=-0.3), angular=-0.8),
