@@ -396,8 +396,6 @@ def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None,
         goal_waypoint_rt_seed_ewrt_seed_tolerance = Vec3(x=tolerance[0], y=tolerance[1], z=tolerance[2])
 
     if travel_params is None:
-        if speed not in {"default", "medium", "slow", "fast"}:
-            raise ValueError("Invalid speed for navigation:", speed)
         if speed == "slow":
             travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_SLOW)
         elif speed == "medium":
