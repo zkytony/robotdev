@@ -341,7 +341,8 @@ def listGraphWaypoints(graphnav_client):
         graph, localization_id)  # THIS FUNCTION DOES THE PRINTING.
 
 
-def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None, speed="medium"):
+def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None,
+               speed="medium", travel_params=None):
     """
     Navigate to a pose in the seed frame (i.e. global pose).
     Calls the NavigateToAnchor service. Blocking call until
@@ -363,6 +364,7 @@ def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None, speed="me
             the goal in x, y, z axes. Sets the 'goal_waypoint_rt_seed_ewrt_seed_tolerance'
             parameter. Applicable only for seed frame goals.
         speed (str): "medium", "slow", "fast", or "default".
+        travel_params (TravelParams proto): Travel params for navigation. If provided, will override speed.
         probably don't need:
         +callback: function to be called per cycle+
         +callback_args+
@@ -393,15 +395,15 @@ def navigateTo(conn, graphnav_client, goal, sleep=0.5, tolerance=None, speed="me
     if tolerance is not None:
         goal_waypoint_rt_seed_ewrt_seed_tolerance = Vec3(x=tolerance[0], y=tolerance[1], z=tolerance[2])
 
-    travel_params = None
-    if speed not in {"default", "medium", "slow", "fast"}:
-        raise ValueError("Invalid speed for navigation:", speed)
-    if speed == "slow":
-        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_SLOW)
-    elif speed == "medium":
-        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_MEDIUM)
-    elif speed == "fast":
-        travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_FAST)
+    if travel_params is None:
+        if speed not in {"default", "medium", "slow", "fast"}:
+            raise ValueError("Invalid speed for navigation:", speed)
+        if speed == "slow":
+            travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_SLOW)
+        elif speed == "medium":
+            travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_MEDIUM)
+        elif speed == "fast":
+            travel_params = graph_nav_pb2.TravelParams(velocity_limit=NAV_VELOCITY_LIMITS_FAST)
 
     nav_to_cmd_id = None
     is_finished = False

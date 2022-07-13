@@ -73,6 +73,10 @@ class SpotSDKConn:
     def clock_skew(self):
         return self.robot.time_sync.endpoint.clock_skew
 
+    @property
+    def timesync_endpoint(self):
+        return self.robot.time_sync.endpoint
+
     def spot_time_to_local(self, spot_timestamp):
         """
         Args:
