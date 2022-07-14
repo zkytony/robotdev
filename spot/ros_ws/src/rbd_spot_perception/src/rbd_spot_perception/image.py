@@ -114,7 +114,7 @@ def imgarray_from_imgmsg(img_msg):
     return ros_utils.convert(img_msg)
 
 def imgmsg_from_imgarray(img_arr):
-    return ros_utils.convert(img_arr)
+    return ros_utils.convert(img_arr, encoding="rgb8")
 
 
 def create_client(conn):
