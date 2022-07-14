@@ -181,13 +181,13 @@ class SegmentationPublisher:
                 continue  # we won't have points for this mask
             x = x[keep_indices]
             y = y[keep_indices]
-            rgb = [struct.unpack('I', struct.pack('BBBB',
-                                                  mask_visual[i][0],
-                                                  mask_visual[i][1],
-                                                  mask_visual[i][2], 255))[0]
+            color = [struct.unpack('I', struct.pack('BBBB',
+                                                    mask_visual[i][2],
+                                                    mask_visual[i][1],
+                                                    mask_visual[i][0], 255))[0]
                    for i in keep_indices]
             # The points for a single detection mask
-            mask_points = [[x[i], y[i], z[i], rgb[i]]
+            mask_points = [[x[i], y[i], z[i], color[i]]
                            for i in range(len(x))]
             points.extend(mask_points)
             try:
@@ -302,6 +302,7 @@ def main():
                 if args.camera != "hand":
                     # grayscale image; make it 3 channels
                     image = cv2.merge([image, image, image])
+
                 depth_image = rbd_spot.image.imgarray_from_imgmsg(depth_msg)
 
                 image_input = torch.tensor(image)
