@@ -6,7 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /PointCloud21
         - /TF1/Frames1
+        - /map1
       Splitter Ratio: 0.5
     Tree Height: 560
   - Class: rviz/Selection
@@ -194,13 +196,13 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /spot/segmentation/hand/result_boxes_viz
       Name: MarkerArray
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -274,6 +276,8 @@ Visualization Manager:
           Value: false
         gpe:
           Value: false
+        graphnav_map:
+          Value: true
         gripper_color_camera_z_forward:
           Value: true
         hand:
@@ -305,57 +309,86 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        body:
-          base_link:
-            arm0.link_sh0:
-              arm0.link_sh1:
-                arm0.link_el0:
-                  arm0.link_el1:
-                    arm0.link_wr0:
-                      arm0.link_wr1:
-                        arm0.link_fngr:
-                          {}
-          flat_body:
-            {}
-          front_left_hip:
-            front_left_upper_leg:
-              front_left_lower_leg:
-                {}
-          front_rail:
-            {}
-          front_right_hip:
-            front_right_upper_leg:
-              front_right_lower_leg:
-                {}
-          hand:
-            PicoFlexx_HAND:
-              PicoFlexx_HAND_z_forward:
-                gripper_color_camera_z_forward:
-                  {}
-          link_wr1:
-            {}
-          odom:
-            gpe:
+        graphnav_map:
+          body:
+            base_link:
+              arm0.link_sh0:
+                arm0.link_sh1:
+                  arm0.link_el0:
+                    arm0.link_el1:
+                      arm0.link_wr0:
+                        arm0.link_wr1:
+                          arm0.link_fngr:
+                            {}
+            flat_body:
               {}
-          rear_left_hip:
-            rear_left_upper_leg:
-              rear_left_lower_leg:
+            front_left_hip:
+              front_left_upper_leg:
+                front_left_lower_leg:
+                  {}
+            front_rail:
+              {}
+            front_right_hip:
+              front_right_upper_leg:
+                front_right_lower_leg:
+                  {}
+            hand:
+              PicoFlexx_HAND:
+                PicoFlexx_HAND_z_forward:
+                  gripper_color_camera_z_forward:
+                    {}
+            link_wr1:
+              {}
+            odom:
+              gpe:
                 {}
-          rear_rail:
-            {}
-          rear_right_hip:
-            rear_right_upper_leg:
-              rear_right_lower_leg:
-                {}
-          vision:
-            {}
+            rear_left_hip:
+              rear_left_upper_leg:
+                rear_left_lower_leg:
+                  {}
+            rear_rail:
+              {}
+            rear_right_hip:
+              rear_right_upper_leg:
+                rear_right_lower_leg:
+                  {}
+            vision:
+              {}
       Update Interval: 0
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: map
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /graphnav_map_publisher/graphnav_points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: body
+    Fixed Frame: graphnav_map
     Frame Rate: 30
   Name: root
   Tools:
@@ -379,7 +412,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.7659404277801514
+      Distance: 3.061720609664917
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -387,17 +420,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.9057747721672058
-        Y: 0.13793638348579407
-        Z: 0.3799246847629547
+        X: 1.2879971265792847
+        Y: 2.22208309173584
+        Z: 0.8581368923187256
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.27539899945259094
+      Pitch: 0.6753986477851868
       Target Frame: <Fixed Frame>
-      Yaw: 1.5485773086547852
+      Yaw: 3.3035805225372314
     Saved: ~
 Window Geometry:
   Displays:
