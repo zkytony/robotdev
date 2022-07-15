@@ -213,7 +213,7 @@ class SegmentationPublisher:
         rospy.loginfo("Published segmentation result (points)")
         # publish bounding boxes and markers
         det3d_array = SimpleDetection3DArray(header=caminfo.header,
-                                       detections=det3d_msgs)
+                                             detections=det3d_msgs)
         self._segdet3d_pub.publish(det3d_array)
         rospy.loginfo("Published segmentation result (bboxes)")
         markers_array = MarkerArray(markers=markers)
