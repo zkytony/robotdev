@@ -5,7 +5,13 @@
 0. Run `git submodule update --init --recursive` to get the spot_ros repository.
 
 1. Similar to MOVO, we use Docker for Spot too (but we are using
-   Ubuntu 20.04 with ROS noetic). First, build the docker image:
+   Ubuntu 20.04 with ROS noetic). 
+   
+   **Note:** If your computer has NVidia GPU and you
+   would like NVidia GPU support inside the docker container, please
+   read [this wiki](https://github.com/zkytony/robotdev/wiki/Enabling-Nvidia-Support-in-Docker) instead.
+   
+   Otherwise, first, build the docker image:
    ```
    source docker/build.noetic.sh
    ```
