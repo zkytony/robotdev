@@ -1,0 +1,24 @@
+<launch>
+  <!-- Publishes the map as point cloud; publishes waypoints;
+       starts a graphnav pose streamer for body localization;-->
+  <arg name="map_name" default="cit_first_floor"/>
+  <arg name="output" default="screen" />
+
+  <include file="$(find rbd_spot_perception)/launch/graphnav_map_publisher.launch">
+    <arg name="map_name" value="$(arg map_name)"/>
+  </include>
+
+  <node pkg="rbd_spot_perception" type="graphnav_publish_waypoints.py"
+        name="graphnav_waypoints_publisher"
+        args="--path $(find rbd_spot_perception)/maps/bosdyn/$(arg map_name) --viz" output="$(arg output)">
+  </node>
+
+  <node pkg="rbd_spot_perception" type="graphnav_locserver.sh"
+        name="graphnav_locserver"
+        args="$(arg map_name)" output="$(arg output)">
+  </node>
+
+  <!-- robot state as TF and URDF description -->
+  <include file="$(find rbd_spot_robot)/launch/state_publisher.launch"></include>
+
+</launch>

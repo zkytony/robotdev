@@ -1,8 +1,11 @@
 # ROS Utilities
 import math
+import numpy as np
 
 import sys
 import rospy
+import geometry_msgs
+import std_msgs
 
 import tf
 import tf2_ros
@@ -126,6 +129,18 @@ def transform_to_tuple(transform):
     qw = transform.rotation.w
     return (x, y, z, qx, qy, qz, qw)
 
+def transform_to_pose_stamped(transform, frame_id, stamp=None):
+    if stamp is None:
+        stamp = rospy.Time.now()
+
+    pose_msg = geometry_msgs.msg.PoseStamped()
+    pose_msg.header = std_msgs.msg.Header(stamp=stamp, frame_id=frame_id)
+    pose_msg.pose.position = geometry_msgs.msg.Point(x=transform.translation.x,
+                                                     y=transform.translation.y,
+                                                     z=transform.translation.z)
+    pose_msg.pose.orientation = transform.rotation
+    return pose_msg
+
 def topic_exists(topic):
     all_topics = [t[0] for t in rospy.get_published_topics()]
     return topic in all_topics
@@ -223,12 +238,19 @@ def remap(oldval, oldmin, oldmax, newmin, newmax):
 ### Sensor Messages ###
 import sensor_msgs.msg as sensor_msgs
 import cv_bridge
-def convert(msg):
-    if isinstance(msg, sensor_msgs.Image):
-        return _convert_imgmsg(msg)
-    raise ValueError("Cannot handle message type {}".format(msg))
+def convert(msg_or_img, encoding='passthrough'):
+    if isinstance(msg_or_img, sensor_msgs.Image):
+        return _convert_imgmsg(msg_or_img, encoding=encoding)
+    elif isinstance(msg_or_img, np.ndarray):
+        return _convert_img(msg_or_img, encoding=encoding)
+    raise ValueError("Cannot handle message type {}".format(msg_or_img))
 
-def _convert_imgmsg(msg):
+def _convert_imgmsg(msg, encoding='passthrough'):
     bridge = cv_bridge.CvBridge()
-    cv2_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    cv2_image = bridge.imgmsg_to_cv2(msg, desired_encoding=encoding)
     return cv2_image
+
+def _convert_img(img, encoding='passthrough'):
+    bridge = cv_bridge.CvBridge()
+    msg = bridge.cv2_to_imgmsg(img, encoding=encoding)
+    return msg

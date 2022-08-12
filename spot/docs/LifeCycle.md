@@ -232,6 +232,12 @@ mode or while Spot is powered off.
 - Be careful to avoid pinch points
 
 
+# Appendix 4: Power & Motor Lights
+Refer to the [official Spot user guide](https://www.generationrobots.com/media/spot-boston-dynamics/spot-user-guide-r2.0-va.pdf).
+
+![image](https://user-images.githubusercontent.com/7720184/174320555-af311825-f0ff-49bc-9c22-1def91510297.png)
+
+
 # Troubleshooting
 
 ## Extreme Motor Vibration

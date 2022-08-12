@@ -1,5 +1,7 @@
 <launch>
-
+  <!-- our modification of spot_ros's original driver.launch
+     The main thi9ng is we can control which cameras are used,
+     whether a lease is taken etc.-->
   <arg name="username" default="user" />
   <arg name="password" default="$(env SPOT_USER_PASSWORD)" />
   <arg name="network" default="$(env SPOT_CONN)"/>

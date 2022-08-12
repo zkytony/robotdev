@@ -7,18 +7,18 @@ import sensor_msgs
 import tf2_ros
 import sys
 
+from sensor_msgs.msg import Image, CameraInfo
+
 from bosdyn.api import image_pb2
 from bosdyn.client.image import ImageClient, build_image_request
 
 import spot_driver.ros_helpers
+from rbd_spot_robot.utils import ros_utils
+from .common import populate_camera_static_transforms
 
 # Note that if you don't specify image format (None) when
 # sending GetImageRequest, the response will be in JPEG format.
 IMAGE_FORMATS = ["UNKNOWN", "JPEG", "RAW", "RLE"]
-
-# camera static transform broadcaster
-CAMERA_STATIC_TF_BROADCASTER = None
-CAMERA_STATIC_TRANSFORMS = []
 
 
 def listImageSources(image_client):
@@ -77,8 +77,6 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
         response (GetImageResponse): The message returned by GetImage service.
         broadcast_tf (bool): If true, will publish tf transforms for the camera optical frames.
     """
-    tf_frames = _get_odom_tf_frames()
-
     # publish the image with local timestamp
     for image_response in get_image_result:
         local_time = conn.spot_time_to_local(
@@ -91,49 +89,32 @@ def ros_publish_image_result(conn, get_image_result, publishers, broadcast_tf=Tr
         rospy.loginfo(f"Published image response from {source_name}")
 
         if broadcast_tf:
-            populate_camera_static_transforms(conn, image_response, tf_frames)
+            populate_camera_static_transforms(conn, image_response.shot)
 
 
-def _get_odom_tf_frames():
-    # get tf frames; Spot has 2 types of odometries: 'odom' and 'vision'
-    mode_parent_odom_tf = rospy.get_param('~mode_parent_odom_tf', 'odom') # 'vision' or 'odom'
-    tf_name_kinematic_odom = rospy.get_param('~tf_name_kinematic_odom', 'odom')
-    tf_name_raw_kinematic = 'odom'
-    tf_name_vision_odom = rospy.get_param('~tf_name_vision_odom', 'vision')
-    tf_name_raw_vision = 'vision'
-    if mode_parent_odom_tf != tf_name_raw_kinematic and mode_parent_odom_tf != tf_name_raw_vision:
-        rospy.logerr('rosparam \'~mode_parent_odom_tf\' should be \'odom\' or \'vision\'.')
-        sys.exit(1)
-    return dict(tf_name_kinematic_odom=tf_name_kinematic_odom,
-                tf_name_raw_kinematic=tf_name_raw_kinematic,
-                tf_name_vision_odom=tf_name_vision_odom,
-                tf_name_raw_vision=tf_name_raw_vision)
+def imgarray_from_response(image_response, conn):
+    """
+    Given an image_response (GetImageResponse), returns a numpy
+    array of the image.
+    """
+    local_time = conn.spot_time_to_local(
+        image_response.shot.acquisition_time)
+    img_msg, _ = spot_driver.ros_helpers._getImageMsg(image_response, local_time)
+    img = ros_utils.convert(img_msg)
+    return img
 
+def imgmsg_from_response(image_response, conn):
+    """Returns a tuple (sensor_msgs.Image, sensor_msgs.CameraInfo) givne
+    ImageResponse proto"""
+    local_time = conn.spot_time_to_local(
+        image_response.shot.acquisition_time)
+    return spot_driver.ros_helpers._getImageMsg(image_response, local_time)
 
-def populate_camera_static_transforms(conn, image_data, tf_frames):
-    global CAMERA_STATIC_TF_BROADCASTER
-    global CAMERA_STATIC_TRANSFORMS
-    if CAMERA_STATIC_TF_BROADCASTER is None:
-        CAMERA_STATIC_TF_BROADCASTER = tf2_ros.StaticTransformBroadcaster()
-    excluded_frames = [tf_frames['tf_name_vision_odom'], tf_frames['tf_name_kinematic_odom'], "body"]
-    for frame_name in image_data.shot.transforms_snapshot.child_to_parent_edge_map:
-        if frame_name in excluded_frames:
-            continue
-        parent_frame = image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(frame_name).parent_frame_name
-        existing_transforms = [(transform.header.frame_id, transform.child_frame_id)
-                               for transform in CAMERA_STATIC_TRANSFORMS]
-        if (parent_frame, frame_name) in existing_transforms:
-            # We already extracted this transform
-            continue
+def imgarray_from_imgmsg(img_msg):
+    return ros_utils.convert(img_msg)
 
-        transform = image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(frame_name)
-        local_time = conn.spot_time_to_local(image_data.shot.acquisition_time)
-        tf_time = rospy.Time(local_time.seconds, local_time.nanos)
-        static_tf = spot_driver.ros_helpers.populateTransformStamped(
-            tf_time, transform.parent_frame_name, frame_name,
-            transform.parent_tform_child)
-        CAMERA_STATIC_TRANSFORMS.append(static_tf)
-        CAMERA_STATIC_TF_BROADCASTER.sendTransform(CAMERA_STATIC_TRANSFORMS)
+def imgmsg_from_imgarray(img_arr):
+    return ros_utils.convert(img_arr, encoding="rgb8")
 
 
 def create_client(conn):
