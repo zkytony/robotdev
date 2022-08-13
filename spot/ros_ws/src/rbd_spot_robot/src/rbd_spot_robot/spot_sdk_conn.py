@@ -7,6 +7,11 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 import logging
 
+def _get_conn_type():
+    spot_conn = os.environ.get('SPOT_CONN', None)
+    if spot_conn is not None:
+        return spot_conn.replace(" ", "_")
+    return None
 
 @dataclass(init=True)
 class SpotSDKConn:
@@ -15,10 +20,10 @@ class SpotSDKConn:
     uses Spot SDK needs such as 'robot'"""
     # Assumes you have successfully run source setup_spot.sh
     sdk_name: str
-    hostname: str = os.environ['SPOT_IP']
+    hostname: str = os.environ.get('SPOT_IP', None)
     username: str = "user"
-    password: str = os.environ['SPOT_USER_PASSWORD']
-    conn_type: str = os.environ['SPOT_CONN'].replace(" ", "_")
+    password: str = os.environ.get('SPOT_USER_PASSWORD', None)
+    conn_type: str = _get_conn_type()
     logto: str = "rosout"
     acquire_lease: bool = False
     take_lease: bool = False
