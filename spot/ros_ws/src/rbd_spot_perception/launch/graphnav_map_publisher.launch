@@ -5,6 +5,9 @@
   <!-- The topic that the point cloud will be published at -->
   <arg name="topic" default="graphnav_points"/>
   <arg name="rate" default="1.0"/>
+  <arg name="output" default="screen" />
+
+  <param name="map_name" value="$(arg map_name)"/>
 
   <node pkg="rbd_spot_perception" type="graphnav_map_publisher"
         name="graphnav_map_publisher" output="screen"
@@ -12,6 +15,11 @@
     <param name="frame_id" value="$(arg frame_id)"/>
     <param name="topic" value="$(arg topic)"/>
     <param name="rate" value="$(arg rate)"/>
+  </node>
+
+  <node pkg="rbd_spot_perception" type="graphnav_publish_waypoints.py"
+        name="graphnav_waypoints_publisher"
+        args="--path $(find rbd_spot_perception)/maps/bosdyn/$(arg map_name) --viz" output="$(arg output)">
   </node>
 
 </launch>

@@ -22,7 +22,9 @@ By default, we assume you use ROS Noetic on Ubuntu 20.04.
 If you are using a different version of ROS, please use
 the Docker container for that ROS version.
 
-For example, to start the container for robotdev using ROS Kinetic:
+**Note:** If your computer has NVidia GPU and you would like NVidia GPU support inside the docker container, please read [this wiki](https://github.com/zkytony/robotdev/wiki/Enabling-Nvidia-Support-in-Docker) instead of step 1 and 2.
+
+Otherwise, as an example, to start the container for robotdev using ROS Kinetic:
 
 1. Build the docker image. Replace 'kaiyu' to the username of yourself on your host machine
    ```
