@@ -10,6 +10,7 @@ import time
 import sys
 import argparse
 import numpy as np
+import random
 
 import cv2
 import rospy
@@ -115,34 +116,17 @@ class SegmentationPublisher:
         """
         # publish the 2D bounding boxes
         det2d_msgs = []
-        # boxes2d = []
-        # for i, bbox2d in enumerate(pred['boxes']):
-        #     # maskrcnn bounding box has format x1, y1, x2, y2
-        #     bbox2d = bbox2d.detach().cpu().numpy()
-        #     if self._camera == "front":
-        #         # We need to roate the bounding boxes clockwise by 90 deg if camera is front
-        #         # because boudning boxes was generated for an image that was rotated 90 degrees clockwise
-        #         # with respect to the original image from Spot.
-        #         bbox2d = rotate_bbox2d_90(bbox2d, visual_img.shape[:2], d="counterclockwise")
-        #     bbox2d = bbox2d.astype(int)
-        #     label = COCO_CLASS_NAMES[pred['labels'][i].item()]
-        #     score = pred['scores'][i].item()
-        #     det2d = SimpleDetection2D(label=label, score=score,
-        #                               x1=bbox2d[0], y1=bbox2d[1],x2=bbox2d[2], y2=bbox2d[3])
-        #     det2d_msgs.append(det2d)
-        #     boxes2d.append(bbox2d)
-        # det2d_array = SimpleDetection2DArray(header=caminfo.header,
-        #                                      detections=det2d_msgs)
-        # self._segdet2d_pub.publish(det2d_array)
         yoloPandaDataframe = yolopred.pandas().xyxy[0]
         yoloRender = yolopred.render()
+        yoloMasks = []
 
         for index, row in yoloPandaDataframe.iterrows():
             det2d = SimpleDetection2D(label=row['name'], score=np.float32(row['confidence']),x1=int(row['xmin']), y1=int(row['ymin']),x2=int(row['xmax']), y2=int(row['ymax']))
+            
+            yoloMasks.append((int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']), row['name'],np.float32(row['confidence'])))
             det2d_msgs.append(det2d)
-            # boxes2d.append(bbox2d)
         det2d_array = SimpleDetection2DArray(header=caminfo.header, detections=det2d_msgs)
-        # rospy.loginfo("Publishing det2d_array = ", det2d_array)
+        # # rospy.loginfo("Publishing det2d_array = ", det2d_array)
         self._segdet2d_pub.publish(det2d_array)
 
 
@@ -175,13 +159,39 @@ class SegmentationPublisher:
         points = []
         markers = []
         det3d_msgs = []
-        for i, mask in enumerate(masks):
-            mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
-            mask_coords_T = mask_coords.T
-            mask_visual = visual_img[mask_coords_T[0], mask_coords_T[1], :].reshape(-1, 3)  # colors on the mask
-            mask_depth = depth_img[mask_coords_T[0], mask_coords_T[1]]  # depth on the mask
 
-            v, u = mask_coords_T[0], mask_coords_T[1]
+        for mask in yoloMasks:
+
+            # For mask
+            # index 0 = xmin
+            # index 1 = ymin
+            # index 2 = xmax
+            # index 3 = ymax 
+            # index 4 = predicted  label
+            # index 5 = confidence 
+            sample_length = min( (mask[3]-mask[1]), (mask[2]-mask[0]))
+            sample_length = sample_length * 0.8
+            sample_length = int(sample_length)
+            y_coords_list = []
+            x_coords_list = []
+
+            y_start = mask[1] + ((mask[3]-mask[1] - sample_length) // 2)
+            y_end = y_start + sample_length
+
+            x_start = mask[0] + ((mask[2]-mask[0] - sample_length) // 2)
+            x_end = x_start + sample_length
+
+            for i in range (y_start, y_end):
+                for j in range(x_start, x_end):
+                    y_coords_list.append(int(i))
+                    x_coords_list.append(int(j))
+            y_coords = np.array(y_coords_list)
+            x_coords = np.array(x_coords_list)
+            mask_visual = visual_img[y_coords, x_coords, :].reshape(-1, 3)  # colors on the mask
+            mask_depth = depth_img[y_coords, x_coords]  # depth on the mask
+
+            v, u = y_coords, x_coords
+            
             I = get_intrinsics(caminfo.P)
             z = mask_depth / 1000.0
             x = (u - I['cx']) * z / I['fx']
@@ -205,8 +215,8 @@ class SegmentationPublisher:
             try:
                 box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True, no_rotation=True)
                 bbox3d_msg = make_bbox3d_msg(box_center, box_sizes)
-                label = COCO_CLASS_NAMES[pred['labels'][i].item()]
-                score = pred['scores'][i].item()
+                label = mask[4]
+                score = mask[5]
                 det3d = SimpleDetection3D(label=label,
                                           score=score,
                                           box=bbox3d_msg)
@@ -330,8 +340,8 @@ def main():
                 pred = model([image_input.permute(2, 0, 1)])[0]
                 yolomodelPrediction =  yolomodel(image)
                 pred = maskrcnn_filter_by_score(pred, 0.7)
-                # Print out a summary
-                print("detected objects: {}".format(list(sorted(COCO_CLASS_NAMES[l] for l in pred['labels']))))
+                
+                
                 if len(pred['labels']) > 0:
                     if args.pub:
                         seg_publisher.publish_result(pred, yolomodelPrediction, image, depth_image, caminfo)
