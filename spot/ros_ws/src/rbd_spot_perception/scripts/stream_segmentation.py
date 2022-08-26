@@ -10,7 +10,6 @@ import time
 import sys
 import argparse
 import numpy as np
-import random
 
 import cv2
 import rospy
@@ -107,7 +106,7 @@ class SegmentationPublisher:
         # Bounding box visualization markers
         self._segbox_markers_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
 
-    def publish_result(self, pred, yolopred, visual_img, depth_img, caminfo):
+    def publish_result(self, pred, visual_img, depth_img, caminfo):
         """
         Args:
             pred (Tensor): output of MaskRCNN model
@@ -116,19 +115,25 @@ class SegmentationPublisher:
         """
         # publish the 2D bounding boxes
         det2d_msgs = []
-        yoloPandaDataframe = yolopred.pandas().xyxy[0]
-        yoloRender = yolopred.render()
-        yoloMasks = []
-
-        for index, row in yoloPandaDataframe.iterrows():
-            det2d = SimpleDetection2D(label=row['name'], score=np.float32(row['confidence']),x1=int(row['xmin']), y1=int(row['ymin']),x2=int(row['xmax']), y2=int(row['ymax']))
-            
-            yoloMasks.append((int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']), row['name'],np.float32(row['confidence'])))
+        boxes2d = []
+        for i, bbox2d in enumerate(pred['boxes']):
+            # maskrcnn bounding box has format x1, y1, x2, y2
+            bbox2d = bbox2d.detach().cpu().numpy()
+            if self._camera == "front":
+                # We need to roate the bounding boxes clockwise by 90 deg if camera is front
+                # because boudning boxes was generated for an image that was rotated 90 degrees clockwise
+                # with respect to the original image from Spot.
+                bbox2d = rotate_bbox2d_90(bbox2d, visual_img.shape[:2], d="counterclockwise")
+            bbox2d = bbox2d.astype(int)
+            label = COCO_CLASS_NAMES[pred['labels'][i].item()]
+            score = pred['scores'][i].item()
+            det2d = SimpleDetection2D(label=label, score=score,
+                                      x1=bbox2d[0], y1=bbox2d[1],x2=bbox2d[2], y2=bbox2d[3])
             det2d_msgs.append(det2d)
-        det2d_array = SimpleDetection2DArray(header=caminfo.header, detections=det2d_msgs)
-        # # rospy.loginfo("Publishing det2d_array = ", det2d_array)
+            boxes2d.append(bbox2d)
+        det2d_array = SimpleDetection2DArray(header=caminfo.header,
+                                             detections=det2d_msgs)
         self._segdet2d_pub.publish(det2d_array)
-
 
         # because the prediction is based on an upright image, we need to make sure
         # the drawn result is on an upright image
@@ -139,8 +144,7 @@ class SegmentationPublisher:
         else:
             result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
 
-        # result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
-        result_img_msg = rbd_spot.image.imgmsg_from_imgarray(yoloRender[0])
+        result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
         result_img_msg.header.stamp = caminfo.header.stamp
         result_img_msg.header.frame_id = caminfo.header.frame_id
         self._segimg_pub.publish(result_img_msg)
@@ -159,39 +163,13 @@ class SegmentationPublisher:
         points = []
         markers = []
         det3d_msgs = []
+        for i, mask in enumerate(masks):
+            mask_coords = mask.nonzero().cpu().numpy()  # works with boolean tensor too
+            mask_coords_T = mask_coords.T
+            mask_visual = visual_img[mask_coords_T[0], mask_coords_T[1], :].reshape(-1, 3)  # colors on the mask
+            mask_depth = depth_img[mask_coords_T[0], mask_coords_T[1]]  # depth on the mask
 
-        for mask in yoloMasks:
-
-            # For mask
-            # index 0 = xmin
-            # index 1 = ymin
-            # index 2 = xmax
-            # index 3 = ymax 
-            # index 4 = predicted  label
-            # index 5 = confidence 
-            sample_length = min( (mask[3]-mask[1]), (mask[2]-mask[0]))
-            sample_length = sample_length * 0.8
-            sample_length = int(sample_length)
-            y_coords_list = []
-            x_coords_list = []
-
-            y_start = mask[1] + ((mask[3]-mask[1] - sample_length) // 2)
-            y_end = y_start + sample_length
-
-            x_start = mask[0] + ((mask[2]-mask[0] - sample_length) // 2)
-            x_end = x_start + sample_length
-
-            for i in range (y_start, y_end):
-                for j in range(x_start, x_end):
-                    y_coords_list.append(int(i))
-                    x_coords_list.append(int(j))
-            y_coords = np.array(y_coords_list)
-            x_coords = np.array(x_coords_list)
-            mask_visual = visual_img[y_coords, x_coords, :].reshape(-1, 3)  # colors on the mask
-            mask_depth = depth_img[y_coords, x_coords]  # depth on the mask
-
-            v, u = y_coords, x_coords
-            
+            v, u = mask_coords_T[0], mask_coords_T[1]
             I = get_intrinsics(caminfo.P)
             z = mask_depth / 1000.0
             x = (u - I['cx']) * z / I['fx']
@@ -215,8 +193,8 @@ class SegmentationPublisher:
             try:
                 box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True, no_rotation=True)
                 bbox3d_msg = make_bbox3d_msg(box_center, box_sizes)
-                label = mask[4]
-                score = mask[5]
+                label = COCO_CLASS_NAMES[pred['labels'][i].item()]
+                score = pred['scores'][i].item()
                 det3d = SimpleDetection3D(label=label,
                                           score=score,
                                           box=bbox3d_msg)
@@ -296,8 +274,6 @@ def main():
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
     model.eval()
     model.to(device)
-    counter = 0
-    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path='/home/anirudha/repo/robotdev/spot/ros_ws/src/rbd_spot_perception/scripts/yoloV5Weights/best.pt')
 
     # Stream the image through specified sources
     _start_time = time.time()
@@ -328,7 +304,7 @@ def main():
                     image = cv2.merge([image, image, image])
 
                 depth_image = rbd_spot.image.imgarray_from_imgmsg(depth_msg)
-                # cv2.imwrite('savedimage.jpeg', image) 
+
                 image_input = torch.tensor(image)
                 if args.camera == "front":
                     # we need to rotate the images by 90 degrees ccw to make it upright
@@ -338,13 +314,12 @@ def main():
                     image_input = image_input.cuda(device)
 
                 pred = model([image_input.permute(2, 0, 1)])[0]
-                yolomodelPrediction =  yolomodel(image)
                 pred = maskrcnn_filter_by_score(pred, 0.7)
-                
-                
+                # Print out a summary
+                print("detected objects: {}".format(list(sorted(COCO_CLASS_NAMES[l] for l in pred['labels']))))
                 if len(pred['labels']) > 0:
                     if args.pub:
-                        seg_publisher.publish_result(pred, yolomodelPrediction, image, depth_image, caminfo)
+                        seg_publisher.publish_result(pred, image, depth_image, caminfo)
             if args.pub:
                 rate.sleep()
             _used_time = time.time() - _start_time
