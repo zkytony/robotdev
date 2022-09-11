@@ -6,7 +6,7 @@
 # part of the object, the 3D bounding box will not be
 # accurate. You might want to rely on the 3D pose only.
 
-# This is another implementation of stream_segmentation.py 
+# This is another implementation of stream_segmentation.py
 # But instead of using maskrcnn it uses a custom trained YoloV5
 # And most of the design decision is taken from original stream_segmentation.py file
 
@@ -146,7 +146,7 @@ class SegmentationPublisher:
         det3d_msgs = []
 
         # for mask in yoloMasks:
-        # The logic of the point cloud and 3d bounding box generation is 
+        # The logic of the point cloud and 3d bounding box generation is
         # it is sampling a small subset area from the 2d bounding box detected by YoloV5
         # and making 3d point cloud and corrosponding bounding box from that
 
@@ -171,25 +171,25 @@ class SegmentationPublisher:
             x_end = x_start + sample_length
 
             # Populating all the points or pixels inside the sample area
-            # TODO: Should be a better way to do this. Find that. 
+            # TODO: Should be a better way to do this. Find that.
             for i in range (y_start, y_end):
                 for j in range(x_start, x_end):
                     y_coords_list.append(int(i))
                     x_coords_list.append(int(j))
-            
+
             y_coords = np.array(y_coords_list)
             x_coords = np.array(x_coords_list)
             mask_visual = visual_img[y_coords, x_coords, :].reshape(-1, 3)  # colors on the mask
             mask_depth = depth_img[y_coords, x_coords]  # depth on the mask
 
             v, u = y_coords, x_coords
-            
+
             I = get_intrinsics(caminfo.P)
             z = mask_depth / 1000.0
             x = (u - I['cx']) * z / I['fx']
             y = (v - I['cy']) * z / I['fy']
             # filter out points too close to the gripper (most likely noise)
-            keep_indices = np.argwhere(z > 0.06).flatten()
+            keep_indices = np.argwhere(z > 0.1).flatten()
             z = z[keep_indices]
             if len(z) == 0:
                 continue  # we won't have points for this mask
@@ -284,8 +284,8 @@ def main():
         sources, quality=args.quality, fmt=args.format)
 
     print("Loading model...")
-    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path='/home/anirudha/repo/robotdev/spot/ros_ws/src/rbd_spot_perception/scripts/yoloV5Weights/best.pt')
-
+    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path='../models/yolov5/yolov5_lab_custom/best.pt')
+    # yolomodel.conf = 0.45
     # Stream the image through specified sources
     _start_time = time.time()
     while True:
@@ -317,10 +317,9 @@ def main():
                 depth_image = rbd_spot.image.imgarray_from_imgmsg(depth_msg)
                 image_input = torch.tensor(image)
 
-                yolomodelPrediction =  yolomodel(image)
+                yolomodelPrediction = yolomodel(image)
                 yoloPandaDataframe = yolomodelPrediction.pandas().xyxy[0]
-                
-                
+
                 if len(yoloPandaDataframe.index) > 0:
                     if args.pub:
                         seg_publisher.publish_result(yolomodelPrediction, yoloPandaDataframe, image, depth_image, caminfo)
