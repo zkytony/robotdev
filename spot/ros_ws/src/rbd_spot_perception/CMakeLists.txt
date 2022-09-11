@@ -4,14 +4,15 @@ project(rbd_spot_perception)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  spot_driver
   std_msgs
   sensor_msgs
   pcl_ros
   pcl_conversions
   geometry_msgs
   visualization_msgs
-  vision_msgs)
+  vision_msgs
+  message_filters
+  spot_driver)
 catkin_python_setup()
 
 ################################################
