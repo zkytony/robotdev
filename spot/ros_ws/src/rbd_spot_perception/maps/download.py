@@ -2,6 +2,7 @@ import os
 import gdown
 import subprocess
 
+os.makedirs("bosdyn", exist_ok=True)
 outfname = "cit_first_floor.zip"
 output = f"bosdyn/{outfname}"
 if not os.path.exists(output):

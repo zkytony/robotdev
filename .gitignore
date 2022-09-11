@@ -90,9 +90,10 @@ spot/ros_ws/src/rbd_spot_perception/maps/rtabmap/*.yaml
 spot/ros_ws/src/rbd_spot_perception/maps/bosdyn/**/edge_*
 spot/ros_ws/src/rbd_spot_perception/maps/bosdyn/**/snapshot_*
 spot/ros_ws/src/rbd_spot_perception/maps/bosdyn/**/graph
+spot/ros_ws/src/rbd_spot_perception/maps/bosdyn/**/*.zip
 
 # bag files (too large)
 *.bag
 
-## elevation_mapping package
-spot/ros_ws/src/anybotics
+## Ignore yolov5 weights
+spot/ros_ws/src/rbd_spot_perception/models/yolov5
