@@ -139,10 +139,15 @@ class SegmentationPublisher:
         # the drawn result is on an upright image
         if self._camera == "front":
             visual_img_upright = torch.tensor(cv2.rotate(visual_img, cv2.ROTATE_90_CLOCKWISE)).permute(2, 0, 1)
-            result_img = maskrcnn_draw_result(pred, visual_img_upright)
-
+            if len(pred['labels']) > 0:
+                result_img = maskrcnn_draw_result(pred, visual_img_upright)
+            else:
+                result_img = visual_img_upright
         else:
-            result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
+            if len(pred['labels']) > 0:
+                result_img = maskrcnn_draw_result(pred, torch.tensor(visual_img).permute(2, 0, 1))
+            else:
+                result_img = torch.tensor(visual_img).permute(2, 0, 1)
 
         result_img_msg = rbd_spot.image.imgmsg_from_imgarray(result_img.permute(1, 2, 0).numpy())
         result_img_msg.header.stamp = caminfo.header.stamp
@@ -317,9 +322,8 @@ def main():
                 pred = maskrcnn_filter_by_score(pred, 0.7)
                 # Print out a summary
                 print("detected objects: {}".format(list(sorted(COCO_CLASS_NAMES[l] for l in pred['labels']))))
-                if len(pred['labels']) > 0:
-                    if args.pub:
-                        seg_publisher.publish_result(pred, image, depth_image, caminfo)
+                if args.pub:
+                    seg_publisher.publish_result(pred, image, depth_image, caminfo)
             if args.pub:
                 rate.sleep()
             _used_time = time.time() - _start_time

@@ -323,9 +323,8 @@ def main():
                 yolomodelPrediction = yolomodel(image)
                 yoloPandaDataframe = yolomodelPrediction.pandas().xyxy[0]
 
-                if len(yoloPandaDataframe.index) > 0:
-                    if args.pub:
-                        seg_publisher.publish_result(yolomodelPrediction, yoloPandaDataframe, image, depth_image, caminfo)
+                if args.pub:
+                    seg_publisher.publish_result(yolomodelPrediction, yoloPandaDataframe, image, depth_image, caminfo)
             if args.pub:
                 rate.sleep()
             _used_time = time.time() - _start_time
