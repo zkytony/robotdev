@@ -23,7 +23,7 @@
   </node>
 
   <!-- Statistical outlier removal -->
-  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="$(arg output)" />
   <node pkg="nodelet" type="nodelet"
         name="statistical_filter"
         args="load pcl/StatisticalOutlierRemoval pcl_manager">
