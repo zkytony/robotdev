@@ -22,4 +22,15 @@
         args="--path $(find rbd_spot_perception)/maps/bosdyn/$(arg map_name) --viz" output="$(arg output)">
   </node>
 
+  <!-- Statistical outlier removal -->
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+  <node pkg="nodelet" type="nodelet"
+        name="statistical_filter"
+        args="load pcl/StatisticalOutlierRemoval pcl_manager">
+    <param name="mean_k" value="100" />
+    <param name="stddev" value="0.1" />
+    <remap from="~input" to="/graphnav_map_publisher/graphnav_points"/>
+    <remap from="~output" to="/graphnav_map_publisher/graphnav_points_filtered"/>
+  </node>
+
 </launch>

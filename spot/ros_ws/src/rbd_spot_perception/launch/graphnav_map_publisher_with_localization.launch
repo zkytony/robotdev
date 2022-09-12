@@ -8,11 +8,6 @@
     <arg name="map_name" value="$(arg map_name)"/>
   </include>
 
-  <node pkg="rbd_spot_perception" type="graphnav_publish_waypoints.py"
-        name="graphnav_waypoints_publisher"
-        args="--path $(find rbd_spot_perception)/maps/bosdyn/$(arg map_name) --viz" output="$(arg output)">
-  </node>
-
   <node pkg="rbd_spot_perception" type="graphnav_locserver.sh"
         name="graphnav_locserver"
         args="$(arg map_name)" output="$(arg output)">
