@@ -15,6 +15,7 @@ import sys
 import argparse
 import numpy as np
 import random
+import os
 
 import cv2
 import rospy
@@ -39,6 +40,8 @@ from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
                                                        maskrcnn_draw_result,
                                                        bbox3d_from_points)
 from rbd_spot_perception.utils.math import R2d
+
+ABS_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 def get_intrinsics(P):
     return dict(fx=P[0],
@@ -284,7 +287,7 @@ def main():
         sources, quality=args.quality, fmt=args.format)
 
     print("Loading model...")
-    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path='../models/yolov5/yolov5_lab_custom/best.pt')
+    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path=f"{ABS_FILE_PATH}/../models/yolov5/yolov5_lab_custom/best.pt")
     # yolomodel.conf = 0.45
     # Stream the image through specified sources
     _start_time = time.time()
