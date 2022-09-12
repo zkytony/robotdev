@@ -26,22 +26,18 @@ from sensor_msgs import point_cloud2
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2, PointField
 from visualization_msgs.msg import Marker, MarkerArray
 from vision_msgs.msg import BoundingBox3D
-from geometry_msgs.msg import Point, Quaternion, Vector3
+from geometry_msgs.msg import Point, Quaternion, Vector3, Pose2D
 from std_msgs.msg import Header
 from std_msgs.msg import ColorRGBA
-from rbd_spot_perception.msg import (SimpleDetection2D,
-                                     SimpleDetection2DArray,
-                                     SimpleDetection3D,
-                                     SimpleDetection3DArray)
-
+from vision_msgs.msg import (Detection2D, Detection2DArray, Detection3D,
+                             Detection3DArray, BoundingBox2D, BoundingBox3D,
+                             VisionInfo, ObjectHypothesisWithPose)
 import rbd_spot
-from rbd_spot_perception.utils.vision.detector import (COCO_CLASS_NAMES,
-                                                       maskrcnn_filter_by_score,
-                                                       maskrcnn_draw_result,
-                                                       bbox3d_from_points)
+from rbd_spot_perception.utils.vision.detector import bbox3d_from_points
 from rbd_spot_perception.utils.math import R2d
 
 ABS_FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+YOLOV5_MODEL_NAME = "yolov5_lab_custom"
 
 def get_intrinsics(P):
     return dict(fx=P[0],
@@ -98,6 +94,10 @@ def rotate_bbox2d_90(bbox, dim, d="counterclockwise"):
         return np.array([y1, h - x1,
                          y2, h - x2])
 
+def cornerbox_to_centerbox(x1, y1, x2, y2):
+    w = x2 - x1
+    h = y2 - y1
+    return x1 + w/2, y1 + h/2, w, h
 
 class SegmentationPublisher:
     def __init__(self, camera, mask_threshold=0.7):
@@ -108,11 +108,21 @@ class SegmentationPublisher:
         # Publishes the point cloud of the back-projected segmentations
         self._segpcl_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_points", PointCloud2, queue_size=10)
         # Publishes bounding boxes of detected objects with reasonable filtering done.
-        self._segdet3d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes3d", SimpleDetection3DArray,  queue_size=10)
+        self._segdet3d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes3d", Detection3DArray,  queue_size=10)
         # Publishes the detected classes, confidence scores, and boudning boxes
-        self._segdet2d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes2d", SimpleDetection2DArray, queue_size=10)
+        self._segdet2d_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes2d", Detection2DArray, queue_size=10)
         # Bounding box visualization markers
         self._segbox_markers_pub = rospy.Publisher(f"/spot/segmentation/{camera}/result_boxes_viz", MarkerArray, queue_size=10)
+        self._vision_info_pub = rospy.Publisher(f"/spot/segmentation/{camera}/vision_info", VisionInfo, queue_size=10, latch=True)
+
+    def publish_vision_info(self, class_names, header=None):
+        """class_names should be a list of strings"""
+        if header is None:
+            header = Header(stamp=rospy.Time.now())
+        rospy.set_param(f"{YOLOV5_MODEL_NAME}_class_names", class_names)
+        vi_msg = VisionInfo(header=header, method=YOLOV5_MODEL_NAME,
+                            database_location=f"{YOLOV5_MODEL_NAME}_class_names")
+        self._vision_info_pub.publish(vi_msg)
 
     def publish_result(self, yolopred, yoloPandaDataframe, visual_img, depth_img, caminfo):
         """
@@ -130,10 +140,26 @@ class SegmentationPublisher:
 
         # Publishing result of predicted 2d bounding boxes
         for _, row in yoloPandaDataframe.iterrows():
-            det2d = SimpleDetection2D(label=row['name'], score=np.float32(row['confidence']),x1=int(row['xmin']), y1=int(row['ymin']),x2=int(row['xmax']), y2=int(row['ymax']))
+
+            bbox2d = np.array([row['xmin'], row['ymin'], row['xmax'], row['ymax']])
+            if self._camera == "front":
+                # We need to roate the bounding boxes clockwise by 90 deg if camera is front
+                # because boudning boxes was generated for an image that was rotated 90 degrees clockwise
+                # with respect to the original image from Spot.
+                bbox2d = rotate_bbox2d_90(bbox2d, visual_img.shape[:2], d="counterclockwise")
+            bbox2d = bbox2d.astype(int)
+            label = row['class']
+            score = np.float32(row['confidence'])
+
+            objhyp = ObjectHypothesisWithPose(id=label, score=score)
+            bbox2d_cwh = cornerbox_to_centerbox(*bbox2d)
+            bbox2d_msg = BoundingBox2D(center=Pose2D(x=bbox2d_cwh[0], y=bbox2d_cwh[1], theta=0),
+                                       size_x=bbox2d_cwh[2], size_y=bbox2d_cwh[3])
+            det2d = Detection2D(header=caminfo.header,
+                                results=[objhyp], bbox=bbox2d_msg)
             det2d_msgs.append(det2d)
 
-        det2d_array = SimpleDetection2DArray(header=caminfo.header, detections=det2d_msgs)
+        det2d_array = Detection2DArray(header=caminfo.header, detections=det2d_msgs)
         # # rospy.loginfo("Publishing det2d_array = ", det2d_array)
         self._segdet2d_pub.publish(det2d_array)
 
@@ -158,8 +184,6 @@ class SegmentationPublisher:
             ymin = int(row['ymin'])
             xmax = int(row['xmax'])
             ymax = int(row['ymax'])
-            predictedLabel = row['name']
-            confidence = np.float32(row['confidence'])
 
             sample_length = min( (ymax-ymin), (xmax-xmin))
             sample_length = sample_length * 0.8 # Change this value to make the sample window of depth calculation area
@@ -210,11 +234,14 @@ class SegmentationPublisher:
             try:
                 box_center, box_sizes = bbox3d_from_points([x, y, z], axis_aligned=True, no_rotation=True)
                 bbox3d_msg = make_bbox3d_msg(box_center, box_sizes)
-                label = predictedLabel
-                score = confidence
-                det3d = SimpleDetection3D(label=label,
-                                          score=score,
-                                          box=bbox3d_msg)
+                label = row['class']
+                score = np.float32(row['confidence'])
+                # Note: we do not set the pose field; It can be inferred from the bounding box.
+                # Also, the latest version of vision_msgs supports string 'id'.
+                objhyp = ObjectHypothesisWithPose(id=label, score=score)
+                det3d = Detection3D(header=caminfo.header,
+                                    results=[objhyp],
+                                    bbox=bbox3d_msg)
                 det3d_msgs.append(det3d)
                 markers.append(make_bbox3d_marker_msg(box_center, box_sizes, 1000 + i, result_img_msg.header))
             except Exception as ex:
@@ -229,8 +256,8 @@ class SegmentationPublisher:
         self._segpcl_pub.publish(pc2)
         rospy.loginfo("Published segmentation result (points)")
         # publish bounding boxes and markers
-        det3d_array = SimpleDetection3DArray(header=caminfo.header,
-                                             detections=det3d_msgs)
+        det3d_array = Detection3DArray(header=caminfo.header,
+                                       detections=det3d_msgs)
         self._segdet3d_pub.publish(det3d_array)
         rospy.loginfo("Published segmentation result (bboxes)")
         markers_array = MarkerArray(markers=markers)
@@ -287,7 +314,12 @@ def main():
         sources, quality=args.quality, fmt=args.format)
 
     print("Loading model...")
-    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path=f"{ABS_FILE_PATH}/../models/yolov5/yolov5_lab_custom/best.pt")
+    yolomodel = torch.hub.load('ultralytics/yolov5', 'custom', path=f"{ABS_FILE_PATH}/../models/yolov5/{YOLOV5_MODEL_NAME}/best.pt")
+
+    if args.pub:
+        seg_publisher.publish_vision_info([yolomodel.names[i] for i in sorted(yolomodel.names)])
+        rospy.loginfo("Published vision info")
+
     # yolomodel.conf = 0.45
     # Stream the image through specified sources
     _start_time = time.time()
