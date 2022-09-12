@@ -22,11 +22,7 @@ add_message_files(
   DIRECTORY msg
   FILES
   GraphNavWaypoint.msg
-  GraphNavWaypointArray.msg
-  SimpleDetection2D.msg
-  SimpleDetection2DArray.msg
-  SimpleDetection3D.msg
-  SimpleDetection3DArray.msg)
+  GraphNavWaypointArray.msg)
 
 generate_messages(
   DEPENDENCIES

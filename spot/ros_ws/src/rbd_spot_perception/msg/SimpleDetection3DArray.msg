@@ -1,2 +1,0 @@
-std_msgs/Header header
-rbd_spot_perception/SimpleDetection3D[] detections

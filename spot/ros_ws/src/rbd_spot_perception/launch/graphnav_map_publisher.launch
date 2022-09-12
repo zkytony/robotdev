@@ -6,6 +6,9 @@
   <arg name="topic" default="graphnav_points"/>
   <arg name="rate" default="1.0"/>
   <arg name="output" default="screen" />
+  <!-- parameters for outlier removal -->
+  <arg name="mean_k" default="10"/>
+  <arg name="stdev" default="0.05"/>
 
   <param name="map_name" value="$(arg map_name)"/>
 
@@ -27,8 +30,8 @@
   <node pkg="nodelet" type="nodelet"
         name="statistical_filter"
         args="load pcl/StatisticalOutlierRemoval pcl_manager">
-    <param name="mean_k" value="100" />
-    <param name="stddev" value="0.1" />
+    <param name="mean_k" value="$(arg mean_k)" />
+    <param name="stddev" value="$(arg stdev)" />
     <remap from="~input" to="/graphnav_map_publisher/graphnav_points"/>
     <remap from="~output" to="/graphnav_map_publisher/graphnav_points_filtered"/>
   </node>
