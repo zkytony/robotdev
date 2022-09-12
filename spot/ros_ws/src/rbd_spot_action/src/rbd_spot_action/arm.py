@@ -5,7 +5,10 @@ from bosdyn.api import arm_command_pb2, geometry_pb2
 from bosdyn.client import math_helpers
 from bosdyn.client.robot_command import (RobotCommandBuilder, RobotCommandClient,
                                          block_until_arm_arrives, blocking_stand)
-from bosdyn.client.frame_helpers import GRAV_ALIGNED_BODY_FRAME_NAME, ODOM_FRAME_NAME, get_a_tform_b
+from bosdyn.client.frame_helpers import (GRAV_ALIGNED_BODY_FRAME_NAME,
+                                         VISION_FRAME_NAME,
+                                         ODOM_FRAME_NAME,
+                                         get_a_tform_b)
 
 def create_client(conn):
     return conn.ensure_client(RobotCommandClient.default_service_name)
@@ -63,7 +66,7 @@ def moveEETo(conn, command_client, robot_state_client, pose, seconds=3.0):
 
     robot_state = robot_state_client.get_robot_state()
     odom_T_flat_body = get_a_tform_b(robot_state.kinematic_state.transforms_snapshot,
-                                     ODOM_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
+                                     VISION_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
 
     odom_T_hand = odom_T_flat_body * math_helpers.SE3Pose.from_obj(flat_body_T_hand)
 
@@ -71,7 +74,7 @@ def moveEETo(conn, command_client, robot_state_client, pose, seconds=3.0):
         odom_T_hand.position.x, odom_T_hand.position.y, odom_T_hand.position.z,
         odom_T_hand.rotation.w, odom_T_hand.rotation.x,
         odom_T_hand.rotation.y, odom_T_hand.rotation.z,
-        ODOM_FRAME_NAME, seconds)
+        VISION_FRAME_NAME, seconds)
     return _execute_arm_command(arm_command, command_client, conn.lease_client, wait=3.0)
 
 
@@ -84,12 +87,12 @@ def gazeAt(conn, command_client, robot_state_client, x, y, z):
     For the same reason as moveEETo, will need robot_state_client"""
     robot_state = robot_state_client.get_robot_state()
     odom_T_flat_body = get_a_tform_b(robot_state.kinematic_state.transforms_snapshot,
-                                     ODOM_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
+                                     VISION_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
     gaze_target_in_odom = odom_T_flat_body.transform_point(x=x, y=y, z=z)
     gaze_command = RobotCommandBuilder.arm_gaze_command(gaze_target_in_odom[0],
                                                         gaze_target_in_odom[1],
                                                         gaze_target_in_odom[2],
-                                                        ODOM_FRAME_NAME)
+                                                        VISION_FRAME_NAME)
     # Make the open gripper RobotCommand
     gripper_command = RobotCommandBuilder.claw_gripper_open_command()
 
@@ -136,7 +139,7 @@ def moveEEToWithBodyFollow(conn, command_client, robot_state_client, pose, secon
 
     robot_state = robot_state_client.get_robot_state()
     odom_T_flat_body = get_a_tform_b(robot_state.kinematic_state.transforms_snapshot,
-                                     ODOM_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
+                                     VISION_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME)
 
     odom_T_hand = odom_T_flat_body * math_helpers.SE3Pose.from_obj(flat_body_T_hand)
 
@@ -144,7 +147,7 @@ def moveEEToWithBodyFollow(conn, command_client, robot_state_client, pose, secon
         odom_T_hand.position.x, odom_T_hand.position.y, odom_T_hand.position.z,
         odom_T_hand.rotation.w, odom_T_hand.rotation.x,
         odom_T_hand.rotation.y, odom_T_hand.rotation.z,
-        ODOM_FRAME_NAME, seconds)
+        VISION_FRAME_NAME, seconds)
 
     follow_arm_command = RobotCommandBuilder.follow_arm_command()
     # Somehow, with follow_arm_command added, will need to create a new lease keepalive object.
