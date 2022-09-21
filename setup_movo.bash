@@ -41,6 +41,40 @@ function install_libfreenect2
     cd $repo_root
 }
 
+function install_pcl_1_11_1
+{
+    # https://pcl.readthedocs.io/projects/tutorials/en/pcl-1.11.1/compiling_pcl_posix.html
+    if [[ ! $PWD = *robotdev ]]; then
+        echo "You must be in the root directory of the robotdev repository."
+        return
+    fi
+
+    if [ ! -d "thirdparty/pcl-1.11.1/" ]; then
+        cd thirdparty
+        mkdir pcl-1.11.1
+        cd pcl-1.11.1
+        wget https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.11.1/source.tar.gz
+        tar xzvf source.tar.gz
+        mv pcl/* .
+        rm source.tar.gz
+        cd ../..
+    fi
+
+    cd thirdparty/pcl-1.11.1/
+    if [ -d "build" ]; then
+        if confirm "pcl 1.11.1 build exists. Rebuild?"; then
+            rm -rf build
+        else
+            cd $repo_root
+            return
+        fi
+    fi
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    make -j8
+    sudo make -j8 install
+}
+
 
 function setup_movo_remote_pc
 {
