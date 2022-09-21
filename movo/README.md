@@ -103,6 +103,8 @@ issues encountered while setting up this workspace.
     ```bash
     alias domovo="cd ~/repo/robotdev/; source setup_movo.bash"
     ```
+    
+6. (NEW: 09/21/2022) It may happen that you cannot start a GUI program after `setup_movo.bash`, in particular, after sourcing the `devel/setup.bash`. In this case, open another terminal, and start a shell for the same container. Check if GUI programs work there. If so, run `echo $DISPLAY`. Compare that with the `$DISPLAY` variable in the shell where GUI programs fail. Likely, they are different. Now, manually change the `$DISPLAY` variable in the broken shell to the value in the working shell (e.g. I did `export DISPLAY=:1`). Then, GUI programs should work again.
 
 ## Usage and more
 
