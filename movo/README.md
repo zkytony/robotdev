@@ -34,6 +34,8 @@ issues encountered while setting up this workspace.
    ```
    source docker/run.kinetic.sh --nvidia
    ```
+   
+   **Caveat (09/21/2022):** If you use `--nvidia` with the kinetic docker image, RVIZ may fail to start up with error "Unable to create a suitable GLXContext in GLXContext::GLXContext". To be safe, use the non-nvidia image. You can still connect to the same ROS network (as ROS master is run on MOVO).
 
 3. To build MOVO source code, go to the repository's root and run:
    ```
