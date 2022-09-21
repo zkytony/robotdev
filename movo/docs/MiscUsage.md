@@ -65,6 +65,10 @@ Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/r
 
 <img src="https://user-images.githubusercontent.com/7720184/150623986-e865e3bc-3b5b-4796-8984-1176290e8a5d.png" width="600px"/>
 
+Running the first command will also start an RVIZ that looks like below:
+<img src="https://user-images.githubusercontent.com/7720184/191583192-2b54d2c6-3c9b-425d-93c5-c254ae046394.png" width="450px"/>
+
+
 ### Note controlling arms with joystick
 You may encounter a situation where everything else (torso, move base, head pan/tilt) works, but arm control does not work, as [Eric encounterd here](https://github.com/Kinovarobotics/kinova-movo/issues/70#issue-505522804). The answer is you need to first "home" the robot, and then be able to control the arm with joy stick. You need to press 8 to home the robot. **Make sure there is nothing around it to cause collision.**
 
