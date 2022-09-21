@@ -120,6 +120,8 @@ Move_base + localization
 1. ssh into MOVO2.
 2. run `roslaunch movo_demos map_nav.launch map_file:=cit122`. The [reference](https://github.com/Kinovarobotics/kinova-movo/wiki/2.-How-Tos) on kinova repo is wrong!
 
+You may want to `scp` the map files (.pgm and .yaml) to `movo@movo2:/home/movo/movo_ws/src/kinova-movo/movo_demos/maps` since that's where `map_nav.launch` looks for maps by default.
+
 ## Sensors
 ### Point Cloud
 Likely it is very slow to transmit point cloud from MOVO to local computer via WIFI. There is a file `./movo_7dof_moveit_config/config/sensors.yaml` which has some configuration about point cloud. Among these configurations, according to [this doc](http://docs.ros.org/indigo/api/pr2_moveit_tutorials/html/planning/src/doc/perception_configuration.html),
