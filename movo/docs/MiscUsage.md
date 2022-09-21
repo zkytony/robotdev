@@ -65,6 +65,10 @@ Check out [this wiki](https://sites.google.com/a/brown.edu/brown-robotics-wiki/r
 
 <img src="https://user-images.githubusercontent.com/7720184/150623986-e865e3bc-3b5b-4796-8984-1176290e8a5d.png" width="600px"/>
 
+Running the first command will also start an RVIZ that looks like below:
+<img src="https://user-images.githubusercontent.com/7720184/191583192-2b54d2c6-3c9b-425d-93c5-c254ae046394.png" width="450px"/>
+
+
 ### Note controlling arms with joystick
 You may encounter a situation where everything else (torso, move base, head pan/tilt) works, but arm control does not work, as [Eric encounterd here](https://github.com/Kinovarobotics/kinova-movo/issues/70#issue-505522804). The answer is you need to first "home" the robot, and then be able to control the arm with joy stick. You need to press 8 to home the robot. **Make sure there is nothing around it to cause collision.**
 
@@ -115,6 +119,8 @@ Move_base + localization
 **Note** because of this [issue](https://answers.ros.org/question/244060/roslaunch-ssh-known_host-errors-cannot-launch-remote-nodes/), I cannot actually start the navigation on my computer. The `amcl`, `move_base` packages etc must be run on the MOVO1, which is why there is a `<machine>` tag in `movo_demos/map_nav.launch`; My computer cannot ROS-ssh into MOVO1 because of that linked issue. Hence:
 1. ssh into MOVO2.
 2. run `roslaunch movo_demos map_nav.launch map_file:=cit122`. The [reference](https://github.com/Kinovarobotics/kinova-movo/wiki/2.-How-Tos) on kinova repo is wrong!
+
+You may want to `scp` the map files (.pgm and .yaml) to `movo@movo2:/home/movo/movo_ws/src/kinova-movo/movo_demos/maps` since that's where `map_nav.launch` looks for maps by default.
 
 ## Sensors
 ### Point Cloud
