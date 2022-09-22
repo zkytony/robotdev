@@ -184,7 +184,7 @@ if ubuntu_version_equal 20.04; then
         echo "ip could not be found; installing..."
         sudo apt install iproute2
         pip install netifaces
-        pip install pathlib
+        sudo apt-get install -y python3-pykdl
     fi
     if [ ! -d "${MOVO_PATH}/venv/movo" ]; then
         cd ${MOVO_PATH}/
@@ -196,8 +196,8 @@ if ubuntu_version_equal 20.04; then
     useros
     export ROS_PACKAGE_PATH=$repo_root/${MOVO_PATH}/noetic_ws/src/:$repo_root/${MOVO_PATH}/src/:${ROS_PACKAGE_PATH}
     source $repo_root/${MOVO_PATH}/noetic_ws/devel/setup.bash
+    export PYTHONPATH="$repo_root/${MOVO_PATH}/venv/movo/lib/python3.8/site-packages:${PYTHONPATH}:/usr/lib/python3/dist-packages"
 fi
-
 
 if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI, packet forwarding etc) ?"; then
     echo -e "OK"
