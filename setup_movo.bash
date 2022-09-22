@@ -99,8 +99,29 @@ function install_python_3_8
         make
         make test
         sudo make install
+
+        # Install packages
         sudo apt install virtualenv
+        sudo apt-get install python3-pip python3-yaml
+        sudo pip3 install rospkg catkin_pkg
+        sudo apt-get install python-catkin-tools python3-dev python3-numpy
+        sudo apt install python3-catkin-pkg-modules python3-rospkg-modules python3-empy
+        cd $repo_root
     fi
+}
+
+function install_tf2_python3
+{
+    # https://answers.ros.org/question/326226/importerror-dynamic-module-does-not-define-module-export-function-pyinit__tf2/?answer=326302#post-id-326302
+    cd $repo_root/$MOVO_PATH/
+    wstool init
+    wstool set -y src/geometry2 --git https://github.com/ros/geometry2 -v 0.6.5
+    catkin_make --cmake-args\
+                -DCMAKE_BUILD_TYPE=Release\
+                -DPYTHON_EXECUTABLE=/usr/bin/python3\
+                -DPYTHON_INCLUDE_DIR=/usr/include/python3.5m\
+                -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.5m.so\
+                -DCATKIN_WHITELIST_PACKAGES="tf2_py;tf2_ros;tf2;tf2_msgs;geometry2;tf2_eigen;tf2_geometry_msgs;tf2_sensor_msgs;tf2_tools;tf2_bullet"
 }
 
 
