@@ -81,6 +81,11 @@ function install_python_3_8
     PYTHON_VERSION=3.8.14
     if [ ! -d "$HOME/software/Python-$PYTHON_VERSION" ]
     then
+        # Install prerequisites; https://github.com/pypa/packaging-problems/issues/573#issuecomment-1040587425
+        sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+                                  libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+                                  libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
         mkdir -p ~/software
         cd ~/software/
         echo -e "Installing Python ${PYTHON_VERSION}"
