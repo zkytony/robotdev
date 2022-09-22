@@ -32,6 +32,7 @@ def main():
                                                                      z=rot[2],
                                                                      w=rot[3])
             pose_pub.publish(pose_msg)
+            rate.sleep()
             if not message_printed:
                 rospy.loginfo("publishing camera pose")
                 message_printed = True
