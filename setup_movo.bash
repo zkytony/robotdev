@@ -164,6 +164,7 @@ if first_time_build movo; then
         install_libfreenect2
         build_ros_ws $MOVO_PATH
     fi
+fi
 
 if ubuntu_version_equal 16.04; then
     useros
