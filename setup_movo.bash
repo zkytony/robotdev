@@ -75,6 +75,29 @@ function install_pcl_1_11_1
     sudo make -j8 install
 }
 
+function install_python_3_8
+{
+    ## Download and install Python
+    PYTHON_VERSION=3.8.14
+    if [ ! -d "$HOME/software/Python-$PYTHON_VERSION" ]
+    then
+        mkdir -p ~/software
+        cd ~/software/
+        echo -e "Installing Python ${PYTHON_VERSION}"
+        if [ ! -f "Python-${PYTHON_VERSION}.tgz" ]
+        then
+            wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
+        fi
+        tar xzvf "Python-${PYTHON_VERSION}.tgz"
+        cd "Python-${PYTHON_VERSION}"
+        ./configure
+        make
+        make test
+        sudo make install
+        sudo apt install virtualenv
+    fi
+}
+
 
 function setup_movo_remote_pc
 {
