@@ -28,7 +28,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: LaserScan
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -510,10 +510,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.26979649
+      Pitch: 0.584796727
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.05041742
+      Yaw: 2.68041515
     Saved: ~
 Window Geometry:
   Displays:
