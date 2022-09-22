@@ -23,7 +23,7 @@ def main():
             timestamp = rospy.Time(0)
             trans,rot = listener.lookupTransform("map", "kinect2_color_frame", timestamp)
             pose_msg = geometry_msgs.msg.PoseStamped()
-            pose_msg.header = std_msgs.msg.Header(stamp=timestamp, frame_id="map")
+            pose_msg.header = std_msgs.msg.Header(stamp=rospy.Time.now(), frame_id="map")
             pose_msg.pose.position = geometry_msgs.msg.Point(x=trans[0],
                                                              y=trans[1],
                                                              z=trans[2])
