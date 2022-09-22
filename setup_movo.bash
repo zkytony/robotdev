@@ -155,24 +155,48 @@ repo_root=$PWD
 MOVO2_IP="138.16.161.17"
 MOVO_INTERNAL_NETWORK="10.66.171.0"
 
-# MOVO stack only works if you use Ubuntu 16.04.
-# If otherwise, we will not build.
-if ! ubuntu_version_equal 16.04; then
-    echo "MOVO development requires Ubuntu 16.04 and ROS kinetic. Abort."
-    return 1
-fi
 
 if first_time_build movo; then
-    pip install netifaces
-    pip install pathlib
-    pip install pyyaml==3.11
-    install_libfreenect2
-    build_ros_ws $MOVO_PATH
+    if ubuntu_version_equal 16.04; then
+        pip install netifaces
+        pip install pathlib
+        pip install pyyaml==3.11
+        install_libfreenect2
+        build_ros_ws $MOVO_PATH
+    fi
+
+if ubuntu_version_equal 16.04; then
+    useros
+    export ROS_PACKAGE_PATH=$repo_root/${MOVO_PATH}/src/:${ROS_PACKAGE_PATH}
+    source $repo_root/${MOVO_PATH}/devel/setup.bash
 fi
 
-useros
-export ROS_PACKAGE_PATH=$repo_root/${MOVO_PATH}/src/:${ROS_PACKAGE_PATH}
-source $repo_root/${MOVO_PATH}/devel/setup.bash
+# Even though MOVO is for Ubuntu 16.04, we may want
+# to use it from a computer that runs ROS Noetic
+# because we may have code in Python 3. The workspace
+# that contains packages we want to use under 20.04
+# are at '$MOVO_PATH/noetic_ws'
+if ubuntu_version_equal 20.04; then
+    if ! command -v ip &> /dev/null
+    then
+        echo "ip could not be found; installing..."
+        sudo apt install iproute2
+        pip install netifaces
+        sudo apt-get install -y python3-pykdl
+    fi
+    if [ ! -d "${MOVO_PATH}/venv/movo" ]; then
+        cd ${MOVO_PATH}/
+        virtualenv -p python3 venv/movo
+        cd ..
+    fi
+    source $repo_root/${MOVO_PATH}/venv/movo/bin/activate
+
+    useros
+    export ROS_PACKAGE_PATH=$repo_root/${MOVO_PATH}/noetic_ws/src/:$repo_root/${MOVO_PATH}/src/:${ROS_PACKAGE_PATH}
+    source $repo_root/${MOVO_PATH}/noetic_ws/devel/setup.bash
+    export PYTHONPATH="$repo_root/${MOVO_PATH}/venv/movo/lib/python3.8/site-packages:${PYTHONPATH}:/usr/lib/python3/dist-packages"
+fi
+
 if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI, packet forwarding etc) ?"; then
     echo -e "OK"
     setup_movo_remote_pc
