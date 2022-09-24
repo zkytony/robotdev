@@ -100,6 +100,7 @@ if ubuntu_version_equal 20.04; then
         sudo apt install iproute2
         pip install netifaces
         sudo apt-get install -y python3-pykdl
+        sudo apt-get install ros-noetic-moveit-msgs
     fi
     if [ ! -d "${MOVO_PATH}/venv/movo" ]; then
         cd ${MOVO_PATH}/
