@@ -67,6 +67,12 @@ Follow the steps [here](https://support.bostondynamics.com/s/article/Updating-th
 **Note**: After software upgrade on the tablet (to v3.1.0), "AutoLogin" doesn't work. You can still, however, enter the username and password credentials manually and the tablet can STILL CONTROL the robot (which is running an older software version (v2.3.8))
 
 
+### Update Spot CORE Software
+There is an .iso file to download for updating Spot CORE software on the Downloads page: https://support.bostondynamics.com/s/downloads?t=1665587375057
+
+To propoerly upgrade, please follow the [official documentation](https://support.bostondynamics.com/s/article/Spot-CORE-payload-reference#UpdatingSpotCore) and use the **recommended** upgrade procedure.
+
+## Software Versions
 ### Important points 3.1.0
 
 - The `–username` and `–password` command line options are deprecated in the Python
