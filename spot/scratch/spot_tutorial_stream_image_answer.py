@@ -32,7 +32,7 @@ def main():
     image_client = robot.ensure_client(ImageClient.default_service_name)
 
     while True:
-        image_request = image_pb2.ImageRequest(image_source_name="frontleft_fisheye_image")
+        image_request = image_pb2.ImageRequest(image_source_name="frontleft_fisheye_image", quality=75)
         for image_response in image_client.get_image([image_request]):
             print(image_response.source)
             num_bytes = 1  # Assume a default of 1 byte encodings.
