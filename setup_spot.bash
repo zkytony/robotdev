@@ -15,7 +15,7 @@ SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
 
 # Set the ID of the Spot you are working on. Either
 # 12 (stands for 12070012) or 2 (stands for 12210002)
-SPOT_ID="12"
+SPOT_ID="2"
 if [ $SPOT_ID != "12" ] && [ $SPOT_ID != "2" ]; then
     echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
     return 1
@@ -24,7 +24,11 @@ fi
 # Configure the IP addresses for different network connections
 SPOT_ETH_IP="10.0.0.3"
 SPOT_WIFI_IP="192.168.80.3"
-SPOT_RLAB_IP="138.16.161.${SPOT_ID}"
+if [ $SPOT_ID == "2" ]; then
+    SPOT_RLAB_IP="138.16.161.22"
+else
+    SPOT_RLAB_IP="138.16.161.12"  # SPOT ID must be 12
+fi
 
 #------------- FUNCTIONS  ----------------
 # Always assume at the start of a function,
