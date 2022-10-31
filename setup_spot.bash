@@ -139,7 +139,7 @@ fi
 # activate virtualenv; Note that this is the only
 # functionality of this script if spot has been setup
 # before.
-source ${SPOT_PATH}/venv/spot/bin/activate
+source ${SPOT_PATH}/venv/spot39/bin/activate
 
 if first_time_build $SPOT_ROS_PATH; then
     pip uninstall -y em
