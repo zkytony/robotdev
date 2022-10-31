@@ -130,9 +130,9 @@ if [ ! -d "${SPOT_ROS_PATH}/src" ]; then
 fi
 
 # create a dedicated virtualenv for spot workspace
-if [ ! -d "${SPOT_PATH}/venv/spot" ]; then
+if [ ! -d "${SPOT_PATH}/venv/spot39" ]; then
     cd ${SPOT_PATH}/
-    virtualenv -p python3 venv/spot
+    virtualenv -p python3.9 venv/spot39
     cd ..
 fi
 
