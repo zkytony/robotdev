@@ -130,16 +130,16 @@ if [ ! -d "${SPOT_ROS_PATH}/src" ]; then
 fi
 
 # create a dedicated virtualenv for spot workspace
-if [ ! -d "${SPOT_PATH}/venv/spot39" ]; then
+if [ ! -d "${SPOT_PATH}/venv/spot" ]; then
     cd ${SPOT_PATH}/
-    virtualenv -p python3.9 venv/spot39
+    virtualenv -p python3 venv/spot
     cd ..
 fi
 
 # activate virtualenv; Note that this is the only
 # functionality of this script if spot has been setup
 # before.
-source ${SPOT_PATH}/venv/spot39/bin/activate
+source ${SPOT_PATH}/venv/spot/bin/activate
 
 if first_time_build $SPOT_ROS_PATH; then
     pip uninstall -y em
@@ -224,7 +224,7 @@ source $repo_root/${SPOT_ROS_PATH}/devel/setup.bash
 # and in the workspace (done by above step). NOTE: Using /usr/lib is
 # necessary so that PyKDL can be imported (it could only be installed
 # via sudo apt-get install python3-pykdl, for some unknown reason).
-export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot39/lib/python3.9/site-packages:${PYTHONPATH}:/usr/lib/python3.9/dist-packages"
+export PYTHONPATH="$repo_root/${SPOT_PATH}/venv/spot/lib/python3.9/site-packages:${PYTHONPATH}:/usr/lib/python3.9/dist-packages"
 if confirm "Are you working on the real robot ?"; then
     # Check if the environment variable SPOT_IP is set.
     # If not, then try to detect spot connection and set it.
