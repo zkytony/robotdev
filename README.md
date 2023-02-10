@@ -1,3 +1,6 @@
+<img src="./robotdev_design.png" width="500px"/>
+
+
 # robotdev
 
 My repository for robot-related development.
