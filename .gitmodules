@@ -14,5 +14,5 @@
 	path = spot/ros_ws/src/spot_ros
 	url = git@github.com:zkytony/spot_ros.git
 [submodule "shared/ros/sloop_ros"]
-	path = shared/ros/sloop_object_search
+	path = shared/ros/genmos_object_search
 	url = git@github.com:zkytony/sloop_ros.git
