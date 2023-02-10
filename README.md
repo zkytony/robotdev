@@ -1,6 +1,11 @@
+<img src="./robotdev_design.png" width="500px"/>
+
+
 # robotdev
 
 My repository for robot-related development.
+
+Watch [this Youtube tutorial on Spot development](https://youtu.be/KDvh__1Y0fI) which includes an introduction and demo of this framework [**starting at 55:17**](https://youtu.be/KDvh__1Y0fI?t=3317).
 
 
 ## Structure
