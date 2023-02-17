@@ -22,7 +22,7 @@ fi
 
 SPOT_ID=$1
 # Load the spot config (for this SPOT_ID)
-source $repo_root/.spot_passwd
+source $repo_root/.spot_config
 
 
 #------------- FUNCTIONS  ----------------
@@ -242,5 +242,8 @@ if confirm "Are you working on the real robot ?"; then
             export SPOT_CONN=""
         fi
     fi
+
+    # get spot password variables
+    source $repo_root/.spot_config
 fi
 cd $repo_root
