@@ -23,14 +23,6 @@ SPOT_ID=$1
 # Load the spot config (for this SPOT_ID)
 source $repo_root/.spot_passwd
 
-# Configure the IP addresses for different network connections
-SPOT_ETH_IP="10.0.0.3"
-SPOT_WIFI_IP="192.168.80.3"
-if [ $SPOT_ID == "2" ]; then
-    SPOT_WIFI_CLIENT_IP="138.16.161.22"
-else
-    SPOT_WIFI_CLIENT_IP="138.16.161.12"  # SPOT ID must be 12
-fi
 
 #------------- FUNCTIONS  ----------------
 # Always assume at the start of a function,
