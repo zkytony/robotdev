@@ -18,6 +18,7 @@ SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
 if [ "$#" -ne 1 ]; then
     echo -e "Usage: setup_spot.bash <spot_id>"
     return 1
+fi
 
 SPOT_ID=$1
 # Load the spot config (for this SPOT_ID)
