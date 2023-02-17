@@ -101,5 +101,6 @@ spot/ros_ws/src/rbd_spot_perception/models/yolov5
 # ignore projects
 projects/
 
-# ignore spot passwd file
+# ignore spot IP / password configuration file.
 .spot_passwd
+.spot_config

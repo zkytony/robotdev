@@ -13,21 +13,23 @@ export REPO_ROOT=${repo_root}
 SPOT_PATH="spot"
 SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
 
-# Set the ID of the Spot you are working on. Either
-# 12 (stands for 12070012) or 2 (stands for 12210002)
-SPOT_ID="2"
-if [ $SPOT_ID != "12" ] && [ $SPOT_ID != "2" ]; then
-    echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
+# Set the ID of the Spot you are working on
+# Required input from user.
+if [ "$#" -ne 1 ]; then
+    echo -e "Usage: setup_spot.bash <spot_id>"
     return 1
-fi
+
+SPOT_ID=$1
+# Load the spot config (for this SPOT_ID)
+source $repo_root/.spot_passwd
 
 # Configure the IP addresses for different network connections
 SPOT_ETH_IP="10.0.0.3"
 SPOT_WIFI_IP="192.168.80.3"
 if [ $SPOT_ID == "2" ]; then
-    SPOT_RLAB_IP="138.16.161.22"
+    SPOT_WIFI_CLIENT_IP="138.16.161.22"
 else
-    SPOT_RLAB_IP="138.16.161.12"  # SPOT ID must be 12
+    SPOT_WIFI_CLIENT_IP="138.16.161.12"  # SPOT ID must be 12
 fi
 
 #------------- FUNCTIONS  ----------------
@@ -55,11 +57,11 @@ function detect_spot_connection
         true && return
     fi
 
-    echo -e "Pinging Spot RLAB IP $SPOT_RLAB_IP..."
-    if ping_success $SPOT_RLAB_IP; then
+    echo -e "Pinging Spot IP as a client on WiFi $SPOT_WIFI_CLIENT_IP..."
+    if ping_success $SPOT_WIFI_CLIENT_IP; then
         echo -e "OK"
-        spot_conn="rlab"
-        spot_ip=$SPOT_RLAB_IP
+        spot_conn="client"
+        spot_ip=$SPOT_WIFI_CLIENT_IP
         true && return
     fi
 
@@ -247,8 +249,5 @@ if confirm "Are you working on the real robot ?"; then
             export SPOT_CONN=""
         fi
     fi
-
-    # Load the spot passwords
-    source $repo_root/.spot_passwd
 fi
 cd $repo_root
