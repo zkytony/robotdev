@@ -3,12 +3,12 @@ import gdown
 import subprocess
 
 os.makedirs("bosdyn", exist_ok=True)
-outfname = "cit_first_floor.zip"
+outfname = "assorted_br_maps.zip"
 output = f"bosdyn/{outfname}"
 if not os.path.exists(output):
-    print("Downloading CIT First Floor GraphNav map")
-    foref_models_url = "https://drive.google.com/uc?id=1jO4tLMtC56Wi1M5xXJlGEmRRX6f-UW-I"
-    gdown.download(foref_models_url, output, quiet=False)
+    print("Downloading assorted maps (brown robotics)")
+    maps_url = "https://drive.google.com/uc?id=1xELxVXuU31_Xz_zoRLKBNZtHPV_R0i9s"
+    gdown.download(maps_url, output, quiet=False)
     cmd=f'''
 cd bosdyn
 unzip {outfname}
