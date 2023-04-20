@@ -24,7 +24,7 @@ fi
 # Configure the IP addresses for different network connections
 SPOT_ETH_IP="10.0.0.3"
 SPOT_WIFI_IP="192.168.80.3"
-SPOT_RLAB_IP="138.16.161.${SPOT_ID}"
+SPOT_RLAB_IP="tusker.rlab.cs.brown.edu"  #"138.16.161.${SPOT_ID}"
 
 #------------- FUNCTIONS  ----------------
 # Always assume at the start of a function,
