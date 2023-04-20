@@ -1,0 +1,56 @@
+shell /bin/bash
+startup_message off
+
+defscrollback 5000
+
+escape ``
+
+hardstatus alwayslastline
+hardstatus string ''
+
+multiuser on
+
+screen -t "L0"
+stuff "sourcespot\n"
+stuff "y\n"
+stuff "launch1\n"
+
+screen -t "L1"
+stuff "sleep 3s && sourcespot\n"
+stuff "y\n"
+stuff "launch2\n"
+
+screen -t "BCs"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "bodycams\n"
+
+screen -t "FLC"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "flcam\n"
+
+screen -t "FRC"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "frcam\n"
+
+screen -t "LC"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "lcam\n"
+
+screen -t "RC"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "rcam\n"
+
+screen -t "BC"
+stuff "sleep 5s && sourcespot\n"
+stuff "y\n"
+stuff "backcam\n"
+
+screen -t "free"
+stuff "sleep 1s && sourcespot\n"
+stuff "y\n"
+stuff "echo 'Janeth is WILD'\n"
