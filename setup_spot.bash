@@ -14,8 +14,9 @@ SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
 
 # Set the ID of the Spot you are working on. Either
 # 12 (stands for 12070012) or 2 (stands for 12210002)
-SPOT_ID="12"
-if [ $SPOT_ID != "12" ] && [ $SPOT_ID != "2" ]; then
+#SPOT_ID="12"
+SPOT_ID="22"
+if [ $SPOT_ID != "12" ] && [ $SPOT_ID != "22" ]; then
     echo "Invalid SPOT ID. Either 12 (stands for 12070012) or 2 (stands for 12210002)."
     return 1
 fi

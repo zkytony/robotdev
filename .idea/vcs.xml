@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/movo/src/kinova-movo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spot/ros_ws/src/geometry2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spot/ros_ws/src/spot_ros" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spot/ros_ws/src/spot_ros/spot_driver/doc/clearpath-sphinx-theme" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spot/spot-sdk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/turtlebot/src/turtlebot3_simulations" vcs="Git" />
+  </component>
+</project>

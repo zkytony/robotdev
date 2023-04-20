@@ -39,6 +39,8 @@ def main(argv):
 
     br = tf.TransformBroadcaster()
 
+    fiducial_poses = {}
+
     while not rospy.is_shutdown():
 
         
@@ -61,15 +63,22 @@ def main(argv):
             fiducial_position = fiducial_transform.parent_tform_child.position
             fiducial_rotation = fiducial_transform.parent_tform_child.rotation
 
-            print()
+            if "fisheye" not in parent_frame_name:
+                fiducial_poses[fiducial_name] = [fiducial_position,fiducial_rotation,parent_frame_name]
 
-            br.sendTransform((fiducial_position.x, fiducial_position.y, fiducial_position.z),
-                             (fiducial_rotation.x,fiducial_rotation.y,fiducial_rotation.z,fiducial_rotation.w),
-                             rospy.Time.now(),
-                             fiducial_name,
-                             parent_frame_name)
+        for fiducial_key, fiducial_value in fiducial_poses.items():
 
-        print("Currentl detected fiducials: ", fiducials)
+            if "fisheye" not in fiducial_value[2]:
+                br.sendTransform((fiducial_value[0].x, fiducial_value[0].y,fiducial_value[0].z),
+                                 (fiducial_value[1].x,fiducial_value[1].y,fiducial_value[1].z,fiducial_value[1].w),
+                                 rospy.Time.now(),
+                                 fiducial_key,
+                                 fiducial_value[2])
+
+                print(fiducial_key)
+                print(fiducial_value[2])
+                print(fiducial_value[0], fiducial_value[1])
+        print("========================")
 
 
 
