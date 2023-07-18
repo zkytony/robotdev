@@ -33,7 +33,7 @@ Otherwise, as an example, to start the container for robotdev using ROS Kinetic:
 
 1. Build the docker image. Replace 'kaiyu' to the username of yourself on your host machine
    ```
-   source docker/build.kinetic.sh --hostuser=kaiyu
+   source docker/scripts/build.kinetic.sh --hostuser=kaiyu
    ```
 
    If you run `docker images`, you should see:
@@ -42,19 +42,19 @@ Otherwise, as an example, to start the container for robotdev using ROS Kinetic:
      robotdev     kinetic   3293f13a9b25   7 seconds ago   1.13GB
      ```
 
-   When using the `docker/build.noetic.sh`, you can provide a custom string as the suffix of the image tag name:
+   When using the `docker/scripts/build.noetic.sh`, you can provide a custom string as the suffix of the image tag name:
    ```
-   source docker/build.kinetic.sh --tag-suffix=joy
+   source docker/scripts/build.kinetic.sh --tag-suffix=joy
    ```
    Then the tab of the image will become `noetic:joy`. (TODO for kinetic)
 
 2. Run the docker container
    ```
-   source docker/run.kinetic.sh
+   source docker/scripts/run.kinetic.sh
    ```
    To run it so that GUI (X11 forwarding) is supported:
    ```
-   source docker/run.kinetic.sh --gui
+   source docker/scripts/run.kinetic.sh --gui
    ```
 
    Note that if you exit from a container, you can restart it as follows.
@@ -76,6 +76,6 @@ Otherwise, as an example, to start the container for robotdev using ROS Kinetic:
 
 3. To have access to convenient docker functions such as `dsh`, `dls`, etc. run
    ```
-   source docker_functions.sh
+   source docker/scripts/docker_functions.sh
    ```
    Note that you should do this outside docker (of course you don't want to run docker inside docker!)

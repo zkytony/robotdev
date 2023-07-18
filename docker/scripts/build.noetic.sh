@@ -40,9 +40,8 @@ done
 
 # Build the docker image.  The `--rm` option is for you to more conveniently
 # rebuild the image.
-cd $PWD/../  # get to the root of the repository
-docker build -f Dockerfile.humble${nvidia}\
-       -t robotdev:humble$custom_tag_suffix\
+docker build -f Dockerfile.noetic${nvidia}\
+       -t robotdev:noetic$custom_tag_suffix\
        --build-arg hostuser=$hostuser\
        --build-arg hostgroup=$hostgroup\
        --build-arg hostuid=$hostuid\
