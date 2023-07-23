@@ -31,7 +31,7 @@ do
         else
             echo -e "Unrecognized argument variable: ${var_name}"
         fi
-    elif is_flag arg; then
+    elif is_flag $arg; then
         if [[ $arg = "--nvidia" ]]; then
             nvidia=".nvidia"
         fi
@@ -40,12 +40,13 @@ done
 
 # Build the docker image.  The `--rm` option is for you to more conveniently
 # rebuild the image.
-cd $PWD/../  # get to the root of the repository
-docker build -f Dockerfile.kinetic${nvidia}\
-       -t robotdev:kinetic$custom_tag_suffix\
+docker build -f Dockerfile.humble${nvidia}\
+       -t robotdev:humble$custom_tag_suffix\
        --build-arg hostuser=$hostuser\
        --build-arg hostgroup=$hostgroup\
        --build-arg hostuid=$hostuid\
        --build-arg hostgid=$hostgid\
        --rm\
        .
+# Explain the options above:
+# -t: tag
