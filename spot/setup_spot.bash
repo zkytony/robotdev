@@ -1,17 +1,14 @@
-# Run this script by source setup_movo.bash
-if [[ ! $PWD = *robotdev ]]; then
-    echo "You must be in the root directory of the robotdev repository."
-    return 1
-else
-    . "./tools.sh"
-fi
-repo_root=$PWD
-export REPO_ROOT=${repo_root}
+# Run this script by source
+user_pwd=$PWD
+
+# root directory of robotdev
+repo_root=${ROBOTDEV_PATH:-$HOME/repo/robotdev}
+. "$repo_root/tools.sh"
 
 # Path to Spot workspace, relative to repository root;
 # No begin or trailing slash.
-SPOT_PATH="spot"
-SPOT_ROS_PATH="spot/ros_ws"  # path to spot ros workspace
+SPOT_PATH="$repo_root/spot"
+SPOT_ROS_PATH="$repo_root/spot/ros_ws"  # path to spot ros workspace
 
 # Set the ID of the Spot you are working on
 # Required input from user.
@@ -246,4 +243,4 @@ if confirm "Are you working on the real robot ?"; then
     # get spot password variables
     source $repo_root/.spot_config
 fi
-cd $repo_root
+cd $user_pwd
