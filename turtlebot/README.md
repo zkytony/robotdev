@@ -11,7 +11,6 @@ issues encountered while setting up this workspace.
 
 
 ## Build
-Run the following at the root directory of `robotdev`
 ```
 source setup_turtlebot.bash
 ```

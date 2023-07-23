@@ -1,6 +1,12 @@
-# Path to Turtlebot workspace, relative to repository root;
-# No begin or trailing slash.
-TURTLEBOT_PATH="turtlebot"
+# Run this script by source
+user_pwd=$PWD
+
+# root directory of robotdev
+repo_root=${ROBOTDEV_PATH:-$HOME/repo/robotdev}
+. "$repo_root/tools.sh"
+
+# Path to Turtlebot workspace
+TURTLEBOT_PATH="$repo_root/turtlebot"
 
 #------------- FUNCTIONS  ----------------
 # Always assume at the start of a function,
@@ -9,25 +15,16 @@ TURTLEBOT_PATH="turtlebot"
 
 function build_turtlebot
 {
-    cd $repo_root/${TURTLEBOT_PATH}
+    cd $TURTLEBOT_PATH
     if catkin_make; then
         # cmake build is successful. Mark
-        echo "TURTLEBOT SETUP DONE." >> src/.DONE_SETUP
+        echo "TURTLEBOT SETUP DONE." >> $TURTLEBOT_PATH/src/.DONE_SETUP
     else
-        rm src/.DONE_SETUP
+        rm $TURTLEBOT_PATH/src/.DONE_SETUP
     fi
 }
 
 #------------- Main Logic  ----------------
-# Run this script by source setup_turtlebot.bash
-if [[ ! $PWD = *robotdev ]]; then
-    echo "You must be in the root directory of the robotdev repository."
-else
-    . "./tools.sh"
-fi
-repo_root=$PWD
-
-
 # use ros
 if ! useros; then
     echo "Cannot use ROS. Abort."
@@ -52,7 +49,8 @@ fi
 source ${TURTLEBOT_PATH}/venv/turtlebot/bin/activate
 export ROS_PACKAGE_PATH=$repo_root/${TURTLEBOT_PATH}/src/turtlebot3_simulations:${ROS_PACKAGE_PATH}
 
-if first_time_build turtlebot; then
+if first_time_build $TURTLEBOT_PATH; then
+    sudo apt-get update
     # ros python packages
     pip uninstall em
     pip install empy catkin-pkg rospkg defusedxml
@@ -77,9 +75,10 @@ if [ ! -d "${TURTLEBOT_PATH}/src/turtlebot3_simulations" ]; then
 fi
 
 # catkin make and end.
-if first_time_build turtlebot; then
+if first_time_build $TURTLEBOT_PATH; then
     build_turtlebot
 else
     echo -e "If you want to build the turtlebot project, run 'build_turtlebot'"
 fi
-cd $repo_root
+source $TURTLEBOT_PATH/devel/setup.bash
+cd $user_pwd

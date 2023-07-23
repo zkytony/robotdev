@@ -1,6 +1,15 @@
-# Path to MOVO workspace, relative to repository root;
-# No begin or trailing slash.
-MOVO_PATH="movo"
+# Run this script by source
+user_pwd=$PWD
+
+# root directory of robotdev
+repo_root=${ROBOTDEV_PATH:-$HOME/repo/robotdev}
+. "$repo_root/tools.sh"
+
+MOVO_PATH="$repo_root/movo"
+
+MOVO2_IP="138.16.161.17"
+MOVO_INTERNAL_NETWORK="10.66.171.0"
+
 
 #------------- FUNCTIONS  ----------------
 function install_libfreenect2
@@ -61,18 +70,7 @@ function setup_movo_remote_pc
 
 
 #------------- Main Logic  ----------------
-# Run this script by source setup_movo.bash
-if [[ ! $PWD = *robotdev ]]; then
-    echo "You must be in the root directory of the robotdev repository."
-else
-    . "./tools.sh"
-fi
-repo_root=$PWD
-MOVO2_IP="138.16.161.17"
-MOVO_INTERNAL_NETWORK="10.66.171.0"
-
-
-if first_time_build movo; then
+if first_time_build $MOVO_PATH; then
     if ubuntu_version_equal 16.04; then
         pip install netifaces
         pip install pathlib
@@ -119,4 +117,4 @@ if confirm "Are you working on the real robot (i.e. setup ROS_MASTER_URI, packet
     echo -e "OK"
     setup_movo_remote_pc
 fi
-cd $repo_root/$MOVO_PATH
+cd $user_pwd
